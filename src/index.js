@@ -92,7 +92,18 @@ client.on("message", async message => {
         command.execute(message, args);
 
     } catch (error) {
+        
+        //creates error embed and sends it to the error channel in my server
         console.error(error);
+        const embed = new Discord.MessageEmbed()
+        .setColor('#b30000')
+        .setTitle('Logged error')
+        .addField('Message', message, true)
+        .addField('Arguments', args, true)
+        .setDescription(error);
+        
+        const errorChannel = client.channels.cache.get('901186557116039209')
+        errorChannel.send(embed);
         message.reply("an error has occurred upon execution.");
     }
 })

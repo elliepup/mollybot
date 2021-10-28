@@ -8,11 +8,9 @@ module.exports = {
             const Discord = require('discord.js')
             const embed = new Discord.MessageEmbed()
             .setTitle("Molly Bot Help")
-            .setDescription("Molly Bot is currently in the early stages of development and offers no useful functionality. The developer," + 
-            "**pseudolegendary nick#0021** is still unsure what he even wants the bot to do.")
-            
+            .setDescription("Molly Bot is currently in the early stages of development and offers no useful functionality. Molly Bot " + 
+            "is intended to be used as a music bot and the developer is in the process of programming this.")
             .setColor('DB00FC')
-
             return message.channel.send(embed);
 	},
 };
