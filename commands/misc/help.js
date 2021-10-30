@@ -9,7 +9,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
             .setTitle("🎶Molly Bot🎶")
             .setDescription("> Molly Bot is current in the early stages of development. DM suggestions to **pseudolegendary nick#0021.**")
-            .addField("Music", "```diff\n-play [name/or YouTube link of song]\n-skip\n-stop\n-volume [1-100]```")
+            .addField("Music", "```diff\n-play [name/or YouTube link of song]\n-skip\n-stop\n-volume [1-100]\n-queue```")
             .setColor('DB00FC')
             .setFooter(`More commands coming soon.`)
             return message.channel.send(embed);

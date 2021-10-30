@@ -25,8 +25,8 @@ module.exports = {
             //if found by URL
             if(ytdl.validateURL(args[0])) { 
                 const songInfo = await ytdl.getInfo(args[0]);
-                song = {title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url}
-                return console.log(song)
+                song = {title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url, length: songInfo.videoDetails.lengthSeconds, sender: message.author}
+                
             }
             //attempts to find by performing query
             else {
@@ -41,7 +41,7 @@ module.exports = {
                 } 
                 //if still not found
                 else {
-                    message.reply('I was unable to find the video. Please ensure that you have entered the link or title properly.')
+                    return message.reply('I was unable to find the video. Please ensure that you have entered the link or title properly.')
                 }
             }
             
@@ -80,7 +80,7 @@ module.exports = {
                 .setTitle(`Song successfully added to the queue`)
                 .setColor('#00DEFF')
                 .setDescription(`[${song.title}](${song.url}) has been added to the queue.`)
-                .addField("Placeholder text", "Eventually gonna display how long until the next song is played.")
+                .addField("Placeholder text", "Eventually gonna display how long until the next song is played. For now you can use the **queue** command to see the songs in the queue.")
                 .setFooter(`Requested by ${message.author.username}`,message.author.displayAvatarURL({ dynamic: true }))
                 return message.channel.send(embed);
             }
@@ -104,8 +104,21 @@ const videoPlayer = async (guild, song) => {
     })
     await songQueue.textChannel.send(new Discord.MessageEmbed()
     .setTitle('Song now playing')
-    .setDescription(`🎶**Now playing🎶: ** [${song.title}](${song.url}) *[${song.timestamp}]*`)
+    .setDescription(`🎶**Now playing🎶: ** [${song.title}](${song.url}) **[${toHHMMSS(song.length)}]**`)
     .setFooter(`Requested by ${song.sender.username}`,song.sender.displayAvatarURL({ dynamic: true }))
     .setColor('#00DEFF')
     )
+}
+
+//converts integer value into time format
+const toHHMMSS = (time) => {
+    var sec_num = parseInt(time, 10); 
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+
+    if (hours   < 10) {hours   = "0"+hours;}
+    if (minutes < 10) {minutes = "0"+minutes;}
+    if (seconds < 10) {seconds = "0"+seconds;}
+    return hours+':'+minutes+':'+seconds;
 }
