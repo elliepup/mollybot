@@ -1,14 +1,17 @@
-const queue = new Map();
+const { queue } = require('../../src/index')
+const ytdl = require('ytdl-core');
+const ytSearch = require('yt-search');
+const Discord = require('discord.js');
 
 module.exports = {
 	name: 'play',
 	description: 'Plays music given parameters',
-    aliases: ['play', 'p'],
+    aliases: ['p'],
     args: true,
-    usage: 'play [name of song]',
+    usage: 'play [name/or YouTube link of song]',
 	async execute(message, args) {
-            const ytdl = require('ytdl-core');
-            const ytSearch = require('yt-search');
+            
+            
 
             //ensures user is in a voice channel 
             const voiceChannel = message.member.voice.channel;
@@ -16,13 +19,16 @@ module.exports = {
             
             const serverQueue = queue.get(message.guild.id);
 
+            //creates song object to be passed through videoPlayer method
             let song = {};
 
+            //if found by URL
             if(ytdl.validateURL(args[0])) { 
                 const songInfo = await ytdl.getInfo(args[0]);
                 song = {title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url}
                 return console.log(song)
             }
+            //attempts to find by performing query
             else {
                 const joinedArgs = args.join(" ");
                 const videoQuery = async (query) => {
@@ -31,12 +37,15 @@ module.exports = {
                 }
                 const video = await videoQuery(args.join(' '));
                 if (video) {
-                    song = { title: video.title, url: video.url };
-                } else {
+                    song = { title: video.title, url: video.url, thumbnail: video.thumbnail, timestamp: video.timestamp, length: video.seconds, sender: message.author };
+                } 
+                //if still not found
+                else {
                     message.reply('I was unable to find the video. Please ensure that you have entered the link or title properly.')
                 }
             }
             
+            //if the queue doesn't exist in the global queue already
             if(!serverQueue) {
 
                 const queueConstructor = { 
@@ -52,7 +61,14 @@ module.exports = {
                 try {
                     const connection = await voiceChannel.join();
                     queueConstructor.connection = connection;
-                    //videoPlayer(message.guild, queueConstructor.songs[0]);
+                    return videoPlayer(message.guild, queueConstructor.songs[0]);
+                    const embed = new Discord.MessageEmbed()
+                    .setTitle(`Song successfully added`)
+                    .setColor('#00DEFF')
+                    //.setThumbnail(song.thumbnail)
+                    .setDescription(`🎶**Now playing🎶: ** [${song.title}](${song.url}) *[${song.timestamp}]*`)
+                    .setFooter(`Requested by ${message.author.username}`,message.author.displayAvatarURL({ dynamic: true }))
+                    return message.channel.send(embed);
                 } catch(err) {
                     queue.delete(message.guild.id);
                     message.channel.send('An unexpected error has occurred connecting to the server.');
@@ -60,7 +76,36 @@ module.exports = {
                 }
             } else {
                 serverQueue.songs.push(song);
-                return message.channel.send(`\`${song.title}\` has been added to the queue.`)
+                const embed = new Discord.MessageEmbed()
+                .setTitle(`Song successfully added to the queue`)
+                .setColor('#00DEFF')
+                .setDescription(`[${song.title}](${song.url}) has been added to the queue.`)
+                .addField("Placeholder text", "Eventually gonna display how long until the next song is played.")
+                .setFooter(`Requested by ${message.author.username}`,message.author.displayAvatarURL({ dynamic: true }))
+                return message.channel.send(embed);
             }
 	},
 };
+
+const videoPlayer = async (guild, song) => {
+    const songQueue = queue.get(guild.id);
+
+    if(!song) {
+        songQueue.voiceChannel.leave();
+        queue.delete(guild.id);
+        return;
+    }
+
+    const stream = ytdl(song.url, {filter: 'audioonly'});
+    songQueue.connection.play(stream, {seek: 0, volume: 0.5})
+    .on('finish', () => {
+        songQueue.songs.shift();
+        videoPlayer(guild, songQueue.songs[0]);
+    })
+    await songQueue.textChannel.send(new Discord.MessageEmbed()
+    .setTitle('Song now playing')
+    .setDescription(`🎶**Now playing🎶: ** [${song.title}](${song.url}) *[${song.timestamp}]*`)
+    .setFooter(`Requested by ${song.sender.username}`,song.sender.displayAvatarURL({ dynamic: true }))
+    .setColor('#00DEFF')
+    )
+}

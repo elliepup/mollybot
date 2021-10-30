@@ -11,6 +11,10 @@ const config = require("./config.json");
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
+const queue = new Map();
+
+module.exports = { queue };
+
 //loop to go through command folders/files to create a collection of command 
 const commandFolders = fs.readdirSync('./commands');
 const prefix = config.defaultPrefix;
