@@ -16,23 +16,19 @@ module.exports = {
             const pages = [];
             const emoji = ['⬅','➡']
             const timeout = '60000';
-            const MAX_ITEMS_PER_PAGE = 10;
+            const MAX_ITEMS_PER_PAGE = 7;
             const chunks = sliceIntoChunks(serverQueue.songs, MAX_ITEMS_PER_PAGE);
 
             for(let i = 0; i < Math.ceil(serverQueue.songs.length/MAX_ITEMS_PER_PAGE); i++) {
                 const embed = new Discord.MessageEmbed()
                 .setColor(color)
                 .setTitle('🎶Songs in the queue🎶')
-                .addField(`Total songs: ${serverQueue.songs.length}`, chunks[i].map((k, index) => `**#${i*MAX_ITEMS_PER_PAGE + index + 1}:** [${k.title}](${k.url}) **[${toHHMMSS(k.length)}]**`), true) 
+                .addField(`Total songs: ${serverQueue.songs.length}`, chunks[i].map((k, index) => `**#${i*MAX_ITEMS_PER_PAGE + index + 1}:** [${k.title.length < 40 ? k.title : k.title.substring(0,39) + "..."}](${k.url}) **[${toHHMMSS(k.length)}]**`), true) 
                 pages.push(embed);
             }
 
             paginationEmbed(message, pages, emoji, timeout);
 
-            return;
-            message.channel.send(new Discord.MessageEmbed()
-            .setTitle("🎶Songs in the queue🎶 (#1-50)")
-            )
 	},
 };
 
