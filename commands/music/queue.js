@@ -1,6 +1,7 @@
 module.exports = {
 	name: 'queue',
 	description: 'Displays songs that are in the queue.',
+    aliases: ['q'],
     args: false,
 	execute(message, args) {
             const { queue } = require('../../src/index')

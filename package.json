@@ -11,11 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
+    "@keyv/sqlite": "^2.0.3",
     "discord.js": "^12.5.3",
     "discord.js-pagination": "^1.0.3",
     "dotenv": "^10.0.0",
-    "sequelize": "^6.8.0",
-    "sqlite3": "^5.0.2",
+    "keyv": "^4.0.4",
     "yt-search": "^2.10.2",
     "ytdl-core": "^4.9.1"
   }

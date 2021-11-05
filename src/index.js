@@ -12,12 +12,16 @@ client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
 const queue = new Map();
+const Keyv = require('keyv');
+const prefixes = new Keyv(`sqlite://data/serverData.sqlite`)
+prefixes.on('error', err => console.error('Keyv connection error:', err));
 
-module.exports = { queue };
+module.exports = { queue, prefixes };
+
 
 //loop to go through command folders/files to create a collection of command 
 const commandFolders = fs.readdirSync('./commands');
-const prefix = config.defaultPrefix;
+const globalPrefix = config.defaultPrefix;
 
 for (folder of commandFolders) {
     const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
@@ -47,11 +51,19 @@ async function init() {
 //on message received
 //may eventually move to the events file but I have to think about how that will affect overall speed given higher workload.
 client.on("message", async message => {
+
     if (message.author.bot) return
-    if (!message.content.startsWith(prefix)) return;
+
+    //global and guild-based prefix stuff
+    let prefix;
+    if (message.content.startsWith(globalPrefix)) prefix = globalPrefix;
+     else {
+        const guildPrefix = await prefixes.get(message.guild.id);
+        if (message.content.startsWith(guildPrefix)) prefix = guildPrefix;
+    }
+    if (!prefix) return;
 
     
-
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
@@ -86,7 +98,7 @@ client.on("message", async message => {
         if (command.args && !args.length) {
             const embed = new Discord.MessageEmbed()
             .setColor('#b30000')
-            .setTitle('<:yukinon:839338263214030859> Invalid usage of `' + prefix + command.name + "`")
+            .setTitle('<:yukinon:839338263214030859> Invalid usage of `' + globalPrefix + command.name + "`")
             .setDescription(`\`\`\`ARM\n${command.usage}\n\`\`\``);
             
             return message.channel.send(embed);

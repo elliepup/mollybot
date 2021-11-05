@@ -89,13 +89,19 @@ module.exports = {
 
 const videoPlayer = async (guild, song) => {
     const songQueue = queue.get(guild.id);
+    var isWaiting = false;
 
     if(!song) {
-        songQueue.voiceChannel.leave();
         queue.delete(guild.id);
-        return;
+        isWaiting = true;
+        setTimeout(function() {
+            //if a new server queue doesn't exist after specified amount of time, disconnect from voice 
+            if(!queue.get(guild.id)) songQueue.voiceChannel.leave()
+            
+     }, 15 * 60 *1000); //too lazy to calculate it, plus I plan on utlizing keyv to allow members to change this
     }
 
+    if (isWaiting) return;
     const stream = ytdl(song.url, {filter: 'audioonly'});
     songQueue.connection.play(stream, {seek: 0, volume: 0.5})
     .on('finish', () => {

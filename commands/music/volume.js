@@ -1,6 +1,7 @@
 module.exports = {
 	name: 'volume',
 	description: 'Changes the volume',
+    aliases: ['volume'],
     args: true,
     usage: 'volume [1-100]',
 	execute(message, args) {
