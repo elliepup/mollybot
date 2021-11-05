@@ -7,6 +7,7 @@ module.exports = {
 	name: 'play',
 	description: 'Plays music given parameters',
     aliases: ['p'],
+    cooldown: 3,
     args: true,
     usage: 'play [name/or YouTube link of song]',
 	async execute(message, args) {
