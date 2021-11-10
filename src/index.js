@@ -16,7 +16,7 @@ const Keyv = require('keyv');
 const prefixes = new Keyv(`sqlite://data/serverData.sqlite`)
 prefixes.on('error', err => console.error('Keyv connection error:', err));
 
-module.exports = { queue, prefixes };
+module.exports = { client, queue, prefixes };
 
 
 //loop to go through command folders/files to create a collection of command 

@@ -4,6 +4,9 @@ module.exports = {
     args: true,
     usage: 'volume [seconds or MM:SS]',
 	execute(message, args) {
-            //have fun future self :)
+		return;
+		const { queue } = require('../../src/index')
+		const serverQueue = queue.get(message.guild.id)
+		serverQueue.connection.play(serverQueue.currentSong, {seek: 0})
 	},
 };

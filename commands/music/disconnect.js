@@ -2,22 +2,24 @@ module.exports = {
 	name: 'disconnect',
 	description: 'Disconnects from the voice channel.',
     aliases: ['d','leave'],
-	execute(message, args) {
+	async execute(message, args) {
         const { queue } = require('../../src/index')
+        const serverQueue = queue.get(message.guild.id);
 
-        const voiceChannel = message.member.voice.channel;
-        const serverQueue = queue.get(message.guild.id)
-
-        if(serverQueue) { 
-            serverQueue.songs = [];
-            serverQueue.connection.dispatcher.end()
-            return message.react('👍')
+        //clears the queue if a voice channel exists
+        if(serverQueue) {
+        serverQueue.songs = [];
+        serverQueue.connection.dispatcher.end();
         }
 
-        if(!message.guild.me.voice.channel) return message.reply("I am not even in a voice channel.")
+        //if not in a voice channel
+        if(!message.guild.me.voice.channel) { 
+            return message.reply("I am not currently in a voice channel.")
+        }
         
-        message.guild.me.voice.channel.leave()
-        return message.react('👍')
+        //leaves voice channel
+        await message.guild.me.voice.channel.leave();
+        
         
             
 	},

@@ -53,7 +53,8 @@ module.exports = {
                     voiceChannel: voiceChannel,
                     textChannel: message.channel,
                     connection: null,
-                    songs: []
+                    songs: [],
+                    currentSong: null
                 }
 
                 queue.set(message.guild.id, queueConstructor);
@@ -104,6 +105,7 @@ const videoPlayer = async (guild, song) => {
 
     if (isWaiting) return;
     const stream = ytdl(song.url, {filter: 'audioonly'});
+    songQueue.currentSong =  stream;
     songQueue.connection.play(stream, {seek: 0, volume: 0.5})
     .on('finish', () => {
         songQueue.songs.shift();
