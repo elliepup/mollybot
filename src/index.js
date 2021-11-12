@@ -8,16 +8,23 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require("./config.json");
 
+
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
 const queue = new Map();
-const Keyv = require('keyv');
-const prefixes = new Keyv(`sqlite://data/serverData.sqlite`)
+
+//initializes database
+const KeyvMongo = require('@keyvhq/mongo')
+const Keyv = require('@keyvhq/core')
+
+const prefixes = new Keyv({ 
+  store: new KeyvMongo(process.env.MONGODB_SRV)
+})
+
 prefixes.on('error', err => console.error('Keyv connection error:', err));
 
 module.exports = { client, queue, prefixes };
-
 
 //loop to go through command folders/files to create a collection of command 
 const commandFolders = fs.readdirSync('./commands');

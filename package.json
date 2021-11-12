@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.6.0",
-    "@keyv/sqlite": "^2.0.3",
+    "@keyvhq/core": "^1.6.2",
+    "@keyvhq/mongo": "^1.6.2",
     "discord.js": "^12.5.3",
     "discord.js-pagination": "^1.0.3",
     "dotenv": "^10.0.0",
