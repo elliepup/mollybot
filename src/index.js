@@ -8,16 +8,27 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 const config = require("./config.json");
 
+
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
 const queue = new Map();
 
-module.exports = { queue };
+//initializes database
+const KeyvMongo = require('@keyvhq/mongo')
+const Keyv = require('@keyvhq/core')
+
+const prefixes = new Keyv({ 
+  store: new KeyvMongo(process.env.MONGODB_SRV)
+})
+
+prefixes.on('error', err => console.error('Keyv connection error:', err));
+
+module.exports = { client, queue, prefixes };
 
 //loop to go through command folders/files to create a collection of command 
 const commandFolders = fs.readdirSync('./commands');
-const prefix = config.defaultPrefix;
+const globalPrefix = config.defaultPrefix;
 
 for (folder of commandFolders) {
     const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
@@ -47,11 +58,19 @@ async function init() {
 //on message received
 //may eventually move to the events file but I have to think about how that will affect overall speed given higher workload.
 client.on("message", async message => {
+
     if (message.author.bot) return
-    if (!message.content.startsWith(prefix)) return;
+
+    //global and guild-based prefix stuff
+    let prefix;
+    if (message.content.startsWith(globalPrefix)) prefix = globalPrefix;
+     else {
+        const guildPrefix = await prefixes.get(message.guild.id);
+        if (message.content.startsWith(guildPrefix)) prefix = guildPrefix;
+    }
+    if (!prefix) return;
 
     
-
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
@@ -86,7 +105,7 @@ client.on("message", async message => {
         if (command.args && !args.length) {
             const embed = new Discord.MessageEmbed()
             .setColor('#b30000')
-            .setTitle('<:yukinon:839338263214030859> Invalid usage of `' + prefix + command.name + "`")
+            .setTitle('<:yukinon:839338263214030859> Invalid usage of `' + globalPrefix + command.name + "`")
             .setDescription(`\`\`\`ARM\n${command.usage}\n\`\`\``);
             
             return message.channel.send(embed);
