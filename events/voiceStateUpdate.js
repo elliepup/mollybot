@@ -17,6 +17,5 @@ module.exports = {
         if(oldState && serverQueue) {
                 queue.delete(args[0].guild.id)
         }
-
         }
 };
