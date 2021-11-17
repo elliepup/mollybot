@@ -2,6 +2,7 @@ const { queue } = require('../../src/index')
 const ytdl = require('ytdl-core');
 const ytSearch = require('yt-search');
 const Discord = require('discord.js');
+const Users = require('../../models/Users')
 
 module.exports = {
 	name: 'play',
@@ -46,6 +47,14 @@ module.exports = {
                 }
             }
             
+            //increments songs played of the user
+            const User = await Users.findOne({userID: message.author.id});
+            if(!User) {
+                createUserData(message.author.id);
+            } else {
+                await Users.findOneAndUpdate({User}, {$inc: {songsPlayed: 1}})
+            }
+
             //if the queue doesn't exist in the global queue already
             if(!serverQueue) {
 
@@ -64,13 +73,6 @@ module.exports = {
                     const connection = await voiceChannel.join();
                     queueConstructor.connection = connection;
                     return videoPlayer(message.guild, queueConstructor.songs[0]);
-                    const embed = new Discord.MessageEmbed()
-                    .setTitle(`Song successfully added`)
-                    .setColor('#00DEFF')
-                    //.setThumbnail(song.thumbnail)
-                    .setDescription(`🎶**Now playing🎶: ** [${song.title}](${song.url}) *[${song.timestamp}]*`)
-                    .setFooter(`Requested by ${message.author.username}`,message.author.displayAvatarURL({ dynamic: true }))
-                    return message.channel.send(embed);
                 } catch(err) {
                     queue.delete(message.guild.id);
                     message.channel.send('An unexpected error has occurred connecting to the server.');
@@ -130,4 +132,9 @@ const toHHMMSS = (time) => {
     if (minutes < 10) {minutes = "0"+minutes;}
     if (seconds < 10) {seconds = "0"+seconds;}
     return hours+':'+minutes+':'+seconds;
+}
+
+
+const createUserData = (userID) => {
+    Users.create({userID: userID, songsPlayed: 1})
 }

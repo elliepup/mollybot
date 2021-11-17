@@ -12,17 +12,8 @@ const config = require("./config.json");
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 
+const prefixes = require('../models/Prefixes')
 const queue = new Map();
-
-//initializes database
-const KeyvMongo = require('@keyvhq/mongo')
-const Keyv = require('@keyvhq/core')
-
-const prefixes = new Keyv({ 
-  store: new KeyvMongo(process.env.MONGODB_SRV)
-})
-
-prefixes.on('error', err => console.error('Keyv connection error:', err));
 
 module.exports = { client, queue, prefixes };
 
@@ -63,13 +54,17 @@ client.on("message", async message => {
 
     //global and guild-based prefix stuff
     let prefix;
-    if (message.content.startsWith(globalPrefix)) prefix = globalPrefix;
-     else {
-        const guildPrefix = await prefixes.get(message.guild.id);
-        if (message.content.startsWith(guildPrefix)) prefix = guildPrefix;
+    try {
+        prefixObject = await prefixes.findOne({guildID: message.guild.id});
+        if(!prefixObject){
+            let newPrefix = prefixes.create({guildID: message.guild.id})
+            prefix = '!m'
+        } else {prefix = prefixObject.prefix;}
+        
+        
+    } catch (error) {
+        console.log(error)
     }
-    if (!prefix) return;
-
     
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
