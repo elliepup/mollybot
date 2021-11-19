@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
-const { MessageEmbed, Message } = require('discord.js')
+const { MessageEmbed } = require('discord.js')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('help')

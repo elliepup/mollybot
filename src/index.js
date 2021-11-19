@@ -8,6 +8,9 @@ const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs')
 
 const client = new Client({intents: [Intents.FLAGS.GUILDS]});
+const queue = new Map();
+
+module.exports = { queue };
 
 //event handling
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
