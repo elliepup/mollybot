@@ -13,7 +13,10 @@ module.exports = {
             await command.execute(interaction);
         } catch (error) {
             console.error(error);
-            await interaction.reply({content: `An exception occurred upon execution. DM pseudolegendary nick#0021 with the error, but he probably already knows.`, ephemeral: true});
+            await interaction.reply({
+                content: `An exception occurred upon execution. DM pseudolegendary nick#0021 with the error, but he probably already knows.`, 
+                ephemeral: true
+            });
         }
     }
 }

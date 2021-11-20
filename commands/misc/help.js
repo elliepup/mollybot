@@ -9,7 +9,8 @@ module.exports = {
         const embed = new MessageEmbed()
             .setColor('00DEFF')
             .setTitle('🎶 Molly Bot Commands 🎶')
-            .setDescription(quote(`There currently are no commands. Due to ${bold(`pseudolegendary nick#0021's`)} small brain, it probably won't be for a while until commands are added.`))
+            .setDescription("> Molly Bot **[REVAMPED]** is current in the early stages of development. DM bugs/suggestions to **pseudolegendary nick#0021.**")
+            .addField('Music', '```diff\nplay [YouTube link/name of song]\nskip\npause\nresume\nqueue```')
             .setFooter('Molly Bot is intended to be a music/utility bot.')
 
         await interaction.reply({ embeds: [embed] })

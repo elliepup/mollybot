@@ -1,8 +1,7 @@
-const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
+const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
+const { QueryType } = require('discord-player');
 const { MessageEmbed } = require('discord.js');
-const ytdl = require('ytdl-core');
-const ytSearch = require('yt-search')
-const { queue } = require('../../src/index')
+const playdl = require('play-dl')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,47 +12,82 @@ module.exports = {
                 .setDescription('The title or link of the YouTube video.')
                 .setRequired(true)),
     async execute(interaction) {
+        const player = require('../../src/index')
 
-        const arg = interaction.options._hoistedOptions[0].value
-
-        //if the user is not in a voice channel
         const voiceChannel = interaction.member.voice.channel;
-        if (!voiceChannel) return interaction.reply({ content: "Please join a voice channel prior to attempting to play music.", ephemeral: true });
-
-        //if the bot does not have permissions to connect/speak
+        //if the person is not currently in a voice channel
+        if(!voiceChannel) {
+            return interaction.reply({
+                content: "Please join a voice channel before attempting to play music.",
+                ephemeral: true,
+            })
+        }
+        
+        //if the bot does not have sufficient permissions to connect and/or speak
         const permissions = voiceChannel.permissionsFor(interaction.client.user);
-        if(!permissions.has("CONNECT") || !permissions.has("SPEAK")) return interaction.reply({ content: "I do not have permissions to connect or speak in the voice channel."})
-
-        //server queue initialization stuff
-        const serverQueue = queue.get(interaction.guild.id);
-        
-        //song array to be passed through videoPlayer function
-        let song = {};
-
-        //if found by URL
-        if (ytdl.validateURL(arg)) {
-            const songInfo = await ytdl.getInfo(arg);
-            song = { title: songInfo.videoDetails.title, url: songInfo.videoDetails.video_url, length: songInfo.videoDetails.lengthSeconds, sender: interaction.user.username };
+        if(!permissions.has("CONNECT") || !permissions.has("SPEAK")) { 
+            return interaction.reply({ 
+                content: "I do not have permissions to connect or speak in the voice channel."
+            })
         }
 
-        //attempts to find by performing a query
-        else {
-            const videoQuery = async (query) => {
-                const videoResult = await ytSearch(query);
-                return (videoResult.videos.length > 1) ? videoResult.videos[0] : null;
+        const query = interaction.options.getString("video");
+        const queue = player.createQueue(interaction.guild, {
+            leaveOnEnd: false,
+            leaveOnEmpty: false,
+            leaveOnStop: false,
+            metadata: {
+                channel: interaction.channel,
+                guild: interaction.guild,
+                loop: false,
+            },
+            spotifyBridge: false,
+            async onBeforeCreateStream(track, source) {
+                if (source === ('youtube')) {
+                    return (await playdl.stream(track.url)).stream;
+                }
+                else if (source === ('spotify')) {
+                    const songs = await player.search(track.title, {
+                        requestedBy: interaction.member,
+                    })
+                    .catch()
+                    .then(x => x.tracks[0]);
+                    return (await playdl.stream(song.url.stream)).stream;
+                }
             }
-            const video = await videoQuery(arg);
-            if (video) {
-                song = { title: video.title, url: video.url, thumbnail: video.thumbnail, timestamp: video.timestamp, length: video.seconds, sender: interaction.user.username };
-            }
-            else {
-                return interaction.reply({content: "I was unable to find the video. Please ensure that you have entered the link or title properly.", ephemeral: true})
-            }
-        }
-        
-        
-        
+        })
 
+        try {
+            if(!queue.connection) await queue.connect(interaction.member.voice.channel);
+        } catch(error) {
+            queue.destroy();
+            console.error(error);
+            return await interaction.reply({
+                content: "I was unable to join the voice channel.",
+                ephemeral: true,
+            })
+        }
+        await interaction.deferReply();
+        const track = await player.search(query, {
+            requestedBy: interaction.user,
+        }).then(x => x.tracks[0]);
+        if (!track) return interaction.followUp({
+            content: "I was unable to find the video. Please ensure you have entered the title or link correctly.",
+            ephemeral: true,
+        })
+
+        queue.play(track);
+
+        const embed = new MessageEmbed()
+        .setTitle('🎶New song added to the queue🎶')
+        .setColor('#00DEFF')
+        .setDescription(`[${track.title}](${track.url}) ${bold('[' + track.duration + ']')}`)
+        .setFooter(`Requested by ${track.requestedBy.username}`, track.requestedBy.displayAvatarURL({dynamic: true}))
+
+        return await interaction.followUp({
+            embeds: [embed],
+        })
+        
     }
-
+    
 }
