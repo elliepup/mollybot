@@ -3,9 +3,9 @@ const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('stop')
-        .setDescription(`Skips the song at the top of the queue.`),
+        .setDescription(`Stops playing music.`),
     async execute(interaction) {
-        const player = require('../../src/index')
+        const { player } = require('../../src/index')
         const queue = player.getQueue(interaction.guildId);
 
         if(!queue?.playing) return interaction.reply({

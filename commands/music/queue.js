@@ -7,7 +7,7 @@ module.exports = {
         .setName('queue')
         .setDescription(`Displays the current song queue.`),
     async execute(interaction) {
-        const player = require('../../src/index')
+        const { player } = require('../../src/index')
         const queue = player.getQueue(interaction.guildId);
 
         if (!queue?.playing) return interaction.reply({

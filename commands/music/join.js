@@ -1,27 +1,25 @@
-const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
-const { QueryType } = require('discord-player');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 const playdl = require('play-dl')
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('play')
-        .setDescription('Plays music given a YouTube title or link.')
-        .addStringOption(option =>
-            option.setName('video')
-                .setDescription('The title or link of the YouTube video.')
-                .setRequired(true)),
+        .setName('join')
+        .setDescription(`Joins the voice channel the user is in.`),
     async execute(interaction) {
         const { player } = require('../../src/index')
-           
-        player.on("botDisconnect", (queue) => {
-            console.log(`${queue}...it should be working...`);
-        })
+
+        //const voiceIdiot = interaction.client.voice.adapters.get(interaction.guildId);
+        const voiceQueue = player.getQueue(interaction.guildId)
+        if (voiceQueue) return interaction.reply({
+            content: "I am already in the voice channel.",
+            ephemeral: true,
+        });
+
         const voiceChannel = interaction.member.voice.channel;
         //if the person is not currently in a voice channel
         if(!voiceChannel) {
             return interaction.reply({
-                content: "Please join a voice channel before attempting to play music.",
+                content: "Please join a voice channel first.",
                 ephemeral: true,
             })
         }
@@ -34,7 +32,8 @@ module.exports = {
             })
         }
 
-        const query = interaction.options.getString("video");
+
+        //creation of the queue and connection for future use
         const queue = player.createQueue(interaction.guild, {
             leaveOnEnd: false,
             leaveOnEmpty: false,
@@ -53,16 +52,16 @@ module.exports = {
                     const songs = await player.search(track.title, {
                         requestedBy: interaction.member,
                     })
-                    .catch()
-                    .then(x => x.tracks[0]);
+                        .catch()
+                        .then(x => x.tracks[0]);
                     return (await playdl.stream(song.url.stream)).stream;
                 }
             }
         })
 
         try {
-            if(!queue.connection) await queue.connect(interaction.member.voice.channel);
-        } catch(error) {
+            if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+        } catch (error) {
             queue.destroy();
             console.error(error);
             return await interaction.reply({
@@ -71,27 +70,9 @@ module.exports = {
             })
         }
 
-        await interaction.deferReply();
-        const track = await player.search(query, {
-            requestedBy: interaction.user,
-        }).then(x => x.tracks[0]);
-        if (!track) return interaction.followUp({
-            content: "I was unable to find the video. Please ensure you have entered the title or link correctly.",
+        interaction.reply({
+            content: "Joined the voice channel.",
             ephemeral: true,
         })
-
-        queue.play(track);
-
-        const embed = new MessageEmbed()
-        .setTitle('🎶New song added to the queue🎶')
-        .setColor('#00DEFF')
-        .setDescription(`[${track.title}](${track.url}) ${bold('[' + track.duration + ']')}`)
-        .setFooter(`Requested by ${track.requestedBy.username}`, track.requestedBy.displayAvatarURL({dynamic: true}))
-
-        return await interaction.followUp({
-            embeds: [embed],
-        })
-        
     }
-    
 }

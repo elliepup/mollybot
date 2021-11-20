@@ -5,7 +5,7 @@ module.exports = {
         .setName('resume')
         .setDescription(`Resumes the song at the top of the queue.`),
     async execute(interaction) {
-        const player = require('../../src/index')
+        const { player } = require('../../src/index')
         const queue = player.getQueue(interaction.guildId);
 
         if(!queue?.playing) return interaction.reply({
