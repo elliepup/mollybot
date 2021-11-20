@@ -14,9 +14,6 @@ module.exports = {
     async execute(interaction) {
         const { player } = require('../../src/index')
            
-        player.on("botDisconnect", (queue) => {
-            console.log(`${queue}...it should be working...`);
-        })
         const voiceChannel = interaction.member.voice.channel;
         //if the person is not currently in a voice channel
         if(!voiceChannel) {

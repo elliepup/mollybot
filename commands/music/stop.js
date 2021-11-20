@@ -13,9 +13,9 @@ module.exports = {
             ephemeral: true,
         });
 
-        interaction.reply({
-            content: "lol i kinda forgot to program this",
-            ephemeral: true
+        queue.stop();
+        interaction.reply({ 
+            content: 'Music has been stopped.',
         })
         
     }
