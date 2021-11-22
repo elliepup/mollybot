@@ -11,18 +11,8 @@ const { bold } = require('@discordjs/builders');
 const { Player } = require('discord-player');
 
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
 const player = new Player(client);
-
-player.on("trackStart", (queue, track) => queue.metadata.channel.send({
-	embeds:
-		[new MessageEmbed()
-			.setTitle('Song now playing')
-			.setDescription(`🎶${bold('Now playing: ')}🎶[${bold(track.title)}](${track.url}) ${bold('[' + track.duration + ']')}`)
-			.setFooter(`Requested by ${track.requestedBy.username}`, track.requestedBy.displayAvatarURL({ dynamic: true }))
-			.setColor('#00DEFF')
-		]
-}))
 
 module.exports = { player, client }; 
 //event handling

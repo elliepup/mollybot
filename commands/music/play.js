@@ -2,6 +2,7 @@ const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { MessageEmbed } = require('discord.js');
 const playdl = require('play-dl')
+const Users = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,6 +23,16 @@ module.exports = {
                 ephemeral: true,
             })
         }
+
+        player.on("trackStart", (queue, track) => queue.metadata.channel.send({
+            embeds:
+                [new MessageEmbed()
+                    .setTitle('Song now playing')
+                    .setDescription(`🎶${bold('Now playing: ')}🎶[${bold(track.title)}](${track.url}) ${bold('[' + track.duration + ']')}`)
+                    .setFooter(`Requested by ${track.requestedBy.username}`, track.requestedBy.displayAvatarURL({ dynamic: true }))
+                    .setColor('#00DEFF')
+                ]
+        }))
         
         //if the bot does not have sufficient permissions to connect and/or speak
         const permissions = voiceChannel.permissionsFor(interaction.client.user);
@@ -76,6 +87,13 @@ module.exports = {
             content: "I was unable to find the video. Please ensure you have entered the title or link correctly.",
             ephemeral: true,
         })
+
+        let userData = await Users.findOne({ userId: interaction.user.id });
+        if (!userData) {
+            await Users.create({ userId: target.id }).then((newData) => userData = newData)
+        }
+
+        await Users.findOneAndUpdate({userData}, {$inc: {songsPlayed: 1}})
 
         queue.play(track);
 
