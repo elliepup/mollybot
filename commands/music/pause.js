@@ -15,7 +15,7 @@ module.exports = {
 
         let userData = await Users.findOne({ userId: interaction.user.id });
         if (!userData) {
-            await Users.create({ userId: target.id }).then((newData) => userData = newData)
+            await Users.create({ userId: interaction.user.id }).then((newData) => userData = newData)
         }
 
         await Users.findOneAndUpdate({userData}, {$inc: {timesPaused: 1}})
