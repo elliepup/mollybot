@@ -9,10 +9,8 @@ const UserData = new mongoose.Schema({
     queuesStopped: {type: Number, default: 0},
     timesPaused: {type: Number, default: 0},
     timesResumed: {type: Number, default: 0},
-    mostRecentPlay: {type: String}
-
+    mostRecentPlay: {type: String, default: "N/A"}
 })
 
 const model = mongoose.model("Users", UserData);
-
 module.exports = model;

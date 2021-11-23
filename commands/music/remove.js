@@ -34,12 +34,8 @@ module.exports = {
             ephemeral: true
         })
 
-        let userData = await Users.findOne({ userId: interaction.user.id });
-        if (!userData) {
-            await Users.create({ userId: interaction.user.id }).then((newData) => userData = newData)
-        }
-
-        await Users.findOneAndUpdate({userData}, {$inc: {songsRemoved: 1}})
+        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
+        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {songsRemoved: 1}})
 
         const track = await queue.remove(query - 2);
         interaction.reply({

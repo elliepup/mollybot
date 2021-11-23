@@ -2,20 +2,15 @@ const Users = require('../models/Users')
 
 module.exports = {
     name: 'messageCreate',
+    once: false,
     async execute(message) {
 
-        
-        const author = message.author;
-        if (author.isBot) return;
+        const target = message.author;
+        if(target.isBot) return;
+
         const randomNumber = Math.floor(Math.random() * 100);
-
-        if (randomNumber < 79) return;
-
-        let userData = await Users.findOne({ userId: author.id });
-        if (!userData) {
-            await Users.create({ userId: author.id }).then((newData) => userData = newData)
-        }
-
-        await Users.findOneAndUpdate({userData}, {$inc: {balance: randomNumber - 78}})
+        if(randomNumber < 79) return;
+        const userData = await Users.findOne({userId: message.author.id}) || await Users.create({userId: message.author.id});
+        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {balance: randomNumber - 59}})
     }
 }

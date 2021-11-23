@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 const Users = require('../../models/Users')
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('pause')
@@ -13,13 +14,9 @@ module.exports = {
             ephemeral: true,
         });
 
-        let userData = await Users.findOne({ userId: interaction.user.id });
-        if (!userData) {
-            await Users.create({ userId: interaction.user.id }).then((newData) => userData = newData)
-        }
+        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
+        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {timesPaused: 1}})
 
-        await Users.findOneAndUpdate({userData}, {$inc: {timesPaused: 1}})
-        
         queue.setPaused(true);
 
         interaction.reply({

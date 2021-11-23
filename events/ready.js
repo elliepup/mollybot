@@ -2,16 +2,16 @@ module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
-        const mongoose = require('mongoose')
         console.log(`${client.user.tag} has logged in successfully.`);
-        client.user.setActivity("/help", {type: "LISTENING"})
-     
-        //database initialization
+        client.user.setActivity("Maintenance Mode 😒", { type: "PLAYING" })
+
+        //database init
+        const mongoose = require('mongoose');
         await mongoose.connect(process.env.MONGODB_SRV, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true
-		}).then(() => {
-			console.log("Connected to the database successfully.")
-		})
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        }).then(() => {
+            console.log("Connected to the database successfully.")
+        })
     }
 }
