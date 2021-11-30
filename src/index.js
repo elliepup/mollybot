@@ -5,7 +5,7 @@
 
 
 require('dotenv').config();
-const { Client, Intents, Collection, MessageEmbed } = require('discord.js');
+const { Client, Intents, Collection } = require('discord.js');
 const fs = require('fs');
 const { bold } = require('@discordjs/builders');
 const { Player } = require('discord-player');

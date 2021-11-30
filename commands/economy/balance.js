@@ -14,7 +14,7 @@ module.exports = {
 
         const target = interaction.options.getUser("target") || interaction.user;
 
-        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
+        const userData = await Users.findOne({userId: target.id}) || await Users.create({userId: target.id});
 
         const balance = await userData.balance;
         const embed = new MessageEmbed()

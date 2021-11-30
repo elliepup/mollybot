@@ -3,7 +3,7 @@ module.exports = {
     once: true,
     async execute(client) {
         console.log(`${client.user.tag} has logged in successfully.`);
-        client.user.setActivity("Maintenance Mode 😒", { type: "PLAYING" })
+        client.user.setActivity("/help", { type: "LISTENING" })
 
         //database init
         const mongoose = require('mongoose');
