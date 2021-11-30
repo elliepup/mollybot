@@ -5,12 +5,8 @@ const playdl = require('play-dl')
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('volume')
-        .setDescription('Plays music given a YouTube title or link.')
-        .addIntegerOption(option =>
-            option.setName('volume')
-                .setDescription('A number 1-100 for the volume setting.')
-                .setRequired(true)),
+        .setName('shuffle')
+        .setDescription('Shuffles the songs in queue.'),
     async execute(interaction) {
         const { player } = require('../../src/index')
         const queue = player.getQueue(interaction.guildId)
@@ -20,17 +16,10 @@ module.exports = {
             ephemeral: true,
         })
 
-        const query = interaction.options.getInteger("volume");
-
-        if(query > 100 || query < 1) return interaction.reply({
-            content: 'Please enter a value from 1-100.',
-            ephemeral: true,
-        })
-        
-        queue.setVolume(query)
+        queue.shuffle();
 
         interaction.reply({ 
-            content: "Volume has been adjusted.",
+            content: "The queue has been shuffled.",
             ephemeral: true,
         })
     }

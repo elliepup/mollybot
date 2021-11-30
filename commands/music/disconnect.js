@@ -1,26 +1,24 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+
 module.exports = {
-	name: 'disconnect',
-	description: 'Disconnects from the voice channel.',
-    aliases: ['d','leave'],
-	async execute(message, args) {
-        const { queue } = require('../../src/index')
-        const serverQueue = queue.get(message.guild.id);
+    data: new SlashCommandBuilder()
+        .setName('disconnect')
+        .setDescription(`Disconnects from the voice channel the user is in.`),
+    async execute(interaction) {
+        const { player } = require('../../src/index')
+        const queue = player.getQueue(interaction.guildId)
 
-        //clears the queue if a voice channel exists
-        if(serverQueue) {
-        serverQueue.songs = [];
-        serverQueue.connection.dispatcher.end();
-        }
+        if (!queue) return interaction.reply({
+            content: "I am not currently connected to a voice channel.",
+            ephemeral: true,
+        })
+            player.voiceUtils.disconnect(queue.connection);
+            player.deleteQueue(interaction.guildId)
 
-        //if not in a voice channel
-        if(!message.guild.me.voice.channel) { 
-            return message.reply("I am not currently in a voice channel.")
-        }
-        
-        //leaves voice channel
-        await message.guild.me.voice.channel.leave();
-        
-        
+            return interaction.reply({ 
+                content: "Successfully disconnected from the voice channel.",
+                ephemeral: true,
+            })
             
-	},
-};
+    }
+}

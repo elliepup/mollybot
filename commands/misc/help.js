@@ -1,18 +1,20 @@
+const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
+const { MessageEmbed } = require('discord.js')
 module.exports = {
-	name: 'help',
-	description: 'Displays "about" information',
-    aliases: ['cmd','cmds'],
-    args: false,
-	execute(message, args) {
+    data: new SlashCommandBuilder()
+        .setName('help')
+        .setDescription('Displays a list of Molly Bot commands.'),
+    async execute(interaction) {
 
-            const Discord = require('discord.js')
-            const embed = new Discord.MessageEmbed()
-            .setTitle("🎶Molly Bot🎶")
-            .setDescription("> Molly Bot is current in the early stages of development. DM bugs/suggestions to **pseudolegendary nick#0021.**")
-            .addField("Music", "```diff\nplay [name/or YouTube link of song]\nskip\nstop\nvolume [1-100]\nqueue\ndisconnect/leave\nremove [#in queue]```")
-            .addField("Misc.", "```diff\nprefix [new prefix]\nsuggest [suggestion]```")
-            .setColor('DB00FC')
-            .setFooter(`More commands coming soon.`)
-            return message.channel.send(embed);
-	},
-};
+        const embed = new MessageEmbed()
+            .setColor('00DEFF')
+            .setTitle('🎶 Molly Bot Commands 🎶')
+            .setDescription("> Molly Bot **[REVAMPED]** is current in the early stages of development. DM bugs/suggestions to **pseudolegendary nick#0021.**")
+            .addField('Music', '```diff\nplay [YouTube link/name of song]\nskip\npause\nresume\nqueue\ndisconnect\njoin\nremove [index]\nshuffle\nvolume [1-100]\nstop```')
+            .addField('Economy', '```balance [@mention (optional)]\ncoinflip [wager]\ndonate [@mention] [amount]```')
+            .setFooter(`Things are expected to break. Feel free to take a look at the GitHub repo and point out any stupid mistakes I've made. :)`)
+
+        await interaction.reply({ embeds: [embed] })
+    }
+
+}

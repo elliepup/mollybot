@@ -1,20 +1,26 @@
+const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
+const Users = require('../../models/Users')
+
 module.exports = {
-	name: 'stop',
-	description: 'Stops playing music',
-    args: false,
-	execute(message, args) {
-        const { queue } = require('../../src/index')
+    data: new SlashCommandBuilder()
+        .setName('stop')
+        .setDescription(`Stops playing music.`),
+    async execute(interaction) {
+        const { player } = require('../../src/index')
+        const queue = player.getQueue(interaction.guildId);
 
-        const voiceChannel = message.member.voice.channel;
-        const serverQueue = queue.get(message.guild.id)
+        if(!queue?.playing) return interaction.reply({
+            content: "There currently are no songs in queue.",
+            ephemeral: true,
+        });
 
-        //if the user isn't in a voice channel
-        if(!voiceChannel) return message.reply("join a voice channel prior to attempting to skip a song.")
-        //if there is no server queue
-        if(!serverQueue) return message.reply("there currently are no songs in the queue.")
-        serverQueue.songs = [];
-        serverQueue.connection.dispatcher.end();
-        message.react('👍')
-            
-	},
-};
+        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
+        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {queuesStopped: 1}})
+
+        queue.stop();
+        interaction.reply({ 
+            content: 'Music has been stopped.',
+        })
+        
+    }
+}
