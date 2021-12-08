@@ -97,7 +97,7 @@ module.exports = {
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Ah, how unfortunate! It landed on ${rngSim}, so you have lost ${getTieredCoins(wager)}!`)
-                        .addField("New balance", getTieredCoins(balance + rewardOrDeduction), true)
+                        .addField("New balance", (getTieredCoins(balance + rewardOrDeduction)) || '`0` <:YukiBronze:872106572275392512>', true)
                         .setColor('DE0000')
                     ],
                     components: [row]
