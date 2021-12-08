@@ -51,7 +51,7 @@ module.exports = {
         const embed = new MessageEmbed()
             .setTitle(`${interaction.user.username} has initiated a coinflip!`)
             .setDescription('Please select heads or tails. Alternatively, you can cancel the bet if you got cold feet.')
-            .addField(`Wager`, `${getTieredCoins(wager)}`)
+            .addField(`Wager`, `${getTieredCoins(wager)}`, true)
             .setColor('E1E1E1');
 
         interaction.reply({
@@ -88,6 +88,7 @@ module.exports = {
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Congratulations! It landed on ${rngSim}, so you have won ${getTieredCoins(wager)}!`)
+                        .addField("New balance", getTieredCoins(balance + rewardOrDeduction), true)
                         .setColor('4ADC00')
                     ],
                     components: [row]
@@ -95,7 +96,8 @@ module.exports = {
             } else {
                 interaction.editReply({
                     embeds: [embed
-                        .setDescription(`Ah, how unfortnate! It landed on ${rngSim}, so you have lost ${getTieredCoins(wager)}!`)
+                        .setDescription(`Ah, how unfortunate! It landed on ${rngSim}, so you have lost ${getTieredCoins(wager)}!`)
+                        .addField("New balance", getTieredCoins(balance + rewardOrDeduction), true)
                         .setColor('DE0000')
                     ],
                     components: [row]

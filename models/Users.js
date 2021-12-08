@@ -9,7 +9,8 @@ const UserData = new mongoose.Schema({
     queuesStopped: {type: Number, default: 0},
     timesPaused: {type: Number, default: 0},
     timesResumed: {type: Number, default: 0},
-    mostRecentPlay: {type: String, default: "N/A"}
+    mostRecentPlay: {type: String, default: "N/A"},
+    workCooldown: {type: Date, default: null},
 })
 
 const model = mongoose.model("Users", UserData);
