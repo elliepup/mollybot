@@ -1,4 +1,4 @@
-const Users = require('../models/Users')
+const { Users } = require('../models/Users')
 
 module.exports = {
     name: 'messageCreate',
@@ -11,6 +11,6 @@ module.exports = {
         const randomNumber = Math.floor(Math.random() * 100);
         if(randomNumber < 79) return;
         const userData = await Users.findOne({userId: message.author.id}) || await Users.create({userId: message.author.id});
-        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {balance: randomNumber - 59}})
+        await userData.updateOne({$inc: {balance: randomNumber - 59, coinsFromTalking: randomNumber-59}})
     }
 }

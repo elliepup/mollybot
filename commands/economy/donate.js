@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const Users = require('../../models/Users')
+const { Users, getTieredCoins } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -40,7 +40,7 @@ module.exports = {
             ephemeral: true,
         })
 
-        await donorData.updateOne({$inc: {balance: -1 * amount}})
+        await donorData.updateOne({$inc: {balance: -1 * amount, totalDonated: amount}})
         await targetData.updateOne({$inc: {balance: amount}})
 
         interaction.reply({
@@ -53,29 +53,5 @@ module.exports = {
             ]
         })
     }
-
-}
-
-//function was created early in my programming career. despite looking absolutely disgusting, it works perfectly fine :) 
-function getTieredCoins(balance) {
-    const emotes = ['<:YukiPlat:872106609399169025>', '<:YukiGold:872106598527541248>',
-        '<:YukiSilver:872106587861417994>', '<:YukiBronze:872106572275392512>']
-
-    const platValue = 1000000,
-        goldValue = 10000,
-        silverValue = 100;
-
-    const platinum = Math.floor(balance / platValue)
-    const gold = Math.floor((balance - platinum * platValue) / goldValue)
-    const silver = Math.floor((balance - platinum * platValue - gold * goldValue) / silverValue)
-    const bronze = Math.floor((balance - platinum * platValue - gold * goldValue - silver * silverValue))
-
-    const values = [platinum, gold, silver, bronze];
-
-    var formattedString = "";
-    for (let i = 0; i < values.length; i++) {
-        if (values[i] != 0) formattedString += `\`${values[i]}\` ${emotes[i]} `
-    }
-    return formattedString;
 
 }

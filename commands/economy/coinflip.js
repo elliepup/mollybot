@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, bold } = require('@discordjs/builders');
 const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
-const Users = require('../../models/Users')
+const { Users, getTieredCoins } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -83,8 +83,9 @@ module.exports = {
             })
 
             const rewardOrDeduction = (buttonId == rngSim) ? wager : (wager * -1);
-            await userData.updateOne({$inc: {balance: rewardOrDeduction}});
+            await userData.updateOne({$inc: {balance: rewardOrDeduction, totalCoinflipped: wager}});
             if (rewardOrDeduction > 0) {
+                await userData.updateOne({$inc: {winningsFromCoinflips: wager}});
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Congratulations! It landed on ${rngSim}, so you have won ${getTieredCoins(wager)}!`)
@@ -106,28 +107,4 @@ module.exports = {
 
         })
     }
-}
-
-//please don't roast me up for how gross this is. I made this a long time ago and im too lazy to redo it since it works just fine
-function getTieredCoins(balance) {
-    const emotes = ['<:YukiPlat:872106609399169025>', '<:YukiGold:872106598527541248>',
-        '<:YukiSilver:872106587861417994>', '<:YukiBronze:872106572275392512>']
-
-    const platValue = 1000000,
-        goldValue = 10000,
-        silverValue = 100;
-
-    const platinum = Math.floor(balance / platValue)
-    const gold = Math.floor((balance - platinum * platValue) / goldValue)
-    const silver = Math.floor((balance - platinum * platValue - gold * goldValue) / silverValue)
-    const bronze = Math.floor((balance - platinum * platValue - gold * goldValue - silver * silverValue))
-
-    const values = [platinum, gold, silver, bronze];
-
-    var formattedString = "";
-    for (let i = 0; i < values.length; i++) {
-        if (values[i] != 0) formattedString += `\`${values[i]}\` ${emotes[i]} `
-    }
-    return formattedString;
-
 }
