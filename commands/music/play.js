@@ -2,7 +2,7 @@ const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { MessageEmbed, User } = require('discord.js');
 const playdl = require('play-dl')
-const Users = require('../../models/Users')
+const { Users } = require('../../models/Users')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
-const Users = require('../../models/Users')
+const { Users } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
