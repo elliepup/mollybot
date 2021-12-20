@@ -2,7 +2,6 @@ const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { MessageEmbed, User } = require('discord.js');
 const playdl = require('play-dl')
-const { Users } = require('../../models/Users')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
@@ -76,9 +75,6 @@ module.exports = {
             content: "I was unable to find the video. Please ensure you have entered the title or link correctly.",
             ephemeral: true,
         })
-
-        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
-        await Users.findOneAndUpdate({userId: userData.userId}, {$set: {mostRecentPlay: track.title}, $inc: {songsPlayed: 1}})
 
         queue.play(track);
 

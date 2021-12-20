@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
-const { Users } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -18,8 +17,6 @@ module.exports = {
             content: "Song skipped!"
         })
 
-        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
-        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {songsSkipped: 1}})
         queue.skip();
     }
 }

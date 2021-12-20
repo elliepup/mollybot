@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
-const { Users } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,9 +12,6 @@ module.exports = {
             content: "There currently are no songs in queue.",
             ephemeral: true,
         });
-
-        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
-        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {timesResumed: 1}})
 
         queue.setPaused(false);
 

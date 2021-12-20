@@ -2,7 +2,6 @@ const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders');
 const { QueryType } = require('discord-player');
 const { MessageEmbed } = require('discord.js');
 const playdl = require('play-dl')
-const { Users } = require('../../models/Users')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -33,9 +32,6 @@ module.exports = {
             content: 'You cannot remove songs that are out of the bounds of the queue.',
             ephemeral: true
         })
-
-        const userData = await Users.findOne({userId: interaction.user.id}) || await Users.create({userId: interaction.user.id});
-        await Users.findOneAndUpdate({userId: userData.userId}, {$inc: {songsRemoved: 1}})
 
         const track = await queue.remove(query - 2);
         interaction.reply({
