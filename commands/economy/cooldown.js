@@ -10,7 +10,7 @@ module.exports = {
     async execute(interaction) {
 
         const econProfile = await getEconProfile(interaction.user.id);
-        const timeToWork = 60 * 60;
+        const timeToWork = 20 * 60;
         const userCooldown = econProfile.workCooldown;
         const cooldownProgress = (userCooldown == 0) ? timeToWork + 1 : Math.abs((new Date().getTime() - userCooldown) / 1000);
         

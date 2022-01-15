@@ -10,13 +10,13 @@ module.exports = {
 
         const userId = interaction.user.id;
         const econData = await getEconProfile(userId);
-        const timeToWork = 60 * 60;
+        const timeToWork = 20 * 60;
         const userCooldown = econData.workCooldown;
         const cooldownProgress = (userCooldown == 0) ? timeToWork + 1 : Math.abs((new Date().getTime() - userCooldown) / 1000);
 
         
         if (cooldownProgress > timeToWork) {
-            const randomAmount = 1500 + Math.floor(Math.random() * 500 + 1);
+            const randomAmount = 40000 + Math.floor(Math.random() * 10000 + 1);
             await updateBalance(userId, randomAmount);
             await updateEconAttribute(userId, "coinsFromWorking", randomAmount)
             await updateEconAttribute(userId, "timesWorked", 1)
