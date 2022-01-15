@@ -16,6 +16,7 @@
     "@discordjs/builders": "^0.8.2",
     "@discordjs/opus": "^0.5.3",
     "@discordjs/rest": "^0.1.0-canary.0",
+    "axios": "^0.24.0",
     "canvas": "^2.8.0",
     "discord-api-types": "^0.24.0",
     "discord-player": "^5.1.0-dev.1636095464.54bb4b0",

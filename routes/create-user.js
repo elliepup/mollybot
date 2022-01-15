@@ -1,7 +1,7 @@
 const faunadb = require('faunadb');
 const FaunaError = require('../errors/FaunaError.js');
 
-const { Create, Collection } = faunadb.query;
+const q = faunadb.query;
 
 module.exports = {
   schema: {
@@ -22,16 +22,31 @@ module.exports = {
       domain: "db.us.fauna.com"
     });
 
+    const data = {
+      userId,
+      balance: 100
+    }
+
     try {
       const result = await client.query(
-        Create(
-          Collection('Users'),
-          {
-            data: {
-              userId,
-              balance: 100
-            },
-          }
+
+        //q.Get(q.Match(q.Index('user_by_userId'), userId))
+        q.Let({
+          match: q.Match(q.Index('user_by_userId'), userId)
+        },
+          q.If(
+            q.Exists(q.Var('match')),
+            null,
+            q.Create(
+              q.Collection('Users'),
+              {
+                data: {
+                  userId,
+                  balance: 100
+                }
+              }
+            )
+          )
         )
       );
       reply.send(result);

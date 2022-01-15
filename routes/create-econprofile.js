@@ -1,7 +1,8 @@
 const faunadb = require('faunadb');
 const FaunaError = require('../errors/FaunaError.js');
 
-const { Create, Collection, Call, Function: Fn } = faunadb.query;
+const { Function: Fn } = faunadb.query;
+const q = faunadb.query
 
 module.exports = {
   schema: {
@@ -18,12 +19,12 @@ module.exports = {
     const { userId } = request.body;
 
     const client = new faunadb.Client({
-        secret: process.env.FAUNA_SERVER_SECRET.toString(),
-        domain: "db.us.fauna.com"
+      secret: process.env.FAUNA_SERVER_SECRET.toString(),
+      domain: "db.us.fauna.com"
     });
 
     const data = {
-      user: Call(Fn("getUser"), userId),
+      user: q.Call(Fn("getUser"), userId),
       totalDonated: 0,
       coinsFromTalking: 0,
       coinsFromWorking: 0,
@@ -33,15 +34,12 @@ module.exports = {
       timesCoinflipped: 0,
       coinflipsWon: 0,
       coinflipsLost: 0,
-      workCooldown: null,
+      workCooldown: 0,
     }
 
     try {
       const result = await client.query(
-        Create(
-          Collection('EconProfile'),
-          { data }
-        )
+        
       );
       reply.send(result);
     } catch (error) {

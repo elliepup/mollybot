@@ -32,7 +32,7 @@ module.exports = {
       fishSold: 0,
       trashCaught: 0,
       ancientRelicsCaught: 0,
-      fishingCooldown: null,
+      fishingCooldown: 0,
     }
 
     try {

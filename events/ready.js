@@ -1,4 +1,4 @@
-const fastify = require('fastify')({ logger: true });
+const fastify = require('fastify')({ logger: false });
 
 module.exports = {
     name: 'ready',
@@ -17,9 +17,14 @@ const faunaInit = () => {
     fastify.post('/fish', require('../routes/create-fish.js'));
     fastify.post('/econprofile', require('../routes/create-econprofile.js'));
     fastify.post('/fishingprofile', require('../routes/create-fishingprofile.js'));
+    fastify.post('/users/update/:userId', require('../routes/update-balance.js'));
+    fastify.post('/econprofile/update/:userId', require('../routes/update-econAttribute.js'))
     fastify.get('/users/:userId', require('../routes/get-user.js'));
     fastify.get('/fish/:userId', require('../routes/get-fish.js'));
     fastify.get('/econprofile/:userId', require('../routes/get-econprofile.js'));
+    fastify.get('/leaderboard', require('../routes/get-leaderboard.js'));
+    
+    
 
     fastify.addHook('onRequest', async (request, reply) => {
         if (!reply.context.config.isPrivate) return;

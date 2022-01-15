@@ -3,7 +3,6 @@
 //Started 11/18/2021
 //Previous Molly Bot was super scuffed so now I'm trying again :')
 
-
 require('dotenv').config();
 
 const fs = require('fs');
