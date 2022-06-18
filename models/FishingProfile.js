@@ -5,12 +5,13 @@ const fishingProfile = new mongoose.Schema({
     tierOneBait: {type: Number, default: 5},
     tierTwoBait: {type: Number, default: 3},
     tierThreeBait: {type: Number, default: 1},
+    tierFourBait: {type: Number, default: 0},
     timesFished: {type: Number, default: 0},
     fishCaught: {type: Number, default: 0},
     trashCaught: {type: Number, default: 0},
     ancientRelicsCaught: {type: Number, default: 0},
     fishSold: {type: Number, default: 0},
-    fishingCooldown: {type: Date, default: null}
+    lastFished: {type: Date, default: null}
 })
 
 const FishingData = mongoose.model("FishingProfile", fishingProfile);

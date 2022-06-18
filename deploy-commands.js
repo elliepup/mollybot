@@ -4,7 +4,7 @@ const { Routes } = require('discord-api-types/v9');
 require('dotenv').config();
 
 const guildId = '838957076465582160';
-const clientId = '911276391901843476';
+const clientId = '932117140490813470';
 const token = process.env.TOKEN;
 
 const commands = [];
