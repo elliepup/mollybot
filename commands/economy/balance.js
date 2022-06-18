@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const { Users, getTieredCoins } = require('../../models/Users')
+const { EconData, getTieredCoins } = require('../../models/EconProfile')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,21 +11,17 @@ module.exports = {
                 .setDescription('The person whose balance you want to see.')
                 .setRequired(false)),
     async execute(interaction) {
+        
+        const target = interaction.options.getUser('target') || interaction.user;
+        const targetEcon = await EconData.findOne({userId: target.id}) || await EconData.create({userId: target.id});
+        const balance = await targetEcon.balance;
 
-        const target = interaction.options.getUser("target") || interaction.user;
-
-        const userData = await Users.findOne({userId: target.id}) || await Users.create({userId: target.id});
-
-        const balance = await userData.balance;
         const embed = new MessageEmbed()
         .setTitle(`${target.username}'s balance`)
-        .setColor("#20FC00")
+        .setColor("20FC00")
         .setDescription(`${getTieredCoins(balance)}\n\`${balance}\` <:YukiBronze:872106572275392512> in total.`)
-        .setFooter(`Coins current serve no purpose. This was mainly added to test a new database I've been experimenting with.`)
-        
-        interaction.reply({ embeds: [embed] })
-
+        .setFooter({text: "Coins currently serve no purpose. I am planning on implementing fishing soon."})
+        await interaction.reply({embeds : [embed]})
     }
 
 }
-

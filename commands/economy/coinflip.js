@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, bold } = require('@discordjs/builders');
-const { MessageButton, MessageActionRow, MessageEmbed } = require('discord.js');
-const { Users, getTieredCoins } = require('../../models/Users')
+const { MessageButton, MessageActionRow, MessageEmbed, ButtonInteraction } = require('discord.js');
+const { EconData, getTieredCoins } = require('../../models/EconProfile')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,17 +13,20 @@ module.exports = {
     async execute(interaction) {
 
         const wager = interaction.options.getInteger("wager");
-        const userData = await Users.findOne({ userId: interaction.user.id }) || await Users.create({ userId: interaction.user.id });
+        const userData = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id });
         const balance = userData.balance;
 
+        //if the user attempts to wager a value less than 1
         if (wager > balance) return interaction.reply({
-            embeds: [new MessageEmbed()
-                .setTitle('Insufficient funds')
-                .setColor('FF1B1B')
-                .setDescription(`The amount you wish to wager exceeds your total balance of \`${balance}\` <:YukiBronze:872106572275392512>.`)
+            embeds: [
+                new MessageEmbed()
+                    .setTitle('Insufficient funds')
+                    .setColor('FF1B1B')
+                    .setDescription(`The amount you wish to wager exceeds your total balance of \`${balance}\` <:YukiBronze:872106572275392512>.`)
             ]
         })
 
+        //if the amount the user wishes to wager exceeds their balance
         if (wager < 1) return interaction.reply({
             embeds: [new MessageEmbed()
                 .setTitle('Invalid wager')
@@ -32,6 +35,7 @@ module.exports = {
             ]
         })
 
+        //buttons for embeds
         const headsButton = new MessageButton()
             .setLabel("Heads")
             .setEmoji('<:Heads:913540273932501032>')
@@ -54,26 +58,37 @@ module.exports = {
             .addField(`Wager`, `${getTieredCoins(wager)}`, true)
             .setColor('E1E1E1');
 
+        //sending the buttons on the row to the user along with the embed above
         interaction.reply({
             embeds: [embed],
             components: [row]
         })
 
+        //fetching the message of the interaction reply to create an interaction collector on that specific message
+        const message = await interaction.fetchReply();
+
+        //user specific filter; only the person who initiated the interaction can react
         const filter = i => {
             i.deferUpdate();
             return i.user.id === interaction.user.id;
         }
-        const collector = interaction.channel.createMessageComponentCollector({
+
+        //collector on message with filter and a maximum of one interaction
+        const collector = message.createMessageComponentCollector({
             filter,
             max: 1,
         })
 
-        collector.on("end", async (ButtonInteraction) => {
-
+        //when the user clicks, ending the collector because it has a maximum of one interaction
+        collector.on('end', async (buttonInteraction) => {
+            //begin RNG sim and life ruiner
             const rngSim = (Math.floor(Math.random() * 2) == 0) ? 'heads' : 'tails';
 
+            //set buttons to disabled
             (row.components).forEach(element => { element.setDisabled(true) });
-            const buttonId = (ButtonInteraction.first().customId);
+            const buttonId = (buttonInteraction.first().customId);
+
+            //if the button pressed was the cancel button, cancel bet and edit embed
             if (buttonId == 'cancel') return interaction.editReply({
                 embeds: [embed
                     .setDescription(`The bet has been cancelled by ${interaction.user.username}. It was going to land on ${bold(rngSim)}.`)
@@ -82,10 +97,17 @@ module.exports = {
                 components: [row]
             })
 
+            //generate and update balance
             const rewardOrDeduction = (buttonId == rngSim) ? wager : (wager * -1);
-            await userData.updateOne({$inc: {balance: rewardOrDeduction, totalCoinflipped: wager}});
+            await userData.updateOne({ $inc: { balance: rewardOrDeduction, timesCoinflipped: 1, totalCoinflipped: wager } })
+
+            if (wager > userData.biggestCoinflip) {
+                await userData.updateOne({ $set: { biggestCoinflip: wager } })
+            }
+
+            //if the user has won
             if (rewardOrDeduction > 0) {
-                await userData.updateOne({$inc: {winningsFromCoinflips: wager}});
+                await userData.updateOne({ $inc: { winningsFromCoinflips: wager, coinflipsWon: 1 } })
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Congratulations! It landed on ${rngSim}, so you have won ${getTieredCoins(wager)}!`)
@@ -94,7 +116,7 @@ module.exports = {
                     ],
                     components: [row]
                 })
-            } else {
+            } else { //if they have lost
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Ah, how unfortunate! It landed on ${rngSim}, so you have lost ${getTieredCoins(wager)}!`)
@@ -104,7 +126,6 @@ module.exports = {
                     components: [row]
                 })
             }
-
         })
-    }
+    },
 }

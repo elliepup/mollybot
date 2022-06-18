@@ -1,14 +1,15 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
 const { MessageEmbed, MessageButton } = require('discord.js')
 const paginationEmbed = require('discordjs-button-pagination')
-const { Users, getTieredCoins } = require('../../models/Users')
+const { EconData, getTieredCoins } = require('../../models/EconProfile')
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('See everyone ranked by wealth!'),
     async execute(interaction) {
 
-        const leaderboardData = await Users.find({}).sort({balance: 'desc'});
+        const leaderboardData = await EconData.find({}).sort({balance: 'desc'});
         
         const pages = [];
         const buttons = [];
@@ -16,8 +17,6 @@ module.exports = {
         const maxItemsPerPage = 10;
 
         const chunks = sliceIntoChunks(leaderboardData, maxItemsPerPage);
-
-        //return console.log(chunks[0].map((k) => `${k.userId}`).join(`\n`))
         for(let i = 0; i < Math.ceil(leaderboardData.length/maxItemsPerPage); i++) {
             const embed = new MessageEmbed()
             .setColor('#03fc84')
@@ -38,9 +37,7 @@ module.exports = {
 
         paginationEmbed(interaction, pages, buttons, timeout)
     }
-
 }
-
 
 function sliceIntoChunks(arr, chunkSize) {
     const res = [];

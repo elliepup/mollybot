@@ -3,18 +3,12 @@
 //Started 11/18/2021
 //Previous Molly Bot was super scuffed so now I'm trying again :')
 
+require('dotenv').config()
+const fs = require('node:fs');
 
-require('dotenv').config();
-const { Client, Intents, Collection } = require('discord.js');
-const fs = require('fs');
-const { bold } = require('@discordjs/builders');
-const { Player } = require('discord-player');
-
-
+const { Client, Intents, Collection } = require('discord.js')
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
-const player = new Player(client);
 
-module.exports = { player, client };
 //event handling
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
@@ -38,4 +32,3 @@ for (folder of commandFolders) {
 }
 
 client.login(process.env.TOKEN);
-

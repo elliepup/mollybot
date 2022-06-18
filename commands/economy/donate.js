@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
-const { Users, getTieredCoins } = require('../../models/Users')
-
+const { MessageEmbed, MessageButton, MessageActionRow, ButtonInteraction } = require('discord.js');
+const { EconData, getTieredCoins } = require('../../models/EconProfile')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('donate')
@@ -10,7 +9,7 @@ module.exports = {
             option.setName('target')
                 .setDescription('The person whose balance you want to see.')
                 .setRequired(true))
-        .addIntegerOption(option => 
+        .addIntegerOption(option =>
             option.setName('amount')
                 .setDescription('The amount you wish to donate.')
                 .setRequired(true)),
@@ -20,38 +19,88 @@ module.exports = {
         const target = interaction.options.getUser("target");
 
         const amount = interaction.options.getInteger("amount");
+        const targetEcon = await EconData.findOne({ userId: target.id }) || await EconData.create({ userId: target.id });
+        const donorEcon = await EconData.findOne({ userId: donor.id }) || await EconData.create({ userId: donor.id })
+        const donorBalance = donorEcon.balance;
 
-        if(amount <= 0) return interaction.reply({
+        //verify that the user has entered a valid amount and target
+        if (amount <= 0) return interaction.reply({
             content: "Please enter a valid number of coins to donate.",
             ephemeral: true,
         })
-        if(donor == target) return interaction.reply({
+        if (donor == target) return interaction.reply({
             content: "You can't donate to yourself.",
             ephemeral: true,
         })
-        
-        const donorData = await Users.findOne({userId: donor.id}) || await Users.create({userId: donor.id});
-        const targetData = await Users.findOne({userId: target.id}) || await Users.create({userId: target.id});
 
-        const donorBalance = await donorData.balance;
+            if (amount > donorBalance) return interaction.reply({
+                content: "You don't have that many coins to donate!",
+                ephemeral: true,
+            })
 
-        if(amount > donorBalance) return interaction.reply({
-            content: "You don't have that many coins to donate!",
-            ephemeral: true,
-        })
+        const cancelButton = new MessageButton()
+            .setLabel("Cancel")
+            .setEmoji("✖")
+            .setStyle("DANGER")
+            .setCustomId("cancel")
+        const confirmButton = new MessageButton()
+            .setLabel("Confirm")
+            .setEmoji("✔")
+            .setStyle("SUCCESS")
+            .setCustomId("confirm")
 
-        await donorData.updateOne({$inc: {balance: -1 * amount, totalDonated: amount}})
-        await targetData.updateOne({$inc: {balance: amount}})
+        const row = new MessageActionRow().addComponents(cancelButton, confirmButton)
 
+        const embed = new MessageEmbed()
+            .setTitle("Donation request received!")
+            .setDescription(`${donor.username}, please confirm that you wish to donate the following amount to ${target.username}.`)
+            .addField("Donation amount", `${getTieredCoins(amount)}`, true)
+            .setColor('E1E1E1')
         interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                .setTitle("💵 Donation complete 💵")
-                .setColor('4ADC00')
-                .setDescription(`**${donor.username}** has donated ${getTieredCoins(amount)} to **${target.username}**!`)
-                .setFooter("Just ignore the fact that there's no confirmation system implemented.")
-            ]
+            embeds: [embed],
+            components: [row]
         })
+
+        const message = await interaction.fetchReply();
+
+        const filter = i => {
+            i.deferUpdate();
+            return i.user.id === interaction.user.id;
+        }
+
+        const collector = message.createMessageComponentCollector({
+            filter,
+            max: 1
+        })
+
+        collector.on('end', async (ButtonInteraction) => {
+            row.components.forEach(element => { element.setDisabled(true) });
+            const buttonId = (ButtonInteraction.first().customId)
+
+            if (buttonId == "cancel") return interaction.editReply({
+                embeds: [
+                    embed
+                        .setDescription(`The request has been cancelled by ${donor.username}. They were not feeling generous.`)
+                        .setColor('#3F3F3F')
+                ],
+                components: [row]
+            })
+
+            await donorEcon.updateOne({ $inc: { balance: -1 * amount } })
+            await targetEcon.updateOne({ $inc: { balance: amount } })
+            await donorEcon.updateOne({ $inc: { totalDonated: amount } })
+
+            interaction.editReply({
+                embeds: [
+                    embed
+                    .setDescription(`${donor.username} has made a generous donation to ${target.username}.`)
+                    .setColor('4ADC00')
+                    .addField(`${donor.username}'s new balance`, getTieredCoins(donorBalance - amount), true)
+                ],
+                components: [row]
+            })
+        })
+
     }
 
 }

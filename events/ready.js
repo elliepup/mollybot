@@ -3,10 +3,10 @@ module.exports = {
     once: true,
     async execute(client) {
         console.log(`${client.user.tag} has logged in successfully.`);
-        client.user.setActivity("/help", { type: "LISTENING" })
+        client.user.setPresence({ activities: [{ name: 'maintenance mode' , type: "PLAYING"}], status: 'dnd' });
 
-        //database init
-        const mongoose = require('mongoose');
+        //database initialization
+        const mongoose = require('mongoose')
         await mongoose.connect(process.env.MONGODB_SRV, {
             useNewUrlParser: true,
             useUnifiedTopology: true
