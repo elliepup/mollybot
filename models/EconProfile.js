@@ -11,7 +11,8 @@ const econProfile = new mongoose.Schema({
     winningsFromCoinflips: {type: Number, default: 0},
     totalDonated: {type: Number, default: 0},
     totalWorked: {type: Number, default: 0},
-    timesWorked: {type: Number, default: 0}
+    timesWorked: {type: Number, default: 0},
+    isCoinflipping: {type: Boolean, default: false}
 
 })
 

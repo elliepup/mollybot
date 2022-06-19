@@ -35,6 +35,17 @@ module.exports = {
             ]
         })
 
+        if (userData.isCoinflipping) return interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#FC0000')
+                    .setTitle("<:yukinon:839338263214030859> Active coinflip")
+                    .setDescription("You already have an active coinflip! Please finish your existing one and try again.")
+            ]
+
+        })
+        await userData.updateOne({ isCoinflipping: true });
+
         //buttons for embeds
         const headsButton = new MessageButton()
             .setLabel("Heads")
@@ -81,6 +92,7 @@ module.exports = {
 
         //when the user clicks, ending the collector because it has a maximum of one interaction
         collector.on('end', async (buttonInteraction) => {
+            await userData.updateOne({ isCoinflipping: false });
             //begin RNG sim and life ruiner
             const rngSim = (Math.floor(Math.random() * 2) == 0) ? 'heads' : 'tails';
 
