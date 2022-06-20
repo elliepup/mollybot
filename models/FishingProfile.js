@@ -12,10 +12,6 @@ const fishingProfile = new mongoose.Schema({
     ancientRelicsCaught: {type: Number, default: 0},
     fishSold: {type: Number, default: 0},
     lastFished: {type: Date, default: null},
-    isFishing: {type: Boolean, default: false},
-    isGifting: {type: Boolean, default: false},
-    isTrading: {Type: Boolean, default: false},
-    isSelling: {Type: Boolean, default: false},
     fishSold: {Type: Number, default: 0}
 })
 

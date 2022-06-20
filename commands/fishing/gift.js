@@ -19,7 +19,7 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
         const target = interaction.options.getUser("target");
-        const targetFish = await FishData.findOne({ fishId: interaction.options.getString('identifier') });
+        let targetFish = await FishData.findOne({ fishId: interaction.options.getString('identifier') });
         const fishingProfile = await FishingData.findOne({ userId: interaction.userId }) || await FishingData.create({ userId: interaction.userId })
 
         //if the fish does not exist
@@ -41,17 +41,6 @@ module.exports = {
                     .setDescription("The fish you are trying to gift does not belong to you.")
             ]
         })
-
-        if (fishingProfile.isGifting) return interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setColor('#FC0000')
-                    .setTitle("<:yukinon:839338263214030859> Unable to gift")
-                    .setDescription("You are currently already gifting to another person.")
-            ]
-        })
-
-        await fishingProfile.updateOne({ isGifting: true })
 
         //TODO add confirmation 
         //prevent duplication
@@ -99,7 +88,6 @@ module.exports = {
             const buttonId = (ButtonInteraction.first().customId)
             row.components.forEach(element => { element.setDisabled(true) });
             if (buttonId == 'cancel') {
-                await fishingProfile.updateOne({ isGifting: false })
                 return interaction.editReply({
                     embeds: [
                         embed
@@ -110,8 +98,28 @@ module.exports = {
                 })
             }
             row.components.forEach(element => { element.setDisabled(true) });
+
+            targetFish = await FishData.findOne({ fishId: interaction.options.getString('identifier') });
+            if(!targetFish) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor('#FC0000')
+                    .setDescription('The fish has already been sold or no longer exists.')
+                ],
+                components: [row]
+            })
+
+            if(targetFish.currentOwner != interaction.user.id) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor('#FC0000')
+                    .setDescription('The fish no longer belongs to you.')
+                ],
+                components: [row]
+            })
+
+
             await targetFish.updateOne({ currentOwner: target.id })
-            await fishingProfile.updateOne({ isGifting: false })
                 .then(() => {
 
                     interaction.editReply({

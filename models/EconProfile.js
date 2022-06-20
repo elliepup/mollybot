@@ -12,8 +12,6 @@ const econProfile = new mongoose.Schema({
     totalDonated: {type: Number, default: 0},
     totalWorked: {type: Number, default: 0},
     timesWorked: {type: Number, default: 0},
-    isCoinflipping: {type: Boolean, default: false},
-    isBuying: {type: Boolean, default: false}
 })
 
 const EconData = mongoose.model("EconProfile", econProfile);

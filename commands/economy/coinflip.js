@@ -13,7 +13,7 @@ module.exports = {
     async execute(interaction) {
 
         const wager = interaction.options.getInteger("wager");
-        const userData = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id });
+        let userData = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id });
         const balance = userData.balance;
 
         //if the user attempts to wager a value less than 1
@@ -34,17 +34,6 @@ module.exports = {
                 .setDescription(`You have to bet at least \`1\` <:YukiBronze:872106572275392512>.`)
             ]
         })
-
-        if (userData.isCoinflipping) return interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setColor('#FC0000')
-                    .setTitle("<:yukinon:839338263214030859> Active coinflip")
-                    .setDescription("You already have an active coinflip! Please finish your existing one and try again.")
-            ]
-
-        })
-        await userData.updateOne({ isCoinflipping: true });
 
         //buttons for embeds
         const headsButton = new MessageButton()
@@ -92,7 +81,6 @@ module.exports = {
 
         //when the user clicks, ending the collector because it has a maximum of one interaction
         collector.on('end', async (buttonInteraction) => {
-            await userData.updateOne({ isCoinflipping: false });
             //begin RNG sim and life ruiner
             const rngSim = (Math.floor(Math.random() * 2) == 0) ? 'heads' : 'tails';
 
@@ -100,11 +88,21 @@ module.exports = {
             (row.components).forEach(element => { element.setDisabled(true) });
             const buttonId = (buttonInteraction.first().customId);
 
+            userData = await EconData.findOne({ userId: interaction.user.id })
+
             //if the button pressed was the cancel button, cancel bet and edit embed
             if (buttonId == 'cancel') return interaction.editReply({
                 embeds: [embed
                     .setDescription(`The bet has been cancelled by ${interaction.user.username}. It was going to land on ${bold(rngSim)}.`)
                     .setColor('#3F3F3F')
+                ],
+                components: [row]
+            })
+
+            if(userData.balance < wager) return interaction.editReply({
+                embeds: [embed
+                    .setDescription(`The amount you wish to coinflip exceeds your current balance.`)
+                    .setColor('#FC0000')
                 ],
                 components: [row]
             })

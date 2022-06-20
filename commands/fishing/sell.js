@@ -16,7 +16,7 @@ module.exports = {
     async execute(interaction) {
 
         const identifier = interaction.options.getString('identifier');
-        const targetFish = await FishData.findOne({ fishId: identifier });
+        let targetFish = await FishData.findOne({ fishId: identifier });
         const fishingProfile = await FishingData.findOne({ userId: interaction.user.id }) || await FishingData.create({ userId: interaction.user.id })
         const econProfile = await EconData.findOne({userId: interaction.user.id}) || await EconData.create({userId: interaction.user.id})
         if (!targetFish) return interaction.reply({
@@ -37,17 +37,6 @@ module.exports = {
                     .setDescription("The fish you are trying to sell does not belong to you.")
             ]
         })
-
-        if (fishingProfile.isSelling == true) return interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setColor('#FC0000')
-                    .setTitle("<:yukinon:839338263214030859> Unable to sell")
-                    .setDescription("You are currently in the middle of selling something. Please finalize that before selling again.")
-            ]
-        })
-
-        await fishingProfile.updateOne({ isSelling: true });
 
         const cancelButton = new MessageButton()
             .setLabel("Cancel")
@@ -92,8 +81,10 @@ module.exports = {
 
             const buttonId = (ButtonInteraction.first().customId)
             row.components.forEach(element => { element.setDisabled(true) });
+
+            targetFish = await FishData.findOne({ fishId: identifier });
+
             if (buttonId == 'cancel') {
-                await fishingProfile.updateOne({ isSelling: false })
                 return interaction.editReply({
                     embeds: [
                         embed
@@ -104,9 +95,25 @@ module.exports = {
                 })
             }
 
+            if(!targetFish) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor('#FC0000')
+                    .setDescription('The fish has already been sold or no longer exists.')
+                ],
+
+            })
+
+            if(targetFish.currentOwner != interaction.user.id) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor('#FC0000')
+                    .setDescription('The fish you are trying to sell belongs to someone else.')
+                ]
+            })
+
             await targetFish.remove()
             await econProfile.updateOne({$inc:{balance: targetFish.value}})
-            await fishingProfile.updateOne({ isSelling: false })
                 .then(() => {
                     return interaction.editReply({
                         embeds: [

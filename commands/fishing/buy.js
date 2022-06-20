@@ -19,7 +19,7 @@ module.exports = {
         const shopData = require('../../data/shopdata')
         const quantity = interaction.options.getInteger('quantity') || 1
         purchaseItem = shopData.filter((obj) => { return obj.name.toLowerCase() == interaction.options.getString('item').toLowerCase() })[0]
-        const econProfile = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id })
+        let econProfile = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id })
         const fishingProfile = await FishingData.findOne(({ userId: interaction.user.id }) || await FishingData.create({ userId: interaction.user.id }))
         const balance = econProfile.balance
 
@@ -29,14 +29,6 @@ module.exports = {
                     .setColor('#FC0000')
                     .setTitle("<:yukinon:839338263214030859> Invalid quantity")
                     .setDescription("Please enter a number greater than 0 for the quantity.")
-            ]
-        })
-        if (econProfile.isBuying == true) return interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setColor('#FC0000')
-                    .setTitle("<:yukinon:839338263214030859> Already buying")
-                    .setDescription("You are already attempting to buy an item! Please try again after you have finalized the transaction.")
             ]
         })
 
@@ -61,11 +53,6 @@ module.exports = {
             ]
         })
 
-        
-
-
-        
-        await econProfile.updateOne({ isBuying: true })
         const cancelButton = new MessageButton()
             .setLabel("Cancel")
             .setEmoji("✖")
@@ -107,8 +94,9 @@ module.exports = {
 
             const buttonId = (ButtonInteraction.first().customId)
             row.components.forEach(element => { element.setDisabled(true) });
+
+            econProfile = await EconData.findOne({ userId: interaction.user.id })
             if (buttonId == 'cancel') {
-                await econProfile.updateOne({ isBuying: false })
                 return interaction.editReply({
                     embeds: [
                         embed
@@ -119,8 +107,16 @@ module.exports = {
                 })
             }
 
+            if(econProfile.balance < cost) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor("FC0000")
+                    .setDescription("You do not have enough money to complete this purchase.")
+                ],
+                components: [row]
+            })
+
             //put logic for buying stuff here
-            await econProfile.updateOne({ isBuying: false })
             await econProfile.updateOne({$inc: {balance: -1 * cost}})
             interaction.editReply({
                 embeds: [

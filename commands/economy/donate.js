@@ -20,7 +20,7 @@ module.exports = {
 
         const amount = interaction.options.getInteger("amount");
         const targetEcon = await EconData.findOne({ userId: target.id }) || await EconData.create({ userId: target.id });
-        const donorEcon = await EconData.findOne({ userId: donor.id }) || await EconData.create({ userId: donor.id })
+        let donorEcon = await EconData.findOne({ userId: donor.id }) || await EconData.create({ userId: donor.id })
         const donorBalance = donorEcon.balance;
 
         //verify that the user has entered a valid amount and target
@@ -76,6 +76,16 @@ module.exports = {
         collector.on('end', async (ButtonInteraction) => {
             row.components.forEach(element => { element.setDisabled(true) });
             const buttonId = (ButtonInteraction.first().customId)
+
+            donorEcon = await EconData.findOne({ userId: interaction.user.id })
+            if(donorEcon.balance < amount) return interaction.editReply({
+                embeds: [
+                    embed
+                    .setColor('#FC0000')
+                    .setDescription('The amount you wish to donate exceeds your current balance.')
+                ],
+                components: [row]
+            })
 
             if (buttonId == "cancel") return interaction.editReply({
                 embeds: [

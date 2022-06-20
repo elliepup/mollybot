@@ -12,21 +12,11 @@ module.exports = {
     async execute(interaction) {
 
         const userId = interaction.user.id;
-        const targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
-        const timeToFish = 3;
-        const cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
+        let targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
+        const timeToFish = 15;
+        let cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
 
         if (cooldownProgress > timeToFish) {
-            if (targetProfile.isFishing) return interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> Already fishing")
-                        .setDescription("You are already fishing! Please try again after you have finished fishing.")
-                ]
-            })
-
-            await targetProfile.updateOne({ isFishing: true })
 
             const embed = new MessageEmbed()
                 .setColor('E1E1E1')
@@ -101,7 +91,6 @@ module.exports = {
                     const buttonId = ButtonInteraction.first().customId;
                     (buttonRow.components).forEach(element => { element.setDisabled(true) });
                     if (buttonId == 'cancel') {
-                        await targetProfile.updateOne({ isFishing: false })
                         return interaction.editReply({
                             embeds: [
                                 embed
@@ -112,7 +101,20 @@ module.exports = {
                         })
 
                     }
-                    await targetProfile.updateOne({ lastFished: Date.now(), isFishing: false })
+
+                    targetProfile = await FishingData.findOne({userId : interaction.user.id})
+                    cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
+
+                    if (cooldownProgress < timeToFish) return interaction.editReply({
+                        embeds: [
+                            embed
+                            .setColor('#FC0000')
+                            .setDescription(`You have an active cooldown. Please try again later.`)
+                            .addField("Time remaining", formatTime(Math.ceil(timeToFish - cooldownProgress)), true)
+                        ], components: [buttonRow]
+                    })
+
+                    await targetProfile.updateOne({ lastFished: Date.now() })
                     let fish = require("../../data/fishdata")
 
 
