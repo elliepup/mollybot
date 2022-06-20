@@ -33,7 +33,7 @@ module.exports = {
                 .addField("Fish", `\`${targetFish.type}\``, true)
                 .addField("Rarity", `\`${rarityInfo.find(obj => obj.rarity === targetFish.rarity).stars}\``, true)
                 .addField("Value", `${getTieredCoins(targetFish.value)}`, true)
-                .addField("Stats", `**Length:** ${(targetFish.length > 24) ? `\`${targetFish.length/12} ft\`` : `\`${targetFish.length} in\``}` + 
+                .addField("Stats", `**Length:** ${(targetFish.length > 24) ? `\`${(targetFish.length/12).toFixed(1)} ft\`` : `\`${targetFish.length} in\``}` + 
                 `\n**Weight:** \`${targetFish.weight.toString()} lb\`\n**Color:** \`${targetFish.color}\``)
                 
             ]

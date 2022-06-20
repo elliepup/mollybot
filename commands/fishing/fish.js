@@ -145,7 +145,7 @@ module.exports = {
                     const randomFish = lootTable.choose();
 
                     const length = randomFish.length - randomFish.l_variance + (Math.floor(Math.random() * randomFish.l_variance * 2 + 1))
-                    const weight = randomFish.weight - randomFish.w_variance + (Math.floor(Math.random() * randomFish.w_variance * 2 + 1))
+                    const weight = (randomFish.weight * (length / randomFish.length)).toFixed(1)
                     const value = Math.floor((weight / randomFish.weight) * randomFish.value)
 
                     //generate random identifier for fish
@@ -173,15 +173,14 @@ module.exports = {
                         value: value,
                         color: randomFish.color
                     })
-
                     interaction.editReply({
                         embeds: [
                             embed
                                 .setColor(rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex)
                                 .setDescription(`${interaction.user.username} has reeled in a **${randomFish.name}**!`)
                                 .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
-                                .addField(`Length`, `*${length.toString()} in*`, true)
-                                .addField(`Weight`, `*${weight.toString()} lb*`, true)
+                                .addField(`Length`, (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, true)
+                                .addField(`Weight`, (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, true)
                                 .addField(`Color`, randomFish.color, true)
                                 .addField(`Selling Price`, getTieredCoins(value), true)
                                 .addField(`Identifier`, `\`${uniqueId}\``, true)

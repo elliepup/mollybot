@@ -36,15 +36,14 @@ module.exports = {
         const buttons = [];
         const timeout = '60000';
         const maxItemsPerPage = 8;
-
         const chunks = sliceIntoChunks(fishData, maxItemsPerPage);
         for (let i = 0; i < Math.ceil(fishData.length / maxItemsPerPage); i++) {
             const embed = new MessageEmbed()
                 .setColor('#03fc84')
                 .setTitle(`Fish Collection`)
                 .setDescription(`Fish carried by <@${target.id}>`)
-                .addField(`\u200B`, chunks[i].map((k, index) => `\`${k.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === k.rarity).stars}\` · \`${(k.length + " in    ").substring(0,8)}\` ·` 
-                 + ` \`${(k.weight + " lb     ").substring(0,9)}\` · \`${(k.value)}\` <:YukiBronze:872106572275392512> · **${k.type}**`).join(`\n`))
+                .addField(`\u200B`, chunks[i].map((k, index) => `\`${k.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === k.rarity).stars}\` · \`${((k.length > 24) ? (k.length/12).toFixed(1) + " ft      " : k.length + " in    ").substring(0,8)}\` ·` 
+                 + ` \`${((k.weight > 4000) ? (k.weight/2000).toFixed(1) + " tons" : k.weight + " lb     ").substring(0,9)}\` · \`${(k.value)}\` <:YukiBronze:872106572275392512> · **${k.type}**`).join(`\n`))
             pages.push(embed)
         }
 
