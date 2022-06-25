@@ -1,6 +1,7 @@
 module.exports = [
     {
         name: "Black Bass",
+        fishNo: 1,
         rarity: "Common",
         length: 14,
         l_variance: 12,
@@ -11,6 +12,7 @@ module.exports = [
     },
     {
         name: "Sea Bass",
+        fishNo: 2,
         rarity: "Common",
         length: 12,
         l_variance: 10,
@@ -21,6 +23,7 @@ module.exports = [
     },
     {
         name: "Giant Sea Bass",
+        fishNo: 3,
         rarity: "Epic",
         length: 60,
         l_variance: 12,
@@ -31,6 +34,7 @@ module.exports = [
     },
     {
         name: "Blue Marlin",
+        fishNo: 4,
         rarity: "Rare",
         length: 120,
         l_variance: 20,
@@ -41,6 +45,7 @@ module.exports = [
     },
     {
         name: "Coelacanth",
+        fishNo: 5,
         rarity: "Legendary",
         length: 72,
         l_variance: 6,
@@ -51,6 +56,7 @@ module.exports = [
     },
     {
         name: "Whale Shark",
+        fishNo: 6,
         rarity: "Epic",
         length: 740,
         l_variance: 125,
@@ -61,6 +67,7 @@ module.exports = [
     },
     {
         name: "Northern Pike",
+        fishNo: 7,
         rarity: "Uncommon",
         length: 16,
         l_variance: 6,
@@ -71,6 +78,7 @@ module.exports = [
     },
     {
         name: "Alaska Pollock",
+        fishNo: 8,
         rarity: "Uncommon",
         length: 12,
         l_variance: 8,
@@ -81,6 +89,7 @@ module.exports = [
     },
     {
         name: "Devils Hole Pupfish",
+        fishNo: 9,
         rarity: "Mythical",
         length: 1,
         l_variance: 0,
@@ -91,6 +100,7 @@ module.exports = [
     },
     {
         name: "Mahi-mahi",
+        fishNo: 10,
         rarity: "Rare",
         length: 36,
         l_variance: 12,
@@ -101,6 +111,7 @@ module.exports = [
     },
     {
         name: "Sockeye Salmon",
+        fishNo: 11,
         rarity: "Uncommon",
         length: 18,
         l_variance: 12,
@@ -111,6 +122,7 @@ module.exports = [
     },
     {
         name: "Atlantic Salmon",
+        fishNo: 12,
         rarity: "Common",
         length: 28,
         l_variance: 4,
@@ -121,6 +133,7 @@ module.exports = [
     },
     {
         name: "Chinook Salmon",
+        fishNo: 13,
         rarity: "Common",
         length: 28,
         l_variance: 12,
@@ -131,6 +144,7 @@ module.exports = [
     },
     {
         name: "Pink Salmon",
+        fishNo: 14,
         rarity: "Common",
         length: 20,
         l_variance: 6,
@@ -141,6 +155,7 @@ module.exports = [
     },
     {
         name: "Northern Bluefin Tuna",
+        fishNo: 15,
         rarity: "Rare",
         length: 70,
         l_variance: 80,
@@ -151,6 +166,7 @@ module.exports = [
     },
     {
         name: "Mackerel Tuna",
+        fishNo: 16,
         rarity: "Uncommon",
         length: 20,
         l_variance: 12,
@@ -161,6 +177,7 @@ module.exports = [
     },
     {
         name: "Horse Mackerel",
+        fishNo: 17,
         rarity: "Common",
         length: 19,
         l_variance: 0,
@@ -171,6 +188,7 @@ module.exports = [
     },
     {
         name: "Eurasian Carp",
+        fishNo: 18,
         rarity: "Common",
         length: 16,
         l_variance: 6,

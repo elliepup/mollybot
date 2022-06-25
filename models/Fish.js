@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const fish = new mongoose.Schema({
     fishId: {type: String, required: true, unique: true},
+    fishNo: {type: String, required: true},
     originalOwner: {type: String, require: true, unique: false},
     currentOwner: {type: String, require: true, unique: false},
     catchDate: {type: Date, default: null},
@@ -16,8 +17,8 @@ const fish = new mongoose.Schema({
 const FishData = mongoose.model("Fish", fish);
 
 const rarityInfo = [
-    {rarity: "Common", hex: "#B9B9B9", stars: "☆☆☆☆☆"}, {rarity: "Uncommon", hex: "#CEFFF4", stars: "★☆☆☆☆"}, {rarity: "Rare", hex: "#00FEC5", stars: "★★☆☆☆"}, 
-    {rarity: "Epic", hex: "#B200FF", stars: "★★★☆☆"}, {rarity: "Legendary", hex: "#FFDC00", stars: "★★★★☆"}, {rarity: "Mythical", hex: "#FF42DD", stars: "★★★★★"}
+    {rarity: "Common", hex: "#919191", stars: "☆☆☆☆☆"}, {rarity: "Uncommon", hex: "#FFFFFF", stars: "★☆☆☆☆"}, {rarity: "Rare", hex: "#82FDFF", stars: "★★☆☆☆"}, 
+    {rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆"}, {rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆"}, {rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★"}
 ]
 
 module.exports = { FishData, rarityInfo };

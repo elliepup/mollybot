@@ -35,8 +35,9 @@ module.exports = {
                 .addField("Value", `${getTieredCoins(targetFish.value)}`, true)
                 .addField("Stats", `**Length:** ${(targetFish.length > 24) ? `\`${(targetFish.length/12).toFixed(1)} ft\`` : `\`${targetFish.length} in\``}` + 
                 `\n**Weight:** \`${targetFish.weight.toString()} lb\`\n**Color:** \`${targetFish.color}\``)
+                .setThumbnail(`attachment://${targetFish.fishNo}.png`)
                 
-            ]
+            ], files: [`./extras/${targetFish.fishNo}.png`]
         })
 
         

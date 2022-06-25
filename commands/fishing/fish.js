@@ -13,7 +13,7 @@ module.exports = {
 
         const userId = interaction.user.id;
         let targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
-        const timeToFish = 15;
+        const timeToFish = 1;
         let cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
 
         if (cooldownProgress > timeToFish) {
@@ -115,36 +115,7 @@ module.exports = {
                     })
 
                     await targetProfile.updateOne({ lastFished: Date.now() })
-                    let fish = require("../../data/fishdata")
-
-
-                    const lootTable = new LootTable();
-
-                    const totalFish = fish.length;
-
-                    const lootInfo = [{ rarity: "Common", percentage: fish.filter(x => x.rarity == 'Common').length / totalFish, multiplier: 6000 },
-                    { rarity: "Uncommon", percentage: fish.filter(x => x.rarity == 'Uncommon').length / totalFish, multiplier: 4500 }, { rarity: "Rare", percentage: fish.filter(x => x.rarity == 'Rare').length / totalFish, multiplier: 3000 },
-                    { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
-                    { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
-                    ]
-
-                    switch (choice) {
-                        case "four":
-                            fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
-                        case "three":
-                        fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
-                        case "two": 
-                        fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
-                    }
-
-                    for (let i = 0; i < fish.length; i++) {
-                        for (let k = 0; k < lootInfo.length; k++) {
-                            if (fish[i].rarity == lootInfo[k].rarity)
-                                lootTable.add(fish[i], Math.ceil(lootInfo[k].percentage * lootInfo[k].multiplier))
-                        }
-                    }
-
-                    const randomFish = lootTable.choose();
+                    let randomFish = generateRandomFish(choice)
 
                     const length = randomFish.length - randomFish.l_variance + (Math.floor(Math.random() * randomFish.l_variance * 2 + 1))
                     const weight = (randomFish.weight * (length / randomFish.length)).toFixed(1)
@@ -154,7 +125,7 @@ module.exports = {
                     const characters = "abcdefghijklmnopqrstuvwxyz123456789";
                     let uniqueId = "";
                     const identifierLength = 6;
-
+                    
                     do {
 
                         uniqueId = "";
@@ -168,6 +139,7 @@ module.exports = {
                         currentOwner: interaction.user.id,
                         catchDate: Date.now(),
                         fishId: uniqueId,
+                        fishNo: randomFish.fishNo,
                         rarity: randomFish.rarity,
                         type: randomFish.name,
                         length: length,
@@ -175,6 +147,7 @@ module.exports = {
                         value: value,
                         color: randomFish.color
                     })
+
                     interaction.editReply({
                         embeds: [
                             embed
@@ -186,8 +159,10 @@ module.exports = {
                                 .addField(`Color`, randomFish.color, true)
                                 .addField(`Selling Price`, getTieredCoins(value), true)
                                 .addField(`Identifier`, `\`${uniqueId}\``, true)
+
+                                .setThumbnail(`attachment://${randomFish.fishNo}.png`)
                         ],
-                        components: [buttonRow]
+                        components: [buttonRow], files: [`./extras/${randomFish.fishNo}.png`]
                     })
                 })
 
@@ -218,6 +193,34 @@ const formatTime = (seconds) => {
     return (minutes == 0) ? `${remainingSeconds} second(s).` : `${minutes} minute(s) and ${remainingSeconds} second(s).`
 }
 
-const generateId = () => {
+const generateRandomFish = (choice) => {
+    let fish = require("../../data/fishdata")
 
+    
+                    const lootTable = new LootTable();
+                    const totalFish = fish.length;
+
+                    const lootInfo = [{ rarity: "Common", percentage: fish.filter(x => x.rarity == 'Common').length / totalFish, multiplier: 6000 },
+                    { rarity: "Uncommon", percentage: fish.filter(x => x.rarity == 'Uncommon').length / totalFish, multiplier: 4500 }, { rarity: "Rare", percentage: fish.filter(x => x.rarity == 'Rare').length / totalFish, multiplier: 3000 },
+                    { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
+                    { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
+                    ]
+
+                    switch (choice) {
+                        case "four":
+                            fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
+                        case "three":
+                        fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
+                        case "two": 
+                        fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
+                    }
+
+                    for (let i = 0; i < fish.length; i++) {
+                        for (let k = 0; k < lootInfo.length; k++) {
+                            if (fish[i].rarity == lootInfo[k].rarity)
+                                lootTable.add(fish[i], Math.ceil(lootInfo[k].percentage * lootInfo[k].multiplier))
+                        }
+                    }
+
+                    return lootTable.choose();
 }
