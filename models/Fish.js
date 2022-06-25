@@ -21,4 +21,5 @@ const rarityInfo = [
     {rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆"}, {rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆"}, {rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★"}
 ]
 
+
 module.exports = { FishData, rarityInfo };

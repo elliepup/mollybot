@@ -32,10 +32,10 @@ module.exports = {
                 .setColor('#FFFFFF')
                 .setTitle(`Viewing Past Trade: \`${identifier}\``)
                 .setDescription(`This trade between <@${trade.traderId}> and <@${trade.partnerId}> was completed on <t:${Math.floor(trade.timeCompleted.getTime()/1000)}>.`)
-                .addField(`\u200B`, `<@${trade.traderId}> \n${codeBlock(trade.traderFishOffering.map(x => `${x.fishId} · ${rarityInfo.find(k => k.rarity == x.rarity).stars}` +
-                ` · ${x.type} · ${x.value} coins`).join('\n'))}`)
-                .addField(`\u200B`, `<@${trade.partnerId}> \n${codeBlock(trade.partnerFishOffering.map(x => `${x.fishId} · ${rarityInfo.find(k => k.rarity == x.rarity).stars}` +
-                ` · ${x.type} · ${x.value} coins`).join('\n'))}`)
+                .addField(`\u200B`, `<@${trade.traderId}> \n${(trade.traderFishOffering.length) ? (codeBlock(trade.traderFishOffering.map(x => `${x.fishId} · ${rarityInfo.find(k => k.rarity == x.rarity).stars}` +
+                ` · ${x.type} · ${x.value} coins`).join('\n'))) : codeBlock("...")}`)
+                .addField(`\u200B`, `<@${trade.partnerId}> \n${(trade.partnerFishOffering.length) ? (codeBlock(trade.partnerFishOffering.map(x => `${x.fishId} · ${rarityInfo.find(k => k.rarity == x.rarity).stars}` +
+                ` · ${x.type} · ${x.value} coins`).join('\n'))) : codeBlock("...")}`)
             ]
         })
     }

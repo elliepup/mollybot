@@ -40,12 +40,11 @@ module.exports = {
 
         const embed = new MessageEmbed()
             .setColor('E1E1E1')
-            .setTitle(`Active Trade`)
+            .setTitle(`Active Trade: Ending <t:${Math.floor(new Date().getTime()/1000)}>`)
             .setDescription(`Please enter the items you would like to trade. For fish, enter the identifier. The trade request will`
-                + ` be cancelled automatically after **10 minutes**.\n${blockQuote(`**[${trader.username}]:** `)} ❌\n**[${partner.username}]:** ❌`)
+                + ` be cancelled automatically after **10 minutes** if both parties do not confirm.\n${blockQuote(`**[${trader.username}]:** `)} ❌\n**[${partner.username}]:** ❌`)
             .addFields({ name: trader.username, value: `\`\`\`...\`\`\`` },
                 { name: partner.username, value: `\`\`\`...\`\`\`` })
-            .setFooter({ text: `This trade will be cancelled at ${new Date(Date.now() + (tradeTimeout)).toLocaleTimeString()} if both parties do not confirm.` })
 
         const cancelButton = new MessageButton()
             .setLabel("Cancel")

@@ -102,15 +102,15 @@ module.exports = {
 
                     }
 
-                    targetProfile = await FishingData.findOne({userId : interaction.user.id})
+                    targetProfile = await FishingData.findOne({ userId: interaction.user.id })
                     cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
 
                     if (cooldownProgress < timeToFish) return interaction.editReply({
                         embeds: [
                             embed
-                            .setColor('#FC0000')
-                            .setDescription(`You have an active cooldown. Please try again later.`)
-                            .addField("Time remaining", formatTime(Math.ceil(timeToFish - cooldownProgress)), true)
+                                .setColor('#FC0000')
+                                .setDescription(`You have an active cooldown. Please try again later.`)
+                                .addField("Time remaining", formatTime(Math.ceil(timeToFish - cooldownProgress)), true)
                         ], components: [buttonRow]
                     })
 
@@ -125,7 +125,7 @@ module.exports = {
                     const characters = "abcdefghijklmnopqrstuvwxyz123456789";
                     let uniqueId = "";
                     const identifierLength = 6;
-                    
+
                     do {
 
                         uniqueId = "";
@@ -196,40 +196,74 @@ const formatTime = (seconds) => {
 const generateRandomFish = (choice, targetProfile) => {
     let fish = require("../../data/fishdata")
 
-    
-                    const lootTable = new LootTable();
-                    const totalFish = fish.length;
 
-                    const lootInfo = [{ rarity: "Common", percentage: fish.filter(x => x.rarity == 'Common').length / totalFish, multiplier: 6000 },
-                    { rarity: "Uncommon", percentage: fish.filter(x => x.rarity == 'Uncommon').length / totalFish, multiplier: 4500 }, { rarity: "Rare", percentage: fish.filter(x => x.rarity == 'Rare').length / totalFish, multiplier: 3000 },
-                    { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
-                    { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
-                    ]
-                    
-                    switch (choice) {
-                        case "four":
-                            fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
-                            targetProfile.updateOne({$inc: {tierFourBait: -1}})
-                            .then(()=> {})
-                        case "three":
-                            fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
-                            targetProfile.updateOne({$inc: {tierThreeBait: -1}})
-                            .then(()=> {})
-                        case "two": 
-                            fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
-                            targetProfile.updateOne({$inc: {tierTwoBait: -1}})
-                            .then(()=> {})
-                        default:
-                            targetProfile.updateOne({$inc: {tierOneBait: -1}})
-                            .then(()=> {})
-                    }
+    const lootTable = new LootTable();
+    const totalFish = fish.length;
 
-                    for (let i = 0; i < fish.length; i++) {
-                        for (let k = 0; k < lootInfo.length; k++) {
-                            if (fish[i].rarity == lootInfo[k].rarity)
-                                lootTable.add(fish[i], Math.ceil(lootInfo[k].percentage * lootInfo[k].multiplier))
-                        }
-                    }
+    const lootInfo = [
+        { rarity: 'Common', tableTotal: 500, amount: fish.filter(x => x.rarity == 'Common').length }, { rarity: 'Uncommon', tableTotal: 300, amount: fish.filter(x => x.rarity == 'Uncommon').length },
+        { rarity: 'Rare', tableTotal: 150, amount: fish.filter(x => x.rarity == 'Rare').length }, { rarity: 'Epic', tableTotal: 80, amount: fish.filter(x => x.rarity == 'Epic').length },
+        { rarity: 'Legendary', tableTotal: 25, amount: fish.filter(x => x.rarity == 'Legendary').length }, { rarity: 'Mythical', tableTotal: 2, amount: fish.filter(x => x.rarity == 'Mythical').length }
 
-                    return lootTable.choose();
+    ]
+
+    switch (choice) {
+        case "four":
+            fish = fish.filter((x) => { return (x.rarity != 'Rare' && x.rarity != 'Uncommon' && x.rarity != 'Common') })
+            targetProfile.updateOne({ $inc: { tierFourBait: -1 } })
+                .then(() => { })
+            break;
+        case "three":
+            fish = fish.filter((x) => { return x.rarity != 'Uncommon' && x.rarity != 'Common' })
+            targetProfile.updateOne({ $inc: { tierThreeBait: -1 } })
+                .then(() => { })
+            break;
+        case "two":
+            fish = fish.filter((x) => { return x.rarity != 'Common' })
+            targetProfile.updateOne({ $inc: { tierTwoBait: -1 } })
+                .then(() => { })
+            break;
+        case "one":
+            targetProfile.updateOne({ $inc: { tierOneBait: -1 } })
+                .then(() => { })
+    }
+
+    for (let i = 0; i < fish.length; i++) {
+        for (let k = 0; k < lootInfo.length; k++) {
+            if (fish[i].rarity == lootInfo[k].rarity) {
+                lootTable.add(fish[i], Math.floor(lootInfo[k].tableTotal / lootInfo[k].amount))
+            }
+        }
+    }
+    // const lootInfo = [{ rarity: "Common", percentage: fish.filter(x => x.rarity == 'Common').length / totalFish, multiplier: 6000 },
+    // { rarity: "Uncommon", percentage: fish.filter(x => x.rarity == 'Uncommon').length / totalFish, multiplier: 4500 }, { rarity: "Rare", percentage: fish.filter(x => x.rarity == 'Rare').length / totalFish, multiplier: 3000 },
+    // { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
+    // { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
+    // ]
+
+    // switch (choice) {
+    //     case "four":
+    //         fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
+    //         targetProfile.updateOne({$inc: {tierFourBait: -1}})
+    //         .then(()=> {})
+    //     case "three":
+    //         fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
+    //         targetProfile.updateOne({$inc: {tierThreeBait: -1}})
+    //         .then(()=> {})
+    //     case "two": 
+    //         fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
+    //         targetProfile.updateOne({$inc: {tierTwoBait: -1}})
+    //         .then(()=> {})
+    //     default:
+    //         targetProfile.updateOne({$inc: {tierOneBait: -1}})
+    //         .then(()=> {})
+    // }
+
+    // for (let i = 0; i < fish.length; i++) {
+    //     for (let k = 0; k < lootInfo.length; k++) {
+    //         if (fish[i].rarity == lootInfo[k].rarity)
+    //             lootTable.add(fish[i], Math.ceil(lootInfo[k].percentage * lootInfo[k].multiplier))
+    //     }
+    // }
+    return lootTable.choose();
 }
