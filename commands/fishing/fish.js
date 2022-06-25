@@ -115,7 +115,7 @@ module.exports = {
                     })
 
                     await targetProfile.updateOne({ lastFished: Date.now() })
-                    let randomFish = generateRandomFish(choice)
+                    let randomFish = generateRandomFish(choice, targetProfile)
 
                     const length = randomFish.length - randomFish.l_variance + (Math.floor(Math.random() * randomFish.l_variance * 2 + 1))
                     const weight = (randomFish.weight * (length / randomFish.length)).toFixed(1)
@@ -193,7 +193,7 @@ const formatTime = (seconds) => {
     return (minutes == 0) ? `${remainingSeconds} second(s).` : `${minutes} minute(s) and ${remainingSeconds} second(s).`
 }
 
-const generateRandomFish = (choice) => {
+const generateRandomFish = (choice, targetProfile) => {
     let fish = require("../../data/fishdata")
 
     
@@ -205,14 +205,23 @@ const generateRandomFish = (choice) => {
                     { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
                     { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
                     ]
-
+                    
                     switch (choice) {
                         case "four":
                             fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
+                            targetProfile.updateOne({$inc: {tierFourBait: -1}})
+                            .then(()=> {})
                         case "three":
-                        fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
+                            fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
+                            targetProfile.updateOne({$inc: {tierThreeBait: -1}})
+                            .then(()=> {})
                         case "two": 
-                        fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
+                            fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
+                            targetProfile.updateOne({$inc: {tierTwoBait: -1}})
+                            .then(()=> {})
+                        default:
+                            targetProfile.updateOne({$inc: {tierOneBait: -1}})
+                            .then(()=> {})
                     }
 
                     for (let i = 0; i < fish.length; i++) {
