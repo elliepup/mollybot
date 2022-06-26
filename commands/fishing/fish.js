@@ -4,6 +4,7 @@ const FishingData = require('../../models/FishingProfile')
 const { getTieredCoins } = require('../../models/EconProfile')
 const { FishData, rarityInfo } = require('../../models/Fish')
 const LootTable = require('loot-table');
+const { spawn } = require('child_process')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,9 +14,17 @@ module.exports = {
 
         const userId = interaction.user.id;
         let targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
-        const timeToFish = 1;
+        const timeToFish = 60 * 5;
         let cooldownProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
 
+        if (targetProfile.tierOneBait < 1 && targetProfile.tierTwoBait < 1 && targetProfile.tierThreeBait < 1 && targetProfile.tierFourBait < 1) return interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#FC0000')
+                    .setTitle(`Insufficient Bait`)
+                    .setDescription(`You do not have a sufficient amount of bait to fish. You can buy some off the shop.`)
+            ]
+        })
         if (cooldownProgress > timeToFish) {
 
             const embed = new MessageEmbed()
@@ -114,12 +123,29 @@ module.exports = {
                         ], components: [buttonRow]
                     })
 
-                    await targetProfile.updateOne({ lastFished: Date.now() })
+                    //refreshes profile
+                    targetProfile = await FishingData.findOne({ userId: userId })
+
                     let randomFish = generateRandomFish(choice, targetProfile)
+
+                    if (!randomFish) {
+                        return interaction.editReply({
+                            embeds: [
+                                embed
+                                    .setColor('#FC0000')
+                                    .setDescription(`You do not have a sufficient amount of bait to fish. You can buy some off the shop.`)
+                            ], components: [buttonRow]
+                        })
+                    }
+
+                    await targetProfile.updateOne({ lastFished: Date.now() })
+                    const shinyRate = 0.00025 // no shiny ever
+                    let shiny = Math.random() <= shinyRate
+                    let vMult = shiny ? 100 : 1
 
                     const length = randomFish.length - randomFish.l_variance + (Math.floor(Math.random() * randomFish.l_variance * 2 + 1))
                     const weight = (randomFish.weight * (length / randomFish.length)).toFixed(1)
-                    const value = Math.floor((weight / randomFish.weight) * randomFish.value)
+                    const value = Math.floor((weight / randomFish.weight) * randomFish.value * vMult)
 
                     //generate random identifier for fish
                     const characters = "abcdefghijklmnopqrstuvwxyz123456789";
@@ -145,14 +171,15 @@ module.exports = {
                         length: length,
                         weight: weight,
                         value: value,
-                        color: randomFish.color
+                        color: randomFish.color,
+                        shiny: shiny
                     })
 
                     interaction.editReply({
                         embeds: [
                             embed
-                                .setColor(rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex)
-                                .setDescription(`${interaction.user.username} has reeled in a **${randomFish.name}**!`)
+                                .setColor((!shiny) ? rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex : `#FF0074`)
+                                .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
                                 .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
                                 .addField(`Length`, (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, true)
                                 .addField(`Weight`, (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, true)
@@ -160,9 +187,9 @@ module.exports = {
                                 .addField(`Selling Price`, getTieredCoins(value), true)
                                 .addField(`Identifier`, `\`${uniqueId}\``, true)
 
-                                .setThumbnail(`attachment://${randomFish.fishNo}.png`)
+                                .setThumbnail((!shiny) ? `attachment://${randomFish.fishNo}.png` : `attachment://${randomFish.fishNo}.png`)
                         ],
-                        components: [buttonRow], files: [`./extras/${randomFish.fishNo}.png`]
+                        components: [buttonRow], files: [(!shiny) ? `./extras/${randomFish.fishNo}.png` : `./extras/shiny/${randomFish.fishNo}.png`]
                     })
                 })
 
@@ -207,25 +234,56 @@ const generateRandomFish = (choice, targetProfile) => {
 
     ]
 
+
     switch (choice) {
         case "four":
             fish = fish.filter((x) => { return (x.rarity != 'Rare' && x.rarity != 'Uncommon' && x.rarity != 'Common') })
+            if (targetProfile.tierFourBait < 1) return null
             targetProfile.updateOne({ $inc: { tierFourBait: -1 } })
                 .then(() => { })
             break;
         case "three":
             fish = fish.filter((x) => { return x.rarity != 'Uncommon' && x.rarity != 'Common' })
+            if (targetProfile.tierThreeBait < 1) return null
             targetProfile.updateOne({ $inc: { tierThreeBait: -1 } })
                 .then(() => { })
             break;
         case "two":
             fish = fish.filter((x) => { return x.rarity != 'Common' })
+            if (targetProfile.tierTwoBait < 1) return null
             targetProfile.updateOne({ $inc: { tierTwoBait: -1 } })
                 .then(() => { })
             break;
         case "one":
+            if (targetProfile.tierOneBait < 1) return null
             targetProfile.updateOne({ $inc: { tierOneBait: -1 } })
                 .then(() => { })
+    }
+
+    const dayMap = new Map()
+    dayMap.set("Morning", [5, 11])
+    dayMap.set("Afternoon", [12, 17])
+    dayMap.set("Evening", [18, 21])
+
+    const now = new Date().getHours()
+
+    if (now >= dayMap.get("Morning")[0] && now <= dayMap.get("Morning")[1]) {
+        fish = fish.filter((x) => { return x.time == "Morning" || x.time == "All" })
+    }
+    else if ((now >= dayMap.get("Afternoon")[0] && now <= dayMap.get("Afternoon")[1])) {
+        fish = fish.filter((x) => { return x.time == "Afternoon" || x.time == "All" })
+    }
+    else if (now >= dayMap.get("Evening")[0] && now <= dayMap.get("Evening")[1]) {
+        fish = fish.filter((x) => { return x.time == "Evening" || x.time == "All" })
+    }
+    else {
+        fish = fish.filter((x) => { return x.time == "Night" || x.time == "All" })
+    }
+
+    const shinyRate = 0.10
+
+    if (Math.random() <= shinyRate) {
+
     }
 
     for (let i = 0; i < fish.length; i++) {
@@ -235,35 +293,6 @@ const generateRandomFish = (choice, targetProfile) => {
             }
         }
     }
-    // const lootInfo = [{ rarity: "Common", percentage: fish.filter(x => x.rarity == 'Common').length / totalFish, multiplier: 6000 },
-    // { rarity: "Uncommon", percentage: fish.filter(x => x.rarity == 'Uncommon').length / totalFish, multiplier: 4500 }, { rarity: "Rare", percentage: fish.filter(x => x.rarity == 'Rare').length / totalFish, multiplier: 3000 },
-    // { rarity: "Epic", percentage: fish.filter(x => x.rarity == 'Epic').length / totalFish, multiplier: 1000 }, { rarity: "Legendary", percentage: fish.filter(x => x.rarity == 'Legendary').length / totalFish, multiplier: 250 },
-    // { rarity: "Mythical", percentage: fish.filter(x => x.rarity == 'Mythical').length / totalFish, multiplier: 20 }
-    // ]
 
-    // switch (choice) {
-    //     case "four":
-    //         fish = fish.filter((obj) => {return obj.rarity != 'Rare'})
-    //         targetProfile.updateOne({$inc: {tierFourBait: -1}})
-    //         .then(()=> {})
-    //     case "three":
-    //         fish = fish.filter((obj) => {return obj.rarity !='Uncommon'})
-    //         targetProfile.updateOne({$inc: {tierThreeBait: -1}})
-    //         .then(()=> {})
-    //     case "two": 
-    //         fish = fish.filter((obj) => {return obj.rarity != 'Common'})   
-    //         targetProfile.updateOne({$inc: {tierTwoBait: -1}})
-    //         .then(()=> {})
-    //     default:
-    //         targetProfile.updateOne({$inc: {tierOneBait: -1}})
-    //         .then(()=> {})
-    // }
-
-    // for (let i = 0; i < fish.length; i++) {
-    //     for (let k = 0; k < lootInfo.length; k++) {
-    //         if (fish[i].rarity == lootInfo[k].rarity)
-    //             lootTable.add(fish[i], Math.ceil(lootInfo[k].percentage * lootInfo[k].multiplier))
-    //     }
-    // }
     return lootTable.choose();
 }

@@ -9,6 +9,8 @@ module.exports = [
         weight: 12,
         color: "Green",
         value: 25,
+        time: "Morning",
+        type: "Freshwater",
     },
     {
         name: "Sea Bass",
@@ -20,6 +22,8 @@ module.exports = [
         weight: 6,
         color: "Black",
         value: 20,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Giant Sea Bass",
@@ -31,6 +35,8 @@ module.exports = [
         weight: 560,
         color: "Black",
         value: 800,
+        time: "All",
+        type: "Saltwater"
     },
     {
         name: "Blue Marlin",
@@ -42,6 +48,8 @@ module.exports = [
         weight: 900,
         color: "Blue",
         value: 600,
+        time: "Afternoon",
+        type: "Saltwater",
     },
     {
         name: "Coelacanth",
@@ -53,6 +61,8 @@ module.exports = [
         weight: 198,
         color: "Black",
         value: 1000,
+        time: "Night",
+        type: "Saltwater",
     },
     {
         name: "Whale Shark",
@@ -64,6 +74,8 @@ module.exports = [
         weight: 41000,
         color: "White",
         value: 1000,
+        time: "Afternoon",
+        type: "Saltwater",
     },
     {
         name: "Northern Pike",
@@ -75,6 +87,8 @@ module.exports = [
         weight: 1,
         color: "Brown",
         value: 35,
+        time: "Afternoon",
+        type: "Freshwater",
     },
     {
         name: "Alaska Pollock",
@@ -86,6 +100,8 @@ module.exports = [
         weight: 2,
         color: "Gray",
         value: 15,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Devils Hole Pupfish",
@@ -97,6 +113,8 @@ module.exports = [
         weight: 2,
         color: "Blue",
         value: 5000,
+        time: "Night",
+        type: "Saltwater",
     },
     {
         name: "Mahi-mahi",
@@ -108,6 +126,8 @@ module.exports = [
         weight: 35,
         color: "Green",
         value: 500,
+        time: "Afternoon",
+        type: "Saltwater",
     },
     {
         name: "Sockeye Salmon",
@@ -119,6 +139,8 @@ module.exports = [
         weight: 6,
         color: "Green",
         value: 500,
+        time: "All",
+        type: "Freshwater",
     },
     {
         name: "Atlantic Salmon",
@@ -130,6 +152,8 @@ module.exports = [
         weight: 8,
         color: "White",
         value: 20,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Chinook Salmon",
@@ -141,6 +165,8 @@ module.exports = [
         weight: 30,
         color: "White",
         value: 20,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Pink Salmon",
@@ -152,6 +178,8 @@ module.exports = [
         weight: 8,
         color: "Pink",
         value: 20,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Northern Bluefin Tuna",
@@ -163,6 +191,8 @@ module.exports = [
         weight: 800,
         color: "Blue",
         value: 1000,
+        time: "Evening",
+        type: "Saltwater",
     },
     {
         name: "Mackerel Tuna",
@@ -174,6 +204,8 @@ module.exports = [
         weight: 4,
         color: "Blue",
         value: 70,
+        time: "Afternoon",
+        type: "Saltwater",
     },
     {
         name: "Horse Mackerel",
@@ -185,6 +217,8 @@ module.exports = [
         weight: 1,
         color: "Silver",
         value: 10,
+        time: "All",
+        type: "Saltwater",
     },
     {
         name: "Eurasian Carp",
@@ -196,6 +230,8 @@ module.exports = [
         weight: 10,
         color: "Pale-Gray",
         value: 30,
+        time: "Afternoon",
+        type: "Freshwater",
     },
     {
         name: "Olive Flounder",
@@ -207,9 +243,11 @@ module.exports = [
         weight: 15,
         color: "Pale-Gray",
         value: 85,
+        time: "All",
+        type: "Saltwater",
     },
     {
-        name: "Platnium Arowana",
+        name: "Platinum Arowana",
         fishNo: 20,
         rarity: "Mythical",
         length: 40,
@@ -218,6 +256,8 @@ module.exports = [
         weight: 105,
         color: "Silver",
         value: 5000,
+        time: "Night",
+        type: "Freshwater",
     },
     {
         name: "Peppermint Angelfish",
@@ -229,6 +269,8 @@ module.exports = [
         weight: 3,
         color: "Red",
         value: 5000,
+        time: "Evening",
+        type: "Saltwater",
     },
     {
         name: "Pygmy Pufferfish",
@@ -240,6 +282,8 @@ module.exports = [
         weight: 1,
         color: "Yellow",
         value: 60,
+        time: "Morning",
+        type: "Saltwater",
     },
     {
         name: "Chinese Paddlefish",
@@ -251,5 +295,7 @@ module.exports = [
         weight: 800,
         color: "Yellow",
         value: 1200,
+        time: "Afternoon",
+        type: "Freshwater",
     },
 ]

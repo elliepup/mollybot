@@ -22,22 +22,24 @@ module.exports = {
             ]
         })
 
+        const shiny = targetFish.shiny;
+
         return interaction.reply({
             embeds: [
                 new MessageEmbed()
                 .setTitle(`Fish Details: \`${targetFish.fishId}\``)
-                .setColor(rarityInfo.find(obj => obj.rarity === targetFish.rarity).hex)
+                .setColor((!shiny) ? rarityInfo.find(obj => obj.rarity === targetFish.rarity).hex : `#FF0074`)
                 .setDescription(`Current Owner: <@${targetFish.currentOwner}>`)
                 .addField("Caught By", `<@${targetFish.originalOwner}>`, true)
                 .addField("Caught On", `\`${targetFish.catchDate.toLocaleDateString('en-US')}\``, true)
-                .addField("Fish", `\`${targetFish.type}\``, true)
+                .addField("Fish", (!shiny) ? (`\`${targetFish.type}\``) : (`\`⭐${targetFish.type}⭐\``), true)
                 .addField("Rarity", `\`${rarityInfo.find(obj => obj.rarity === targetFish.rarity).stars}\``, true)
                 .addField("Value", `${getTieredCoins(targetFish.value)}`, true)
                 .addField("Stats", `**Length:** ${(targetFish.length > 24) ? `\`${(targetFish.length/12).toFixed(1)} ft\`` : `\`${targetFish.length} in\``}` + 
-                `\n**Weight:** \`${targetFish.weight.toString()} lb\`\n**Color:** \`${targetFish.color}\``)
-                .setThumbnail(`attachment://${targetFish.fishNo}.png`)
+                `\n**Weight:** \`${targetFish.weight.toString()} lb\`\n**Color:** \`${targetFish.color}\`${(shiny) ? `\n⭐**Shiny**⭐` : ""}`)
+                .setThumbnail((!shiny)? `attachment://${targetFish.fishNo}.png` : `attachment://${targetFish.fishNo}.png`)
                 
-            ], files: [`./extras/${targetFish.fishNo}.png`]
+            ], files: [(!shiny)? `./extras/${targetFish.fishNo}.png` : `./extras/shiny/${targetFish.fishNo}.png`]
         })
 
         

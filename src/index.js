@@ -7,7 +7,21 @@ require('dotenv').config()
 const fs = require('node:fs');
 
 const { Client, Intents, Collection } = require('discord.js')
+const { Player } = require('discord-player')
+
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
+
+client.player = new Player(client, {
+	ytdlOptions: {
+		quality: "highestaudio",
+		highWaterMark: 1 << 25
+	}
+});
+
+module.exports = client;
+
+
+
 
 //event handling
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));

@@ -13,7 +13,7 @@ module.exports = {
         const embed = new MessageEmbed() 
         .setTitle("Molly Bot Shop")
         .setColor('#B4FFF3')
-        .setDescription(shopItems.map((item, index) => `**${item.name}** · /${getTieredCoins(item.price)}` + 
+        .setDescription(shopItems.map((item, index) => `**${item.name}** · ${getTieredCoins(item.price)}` + 
         `\`\`\`${item.description}\`\`\``).join('\n'))
         .setFooter({text: "Use the /buy command to buy things off the shop!"})
         
