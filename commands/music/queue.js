@@ -42,7 +42,7 @@ module.exports = {
             const embed = new MessageEmbed()
             .setColor('#03fc84')
             .setTitle("🎶Songs in the queue🎶")
-            .addField(`Total songs: ${allSongs.length} · [${formatTime(queue.totalTime/1000)}]`, chunks[i].map((k, index) => `${bold('#' + (i*maxItemsPerPage + index + 1) + ': ')}`
+            .addField(`Total songs: ${allSongs.length} · [${formatTime((queue.current.durationMS + queue.totalTime)/1000)}]`, chunks[i].map((k, index) => `${bold('#' + (i*maxItemsPerPage + index + 1) + ': ')}`
             + `[${k.title.length < 40 ? k.title : k.title.substring(0,39) + "..."}](${k.url}) **[${k.duration}]**`).join('\n'))
             pages.push(embed)
         }

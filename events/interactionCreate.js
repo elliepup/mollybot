@@ -2,10 +2,19 @@ module.exports = {
     name: 'interactionCreate',
     async execute(interaction) {
 
-        if (!interaction.isCommand()) return;
-
         const client = interaction.client;
         const command = client.commands.get(interaction.commandName);
+
+        if(interaction.isAutocomplete()) {
+            const choices = client.commands.get(interaction.commandName).autocompleteOptions
+            const focusedValue = interaction.options.getFocused();
+            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
+            await interaction.respond(
+                filtered.map(choice => ({name: choice, value: choice}))
+            )
+        }
+
+        if (!interaction.isCommand()) return;
 
         if(!command) return;
         

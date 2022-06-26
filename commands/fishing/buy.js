@@ -10,11 +10,13 @@ module.exports = {
         .addStringOption(option =>
             option.setName('item')
                 .setDescription('The item that you want to purchase.')
-                .setRequired(true))
+                .setRequired(true)
+                .setAutocomplete(true))
         .addIntegerOption(option =>
             option.setName('quantity')
                 .setDescription('The quantity of the item you want to purchase.')
             ),
+        autocompleteOptions: ['tier one bait', 'tier two bait', 'tier three bait', 'tier four bait'],
     async execute(interaction) {
         const shopData = require('../../data/shopdata')
         const quantity = interaction.options.getInteger('quantity') || 1

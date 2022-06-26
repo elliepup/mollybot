@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const guildId = '838957076465582160';
 const clientId = '932117140490813470';
+const mollyId = '911276391901843476'; //mollybot
 const token = process.env.TOKEN;
 
 const commands = [];
@@ -20,6 +21,6 @@ for (folder of commandFolders) {
 const rest = new REST({ version: '9' }).setToken(token);
 
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-//rest.put(Routes.applicationCommands(clientId), { body: commands })
+//rest.put(Routes.applicationCommands(mollyId), { body: commands })
 	.then(() => console.log('Successfully registered application commands.'))
 	.catch(console.error);

@@ -36,7 +36,12 @@ module.exports = {
         })
 
         //creates queue and joins the voice channel of the user
-        const queue = await client.player.createQueue(interaction.guild);
+        const queue = await client.player.createQueue(interaction.guild, {
+            leaveOnEnd: false,
+            leaveOnStop: false,
+            leaveOnEmpty: false,
+            autoSelfDeaf: false,
+        });
         if (!queue.connection) await queue.connect(interaction.member.voice.channel);
 
         if(interaction.options.getSubcommand() == 'link') {
@@ -65,6 +70,7 @@ module.exports = {
                     new MessageEmbed()
                     .setTitle(`🎶New Song Added to the Queue🎶`)
                     .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
+                    .setThumbnail(song.thumbnail)
                     .setColor('#00B6FF ')
                     .setFooter({text: `Requested by ${song.requestedBy.username}`, iconURL: song.requestedBy.displayAvatarURL({dynamic: true})})
                 ]
@@ -96,6 +102,7 @@ module.exports = {
                     .setTitle(`🎶New Playlist Added to the Queue🎶`)
                     .setDescription(`[${playlist.title}](${playlist.url}) ${bold(`[${result.tracks.length} Songs]`)}`)
                     .setColor('#00B6FF ')
+                    .setThumbnail(playlist.thumbnail)
                     .setFooter({text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({dynamic: true})})
                 ]
             })
@@ -124,6 +131,7 @@ module.exports = {
                     .setTitle(`🎶New Playlist Added to the Queue🎶`)
                     .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
                     .setColor('#00B6FF ')
+                    .setThumbnail(song.thumbnail)
                     .setFooter({text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({dynamic: true})})
                 ]
             })
