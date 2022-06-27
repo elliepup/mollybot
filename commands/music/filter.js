@@ -40,7 +40,7 @@ module.exports = {
                         .setColor('#00B6FF ')
                         .setTitle("🎶Filter Removed")
                         .setDescription(`<@${interaction.user.id}> has removed all filters from the current song queue.`)
-                        .setDescription(`It is normal for the bot to pause for a few seconds to apply a filter. There is no way around this for now.`)
+                        .setFooter({text: `It is normal for the bot to pause for a few seconds to apply a filter. There is no way around this for now.`})
                 ]
             })
         }
@@ -54,7 +54,7 @@ module.exports = {
                     .setTitle("🎶Filter Applied🎶")
                     .setDescription(`<@${interaction.user.id}> has applied a filter to the current song queue.`)
                     .addField(`Filter`, option)
-                    .setDescription(`It is normal for the bot to pause for a few seconds to apply a filter. There is no way around this for now.`)
+                    .setFooter({text: `It is normal for the bot to pause for a few seconds to apply a filter. There is no way around this for now.`})
             ]
         })
 
