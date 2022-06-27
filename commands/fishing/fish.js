@@ -20,7 +20,7 @@ module.exports = {
         let hooked = false;
         let randomFish;
 
-        const timeToFish = 10;
+        const timeToFish = 60 * 5;
         if (targetProfile.tierOneBait < 1 && targetProfile.tierTwoBait < 1 && targetProfile.tierThreeBait < 1 && targetProfile.tierFourBait < 1) return await interaction.reply({
             embeds: [
                 new MessageEmbed()
