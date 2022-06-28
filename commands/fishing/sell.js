@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
 const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js')
 const paginationEmbed = require('discordjs-button-pagination')
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
+const { User, getTieredCoins } = require('../../models/User')
 const { FishData, rarityInfo } = require('../../models/Fish');
 const FishingData = require('../../models/FishingProfile')
 
@@ -17,8 +17,8 @@ module.exports = {
 
         const identifier = interaction.options.getString('identifier');
         let targetFish = await FishData.findOne({ fishId: identifier });
-        const fishingProfile = await FishingData.findOne({ userId: interaction.user.id }) || await FishingData.create({ userId: interaction.user.id })
-        const econProfile = await EconData.findOne({userId: interaction.user.id}) || await EconData.create({userId: interaction.user.id})
+        const user = await User.findOne({ userId: interaction.user.id }) || await User.create({ userId: interaction.user.id });
+        
         if (!targetFish) return interaction.reply({
             embeds: [
                 new MessageEmbed()
@@ -116,7 +116,7 @@ module.exports = {
             })
 
             await targetFish.remove()
-            await econProfile.updateOne({$inc:{balance: afterTax}})
+            await user.updateOne({$inc:{balance: afterTax}})
                 .then(() => {
                     return interaction.editReply({
                         embeds: [

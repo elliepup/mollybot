@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const fishingProfile = new mongoose.Schema({
-    userId: {type: String, require: true, unique: true},
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true},
     tierOneBait: {type: Number, default: 5},
     tierTwoBait: {type: Number, default: 3},
     tierThreeBait: {type: Number, default: 1},

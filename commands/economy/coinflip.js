@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, bold } = require('@discordjs/builders');
 const { MessageButton, MessageActionRow, MessageEmbed, ButtonInteraction } = require('discord.js');
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
-
+const { EconData } = require('../../models/EconProfile')
+const { User, getTieredCoins } = require('../../models/User')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('coinflip')
@@ -12,9 +12,12 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
 
+        const userId = interaction.user.id
         const wager = interaction.options.getInteger("wager");
-        let userData = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id });
-        const balance = userData.balance;
+
+        let user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
+        const userEcon = await EconData.findOne({ user: user }) || await EconData.create({ user: user });
+        const balance = user.balance;
 
         //if the user attempts to wager a value less than 1
         if (wager > balance) return interaction.reply({
@@ -88,7 +91,8 @@ module.exports = {
             (row.components).forEach(element => { element.setDisabled(true) });
             const buttonId = (buttonInteraction.first().customId);
 
-            userData = await EconData.findOne({ userId: interaction.user.id })
+            //refreshes user data
+            user = await User.findOne({ userId: userId })
 
             //if the button pressed was the cancel button, cancel bet and edit embed
             if (buttonId == 'cancel') return interaction.editReply({
@@ -99,7 +103,7 @@ module.exports = {
                 components: [row]
             })
 
-            if(userData.balance < wager) return interaction.editReply({
+            if(user.balance < wager) return interaction.editReply({
                 embeds: [embed
                     .setDescription(`The amount you wish to coinflip exceeds your current balance.`)
                     .setColor('#FC0000')
@@ -109,15 +113,15 @@ module.exports = {
 
             //generate and update balance
             const rewardOrDeduction = (buttonId == rngSim) ? wager : (wager * -1);
-            await userData.updateOne({ $inc: { balance: rewardOrDeduction, timesCoinflipped: 1, totalCoinflipped: wager } })
-
-            if (wager > userData.biggestCoinflip) {
-                await userData.updateOne({ $set: { biggestCoinflip: wager } })
+            await user.updateOne({ $inc: { balance: rewardOrDeduction } })
+            await userEcon.updateOne({ $inc: { timesCoinflipped: 1, totalCoinflipped: wager } })
+            if (wager > userEcon.biggestCoinflip) {
+                await userEcon.updateOne({ $set: { biggestCoinflip: wager } })
             }
 
             //if the user has won
             if (rewardOrDeduction > 0) {
-                await userData.updateOne({ $inc: { winningsFromCoinflips: wager, coinflipsWon: 1 } })
+                await userEcon.updateOne({ $inc: { winningsFromCoinflips: wager, coinflipsWon: 1 } })
                 interaction.editReply({
                     embeds: [embed
                         .setDescription(`Congratulations! It landed on ${rngSim}, so you have won ${getTieredCoins(wager)}!`)

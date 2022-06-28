@@ -3,8 +3,8 @@ const mongoose = require('mongoose')
 const fish = new mongoose.Schema({
     fishId: {type: String, required: true, unique: true},
     fishNo: {type: String, required: true},
-    originalOwner: {type: String, require: true, unique: false},
-    currentOwner: {type: String, require: true, unique: false},
+    originalOwner: {type: String, required: true, unique: false},
+    currentOwner: {type: String, required: true, unique: false},
     catchDate: {type: Date, default: null},
     rarity: {type: String, default: "N/A"},
     type: {type: String, default: "N/A"},

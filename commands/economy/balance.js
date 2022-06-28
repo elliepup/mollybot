@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
-
+const { EconData } = require('../../models/EconProfile')
+const { User, getTieredCoins } = require('../../models/User')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('balance')
@@ -13,8 +13,9 @@ module.exports = {
     async execute(interaction) {
         
         const target = interaction.options.getUser('target') || interaction.user;
-        const targetEcon = await EconData.findOne({userId: target.id}) || await EconData.create({userId: target.id});
-        const balance = await targetEcon.balance;
+        const user = await User.findOne({ userId: target.id }) || await User.create({ userId: target.id });
+
+        const balance = await user.balance;
 
         const embed = new MessageEmbed()
         .setTitle(`${target.username}'s balance`)

@@ -1,15 +1,14 @@
-const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
+const { SlashCommandBuilder } = require('@discordjs/builders')
 const { MessageEmbed, MessageButton } = require('discord.js')
 const paginationEmbed = require('discordjs-button-pagination')
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
-
+const { User } = require('../../models/User')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('leaderboard')
         .setDescription('See everyone ranked by wealth!'),
     async execute(interaction) {
 
-        const leaderboardData = await EconData.find({}).sort({balance: 'desc'});
+        const leaderboardData = await User.find({}).sort({balance: 'desc'});
         
         const pages = [];
         const buttons = [];

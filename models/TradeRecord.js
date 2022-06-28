@@ -1,8 +1,8 @@
 const mongoose = require('mongoose')
 
 const tradeRecord = new mongoose.Schema({
-    traderId: {type: String, require: true, unique: false},
-    partnerId: {type: String, require: true, unique: false},
+    traderId: {type: String, required: true, unique: false},
+    partnerId: {type: String, required: true, unique: false},
     tradeId: {type: String, require: true},
     traderFishOffering: {type: Array},
     partnerFishOffering: {type: Array},

@@ -2,7 +2,7 @@ const { SlashCommandBuilder, blockQuote, bold, codeBlock } = require('@discordjs
 const { MessageEmbed, MessageAttachment, MessageButton, MessageActionRow, MessageSelectMenu } = require('discord.js');
 const { FishData, rarityInfo } = require('../../models/Fish')
 const FishingData = require('../../models/FishingProfile')
-const { getTieredCoins } = require('../../models/EconProfile')
+const { User, getTieredCoins } = require('../../models/User')
 const wait = require('node:timers/promises').setTimeout;
 const LootTable = require('loot-table')
 
@@ -13,9 +13,11 @@ module.exports = {
     async execute(interaction) {
 
         const userId = interaction.user.id;
-        let targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
 
-        const baitChance = await targetProfile.rodLevel * 0.075;
+        const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
+        let userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
+
+        const baitChance = await userFishing.rodLevel * 0.075;
         const consumedBait = Math.random() > baitChance
 
         let fishBit = false;
@@ -23,8 +25,8 @@ module.exports = {
         let hooked = false;
         let randomFish;
 
-        const timeToFish = 60 * 5;
-        if (targetProfile.tierOneBait < 1 && targetProfile.tierTwoBait < 1 && targetProfile.tierThreeBait < 1 && targetProfile.tierFourBait < 1) return await interaction.reply({
+        const timeToFish = 0 * 5;
+        if (userFishing.tierOneBait < 1 && userFishing.tierTwoBait < 1 && userFishing.tierThreeBait < 1 && userFishing.tierFourBait < 1) return await interaction.reply({
             embeds: [
                 new MessageEmbed()
                     .setColor('#FC0000')
@@ -33,7 +35,7 @@ module.exports = {
             ]
         })
 
-        if (canFish(timeToFish, targetProfile)) {
+        if (canFish(timeToFish, userFishing)) {
             const embed = new MessageEmbed()
                 .setColor('E1E1E1')
                 .setTitle(`${interaction.user.username} has started fishing!`)
@@ -46,10 +48,10 @@ module.exports = {
                         .setCustomId('select')
                         .setPlaceholder('No bait selected')
                         .addOptions([
-                            (targetProfile.tierOneBait != 0) ? { label: "Tier 1 Bait", description: `x${targetProfile.tierOneBait}`, value: "one" } : [],
-                            (targetProfile.tierTwoBait != 0) ? { label: "Tier 2 Bait", description: `x${targetProfile.tierTwoBait}`, value: "two" } : [],
-                            (targetProfile.tierThreeBait != 0) ? { label: "Tier 3 Bait", description: `x${targetProfile.tierThreeBait}`, value: "three" } : [],
-                            (targetProfile.tierFourBait != 0) ? { label: "Tier 4 Bait", description: `x${targetProfile.tierFourBait}`, value: "four" } : []
+                            (userFishing.tierOneBait != 0) ? { label: "Tier 1 Bait", description: `x${userFishing.tierOneBait}`, value: "one" } : [],
+                            (userFishing.tierTwoBait != 0) ? { label: "Tier 2 Bait", description: `x${userFishing.tierTwoBait}`, value: "two" } : [],
+                            (userFishing.tierThreeBait != 0) ? { label: "Tier 3 Bait", description: `x${userFishing.tierThreeBait}`, value: "three" } : [],
+                            (userFishing.tierFourBait != 0) ? { label: "Tier 4 Bait", description: `x${userFishing.tierFourBait}`, value: "four" } : []
                         ])
                 )
             await interaction.reply({
@@ -99,10 +101,10 @@ module.exports = {
                 } else if (type == 'BUTTON') {
                     if (choice == 'confirm') {
                         //refresh targetProfile
-                        targetProfile = await FishingData.findOne({ userId: interaction.user.id })
-                        if (!canFish(timeToFish, targetProfile)) {
+                        userFishing = await FishingData.findOne({ user: user });
+                        if (!canFish(timeToFish, userFishing)) {
                             buttonRow.components.forEach(component => { component.setDisabled(true) })
-                            const cooldownProgress = Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000);
+                            const cooldownProgress = Math.abs((new Date().getTime() - userFishing.lastFished.getTime()) / 1000);
                             return await Interaction.update({
                                 embeds: [
                                     embed
@@ -112,7 +114,7 @@ module.exports = {
                                 ], components: [buttonRow]
                             })
                         }
-                        if (!hasBait(baitChoice, targetProfile)) {
+                        if (!hasBait(baitChoice, userFishing)) {
                             buttonRow.components.forEach(component => { component.setDisabled(true) })
                             collector.stop();
                             return await Interaction.editReply({
@@ -130,9 +132,9 @@ module.exports = {
 
                         //deduct bait and update targetProfile lastFished
                         if(consumedBait) {
-                            deductBait(baitChoice, targetProfile);
+                            deductBait(baitChoice, userFishing);
                         }
-                        await targetProfile.updateOne({ lastFished: Date.now() })
+                        await userFishing.updateOne({ lastFished: Date.now() })
 
                         randomFish = generateRandomFish(baitChoice);
 
@@ -225,8 +227,8 @@ module.exports = {
                             } while (await FishData.findOne({ fishId: uniqueId }))
 
                             await FishData.create({
-                                originalOwner: interaction.user.id,
-                                currentOwner: interaction.user.id,
+                                originalOwner: user.userId,
+                                currentOwner: user.userId,
                                 catchDate: Date.now(),
                                 fishId: uniqueId,
                                 fishNo: randomFish.fishNo,
@@ -264,7 +266,7 @@ module.exports = {
             })
 
         } else {
-            const cooldownProgress = Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000);
+            const cooldownProgress = Math.abs((new Date().getTime() - userFishing.lastFished.getTime()) / 1000);
             return interaction.reply({
                 embeds: [
                     new MessageEmbed()

@@ -11,8 +11,8 @@ module.exports = {
                 .setRequired(false)),
     async execute(interaction) {
 
-        const target = interaction.options.getUser('target') || interaction.user;
-        await FishingData.findOne({ userId: target.id }) || await FishingData.create({ userId: target.id })
+        //const target = interaction.options.getUser('target') || interaction.user;
+        //await FishingData.findOne({ userId: target.id }) || await FishingData.create({ userId: target.id })
 
         interaction.reply({
             embeds:[

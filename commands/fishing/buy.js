@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageAttachment, MessageButton, MessageActionRow } = require('discord.js');
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
-const FishingData  = require('../../models/FishingProfile')
+const { EconData } = require('../../models/EconProfile')
+const FishingData = require('../../models/FishingProfile')
+const { User, getTieredCoins } = require('../../models/User')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,15 +16,18 @@ module.exports = {
         .addIntegerOption(option =>
             option.setName('quantity')
                 .setDescription('The quantity of the item you want to purchase.')
-            ),
-        autocompleteOptions: ['tier one bait', 'tier two bait', 'tier three bait', 'tier four bait', "fishing rod upgrade"],
+        ),
+    autocompleteOptions: ['tier one bait', 'tier two bait', 'tier three bait', 'tier four bait', "fishing rod upgrade"],
     async execute(interaction) {
         const shopData = require('../../data/shopdata')
         const quantity = interaction.options.getInteger('quantity') || 1
         purchaseItem = shopData.filter((obj) => { return obj.name.toLowerCase() == interaction.options.getString('item').toLowerCase() })[0]
-        let econProfile = await EconData.findOne({ userId: interaction.user.id }) || await EconData.create({ userId: interaction.user.id })
-        const fishingProfile = await FishingData.findOne(({ userId: interaction.user.id }) || await FishingData.create({ userId: interaction.user.id }))
-        const balance = econProfile.balance
+
+        const userId = interaction.user.id;
+
+        let user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
+        const userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
+        const balance = user.balance
 
         if (quantity < 1) return interaction.reply({
             embeds: [
@@ -35,7 +39,7 @@ module.exports = {
         })
 
         //put item check here
-        if(!purchaseItem) return interaction.reply({ 
+        if (!purchaseItem) return interaction.reply({
             embeds: [
                 new MessageEmbed()
                     .setColor('#FC0000')
@@ -44,8 +48,8 @@ module.exports = {
             ]
         })
 
-        if (await !fishingProfile.rodLevel){
-            await fishingProfile.updateOne({$set: {rodLevel: 0}})
+        if (await !userFishing.rodLevel) {
+            await userFishing.updateOne({ $set: { rodLevel: 0 } })
         }
 
         if (purchaseItem.name == "Fishing Rod Upgrade" && quantity > 1) return interaction.reply({
@@ -57,7 +61,7 @@ module.exports = {
             ]
         })
 
-        else if(purchaseItem.name == "Fishing Rod Upgrade" && await fishingProfile.rodLevel > 4) return interaction.reply({
+        else if (purchaseItem.name == "Fishing Rod Upgrade" && await userFishing.rodLevel > 4) return interaction.reply({
             embeds: [
                 new MessageEmbed()
                     .setColor('#FC0000')
@@ -68,7 +72,7 @@ module.exports = {
 
 
         const cost = quantity * purchaseItem.price;
-        
+
         if (cost > balance) return interaction.reply({
             embeds: [
                 new MessageEmbed()
@@ -120,7 +124,7 @@ module.exports = {
             const buttonId = (ButtonInteraction.first().customId)
             row.components.forEach(element => { element.setDisabled(true) });
 
-            econProfile = await EconData.findOne({ userId: interaction.user.id })
+            user = await User.findOne({ user: user })
             if (buttonId == 'cancel') {
                 return interaction.editReply({
                     embeds: [
@@ -132,31 +136,31 @@ module.exports = {
                 })
             }
 
-            if(econProfile.balance < cost) return interaction.editReply({
+            if (user.balance < cost) return interaction.editReply({
                 embeds: [
                     embed
-                    .setColor("FC0000")
-                    .setDescription("You do not have enough money to complete this purchase.")
+                        .setColor("FC0000")
+                        .setDescription("You do not have enough money to complete this purchase.")
                 ],
                 components: [row]
             })
 
             //put logic for buying stuff here
-            await econProfile.updateOne({$inc: {balance: -1 * cost}})
+            await user.updateOne({ $inc: { balance: -1 * cost } })
             interaction.editReply({
                 embeds: [
                     embed
-                    .setColor('4ADC00')
-                    .setDescription(`You have successfully purchased **${purchaseItem.name}**! Enjoy your new goodies.`)
+                        .setColor('4ADC00')
+                        .setDescription(`You have successfully purchased **${purchaseItem.name}**! Enjoy your new goodies.`)
                 ],
                 components: [row]
             })
-            switch(purchaseItem.name.toLowerCase()){
-                case("tier one bait"):  await fishingProfile.updateOne({$inc: {tierOneBait: quantity}}); break
-                case("tier two bait") :  await fishingProfile.updateOne({$inc: {tierTwoBait: quantity}}); break
-                case('tier three bait'):  await fishingProfile.updateOne({$inc: {tierThreeBait: quantity}}); break
-                case('tier four bait') :  await fishingProfile.updateOne({$inc: {tierFourBait: quantity}}); break
-                case('fishing rod upgrade'):  await fishingProfile.updateOne({$inc: {rodLevel:1}}); break
+            switch (purchaseItem.name.toLowerCase()) {
+                case ("tier one bait"): await userFishing.updateOne({ $inc: { tierOneBait: quantity } }); break
+                case ("tier two bait"): await userFishing.updateOne({ $inc: { tierTwoBait: quantity } }); break
+                case ('tier three bait'): await userFishing.updateOne({ $inc: { tierThreeBait: quantity } }); break
+                case ('tier four bait'): await userFishing.updateOne({ $inc: { tierFourBait: quantity } }); break
+                case ('fishing rod upgrade'): await userFishing.updateOne({ $inc: { rodLevel: 1 } }); break
             }
         })
 

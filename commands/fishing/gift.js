@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 const { FishData, rarityInfo } = require('../../models/Fish')
-const { getTieredCoins } = require('../../models/EconProfile')
+const { getTieredCoins } = require('../../models/User')
 const paginationEmbed = require('discordjs-button-pagination')
 const FishingData = require('../../models/FishingProfile')
 

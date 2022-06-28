@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageButton, MessageActionRow, ButtonInteraction } = require('discord.js');
-const { EconData, getTieredCoins } = require('../../models/EconProfile')
+const { EconData } = require('../../models/EconProfile')
+const { User, getTieredCoins } = require('../../models/User')
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('donate')
@@ -17,11 +19,14 @@ module.exports = {
 
         const donor = interaction.user;
         const target = interaction.options.getUser("target");
-
         const amount = interaction.options.getInteger("amount");
-        const targetEcon = await EconData.findOne({ userId: target.id }) || await EconData.create({ userId: target.id });
-        let donorEcon = await EconData.findOne({ userId: donor.id }) || await EconData.create({ userId: donor.id })
-        const donorBalance = donorEcon.balance;
+
+        let user = await User.findOne({ userId: donor.id }) || await User.create({ userId: donor.id });
+        const userEcon = await EconData.findOne({ user: user }) || await EconData.create({ user: user });
+        const userBalance = user.balance;
+
+        const targetUser = await User.findOne({ userId: target.id }) || await User.create({ userId: target.id });
+
 
         //verify that the user has entered a valid amount and target
         if (amount <= 0) return interaction.reply({
@@ -33,7 +38,7 @@ module.exports = {
             ephemeral: true,
         })
 
-            if (amount > donorBalance) return interaction.reply({
+            if (amount > userBalance) return interaction.reply({
                 content: "You don't have that many coins to donate!",
                 ephemeral: true,
             })
@@ -77,8 +82,8 @@ module.exports = {
             row.components.forEach(element => { element.setDisabled(true) });
             const buttonId = (ButtonInteraction.first().customId)
 
-            donorEcon = await EconData.findOne({ userId: interaction.user.id })
-            if(donorEcon.balance < amount) return interaction.editReply({
+            user = await User.findOne({ user: user })
+            if(user.balance < amount) return interaction.editReply({
                 embeds: [
                     embed
                     .setColor('#FC0000')
@@ -96,16 +101,16 @@ module.exports = {
                 components: [row]
             })
 
-            await donorEcon.updateOne({ $inc: { balance: -1 * amount } })
-            await targetEcon.updateOne({ $inc: { balance: amount } })
-            await donorEcon.updateOne({ $inc: { totalDonated: amount } })
+            await user.updateOne({ $inc: { balance: -1 * amount } })
+            await targetUser.updateOne({ $inc: { balance: amount } })
+            await userEcon.updateOne({ $inc: { totalDonated: amount } })
 
             interaction.editReply({
                 embeds: [
                     embed
                     .setDescription(`${donor.username} has made a generous donation to ${target.username}.`)
                     .setColor('4ADC00')
-                    .addField(`${donor.username}'s new balance`, getTieredCoins(donorBalance - amount), true)
+                    .addField(`${donor.username}'s new balance`, getTieredCoins(user.balance - amount), true)
                 ],
                 components: [row]
             })

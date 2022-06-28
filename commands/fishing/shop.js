@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, blockQuote, codeBlock } = require('@discordjs/builders');
 const { MessageEmbed, MessageButton } = require('discord.js');
-const { getTieredCoins } = require('../../models/EconProfile');
+const { getTieredCoins } = require('../../models/User');
 const paginationEmbed = require('discordjs-button-pagination')
 
 module.exports = {
@@ -10,7 +10,6 @@ module.exports = {
     async execute(interaction) {
 
         //set up pagination
-        
         const shopItems = require('../../data/shopdata')
         const pages = [];
         const buttons = [];
