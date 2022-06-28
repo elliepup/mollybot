@@ -16,27 +16,22 @@ const econProfile = new mongoose.Schema({
 
 const EconData = mongoose.model("EconProfile", econProfile);
 
-//:vomit:
-const getTieredCoins = (coins) => {
-    //just in case I decide to change the values later on. goes from silver to plat
-    if(!coins) return "`0` <:YukiBronze:872106572275392512>";
-    const coinValues = [100, 100, 100];
-    const coinEmotes = ['<:YukiPlat:872106609399169025>', '<:YukiGold:872106598527541248>',
+// :)
+function getTieredCoins(n) {
+    const diamond = Math.floor(n / 100000000)
+    const platinum = Math.floor(n % 100000000 / 1000000);
+    const gold = Math.floor((n % 1000000) / 10000);
+    const silver = Math.floor((n % 10000) / 100);
+    const bronze = n % 100;
+    const coinArr = [diamond, platinum, gold, silver, bronze];
+    const coinEmotes = ['<:YukiDiamond:991180473478938644>', '<:YukiPlat:872106609399169025>', '<:YukiGold:872106598527541248>',
         '<:YukiSilver:872106587861417994>', '<:YukiBronze:872106572275392512>'];
-    let remainingCoins = coins;
-    const platinum = Math.floor(remainingCoins / (coinValues[0] * coinValues[1] * coinValues[2]));
-    remainingCoins -= (platinum * coinValues[0] * coinValues[1] * coinValues[2]);
-    const gold = Math.floor(remainingCoins / (coinValues[0] * coinValues[1]));
-    remainingCoins -= (gold * coinValues[0] * coinValues[1]);
-    const silver = Math.floor(remainingCoins / (coinValues[0]));
-    const bronze = remainingCoins - (silver * coinValues[0]);
-
-    const coinArr = [platinum, gold, silver, bronze];
     let formattedString = "";
-    for(let i = 0; i < coinArr.length; i++) {
+    for (let i = 0; i < coinArr.length; i++) {
         formattedString += (coinArr[i] != 0) ? `\`${coinArr[i]}\` ${coinEmotes[i]} ` : ""
     }
     return formattedString || "`0` <:YukiBronze:872106572275392512>";
 }
+
 
 module.exports = { EconData, getTieredCoins };

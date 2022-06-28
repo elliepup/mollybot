@@ -34,6 +34,16 @@ module.exports = {
                     .setDescription("You are not currently in a voice channel.")
             ]
         })
+        //if the bot doesn't have permission to join the voice channel
+        if(!interaction.member.voice.channel.permissionsFor(client.user).has('CONNECT')) return await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#FC0000')
+                    .setTitle("<:yukinon:839338263214030859> Insufficient Permissions")
+                    .setDescription("I don't have permission to join your voice channel.")
+            ]
+        })
+                    
 
         //creates queue and joins the voice channel of the user
         const queue = await client.player.createQueue(interaction.guild, {

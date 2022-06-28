@@ -5,7 +5,6 @@ module.exports = {
         .setName('test')
         .setDescription('A command for testing purposes'),
     async execute(interaction) {
-
         
     }
 }
