@@ -50,13 +50,16 @@ module.exports = {
             .setCustomId("confirm")
 
         const row = new MessageActionRow().addComponents(cancelButton, confirmButton)
+        const taxRate = 0.25
+        const afterTax = Math.floor(targetFish.value * (1 - taxRate))
 
         const embed = new MessageEmbed()
             .setTitle("Selling request received!")
             .setDescription(`${interaction.user.username}, please confirm that you wish to sell your fish.`)
-            .addField("Selling Price", getTieredCoins(targetFish.value), true)
+            .addField("Selling Price", getTieredCoins(afterTax), true)
             .addField("Rarity", (rarityInfo.find(obj => obj.rarity === targetFish.rarity).stars), true)
             .addField("Fish", `**${targetFish.type}**`, true)
+            .addField(`Tax (${Math.floor(taxRate * 100)}%)`, getTieredCoins(targetFish.value - afterTax), true)
             .addField(`Information`, `\`\`\`ini\n[Identifier]: ${targetFish.fishId}\n[Fish]: ${targetFish.type}` +
                 `\n[Color]: ${targetFish.color}\`\`\``)
             .setColor('E1E1E1')
@@ -113,7 +116,7 @@ module.exports = {
             })
 
             await targetFish.remove()
-            await econProfile.updateOne({$inc:{balance: targetFish.value}})
+            await econProfile.updateOne({$inc:{balance: afterTax}})
                 .then(() => {
                     return interaction.editReply({
                         embeds: [

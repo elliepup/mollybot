@@ -19,4 +19,9 @@ module.exports = [
         price: "5000",
         description: "Only for the best fish."
     },
+    {
+        name: "Fishing Rod Upgrade",
+        price: "150000",
+        description: "Less bad fishing, more good fishing."
+    },
 ]

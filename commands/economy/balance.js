@@ -20,7 +20,7 @@ module.exports = {
         .setTitle(`${target.username}'s balance`)
         .setColor("20FC00")
         .setDescription(`${getTieredCoins(balance)}\n\`${balance}\` <:YukiBronze:872106572275392512> in total.`)
-        .setFooter({text: "Coins currently serve no purpose. I am planning on implementing fishing soon."})
+        .setFooter({text: "With coins, you can buy things from the shop.", icon_url: "https://cdn.discordapp.com/emojis/872106572275392512.png"})
         await interaction.reply({embeds : [embed]})
     }
 

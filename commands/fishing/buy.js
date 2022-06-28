@@ -16,7 +16,7 @@ module.exports = {
             option.setName('quantity')
                 .setDescription('The quantity of the item you want to purchase.')
             ),
-        autocompleteOptions: ['tier one bait', 'tier two bait', 'tier three bait', 'tier four bait'],
+        autocompleteOptions: ['tier one bait', 'tier two bait', 'tier three bait', 'tier four bait', "fishing rod upgrade"],
     async execute(interaction) {
         const shopData = require('../../data/shopdata')
         const quantity = interaction.options.getInteger('quantity') || 1
@@ -43,6 +43,29 @@ module.exports = {
                     .setDescription("The item you are trying to buy does not exist. Please check the spelling or open the /shop to see the names of items.")
             ]
         })
+
+        if (await !fishingProfile.rodLevel){
+            await fishingProfile.updateOne({$set: {rodLevel: 0}})
+        }
+
+        if (purchaseItem.name == "Fishing Rod Upgrade" && quantity > 1) return interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#FC0000')
+                    .setTitle("<:yukinon:839338263214030859> Invalid quantity")
+                    .setDescription("You may only purchase one fishing rod upgrade at a time.")
+            ]
+        })
+
+        else if(purchaseItem.name == "Fishing Rod Upgrade" && await fishingProfile.rodLevel > 4) return interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#FC0000')
+                    .setTitle("<:yukinon:839338263214030859> Invalid quantity")
+                    .setDescription("You already have the maximum fishing rod level.")
+            ]
+        })
+
 
         const cost = quantity * purchaseItem.price;
         
@@ -133,10 +156,9 @@ module.exports = {
                 case("tier two bait") :  await fishingProfile.updateOne({$inc: {tierTwoBait: quantity}}); break
                 case('tier three bait'):  await fishingProfile.updateOne({$inc: {tierThreeBait: quantity}}); break
                 case('tier four bait') :  await fishingProfile.updateOne({$inc: {tierFourBait: quantity}}); break
+                case('fishing rod upgrade'):  await fishingProfile.updateOne({$inc: {rodLevel:1}}); break
             }
-
         })
-
 
     }
 

@@ -15,6 +15,9 @@ module.exports = {
         const userId = interaction.user.id;
         let targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
 
+        const baitChance = await targetProfile.rodLevel * 0.075;
+        const consumedBait = Math.random() > baitChance
+
         let fishBit = false;
         let failed = false;
         let hooked = false;
@@ -126,7 +129,9 @@ module.exports = {
                         //start fishing minigame
 
                         //deduct bait and update targetProfile lastFished
-                        deductBait(baitChoice, targetProfile);
+                        if(consumedBait) {
+                            deductBait(baitChoice, targetProfile);
+                        }
                         await targetProfile.updateOne({ lastFished: Date.now() })
 
                         randomFish = generateRandomFish(baitChoice);
@@ -162,12 +167,11 @@ module.exports = {
                                 embeds: [
                                     embed
                                         .setColor(`FF0000`)
-                                        .setDescription(blockQuote(`Oh no! The fish got away! I have some more bad news for you.` +
-                                        ` He has gotten away with your precious bait!`))
+                                        .setDescription(blockQuote((consumedBait)? ` The fish got away! It has stolen the bait!` :
+                                        'The fish got away! Thankfully, you got your bait back!'))
                                 ], components: [buttonRow]
                             })
                         }
-
                     }
                     else if (choice == 'cancel') {
                         buttonRow.components.forEach(component => { component.setDisabled(true) })
@@ -191,7 +195,8 @@ module.exports = {
                                 embeds: [
                                     embed
                                         .setColor(`FF0000`)
-                                        .setDescription(blockQuote(`You scared the fish away! You failed to catch a fish. Better luck next time.`))
+                                        .setDescription(blockQuote((consumedBait)? `You scared the fish away. It got away with your bait!` 
+                                                    : `You scared the fish away. Thankfully you kept your bait!`))
                                         .addField(`Fish`, bold(randomFish.name), true)
                                 ], components: [buttonRow]
                             })
@@ -239,13 +244,13 @@ module.exports = {
                                         embed
                                             .setColor((!shiny) ? rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex : `#FF0074`)
                                             .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
+                                            .addField(`Bait`, (consumedBait)? `Tier ${baitChoice}` : `Not consumed`, true)
                                             .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
                                             .addField(`Length`, (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, true)
                                             .addField(`Weight`, (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, true)
                                             .addField(`Color`, randomFish.color, true)
                                             .addField(`Selling Price`, getTieredCoins(value), true)
                                             .addField(`Identifier`, `\`${uniqueId}\``, true)
-            
                                             .setThumbnail((!shiny) ? `attachment://${randomFish.fishNo}.png` : `attachment://${randomFish.fishNo}.png`)
                                     ],
                                     components: [buttonRow], files: [(!shiny) ? `./extras/${randomFish.fishNo}.png` : `./extras/shiny/${randomFish.fishNo}.png`]
