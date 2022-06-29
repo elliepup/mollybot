@@ -27,6 +27,6 @@ module.exports = [
         name: "Fishing Rod Upgrade",
         price: "150000",
         description: "Less bad fishing, more good fishing.",
-        use: "Each upgrade increases the chance of bait not being consumed by 7.5%."
+        use: "Each upgrade increases the chance of bait not being consumed by 7.5% with a maximum of five upgrades at 37.5%."
     },
 ]

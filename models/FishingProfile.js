@@ -10,10 +10,9 @@ const fishingProfile = new mongoose.Schema({
     fishCaught: {type: Number, default: 0},
     trashCaught: {type: Number, default: 0},
     ancientRelicsCaught: {type: Number, default: 0},
-    fishSold: {type: Number, default: 0},
     lastFished: {type: Date, default: null},
-    fishSold: {Type: Number, default: 0},
-    rodLevel: {Type: Number, default: 0}, 
+    fishSold: {type: Number, default: 0},
+    rodLevel: {type: Number, default: 0}, 
 })
 
 const FishingData = mongoose.model("FishingProfile", fishingProfile);

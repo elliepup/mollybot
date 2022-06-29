@@ -64,7 +64,7 @@ module.exports = {
             .addField(`Information`, `\`\`\`ini\n[Identifier]: ${targetFish.fishId}\n[Fish]: ${targetFish.type}` +
                 `\n[Color]: ${targetFish.color}\`\`\``)
             .setColor('E1E1E1')
-            .setFooter({ text: `The tax goes to MollyBot. This money will be used for weekly lottery prizes. This system is currently in development.` })
+            .setFooter({ text: `The tax goes to Molly Bot. This money will be used for weekly lottery prizes. This system is currently in development.` })
         interaction.reply({
             embeds: [embed],
             components: [row]

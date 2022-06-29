@@ -124,7 +124,7 @@ module.exports = {
             const buttonId = (ButtonInteraction.first().customId)
             row.components.forEach(element => { element.setDisabled(true) });
 
-            user = await User.findOne({ user: user })
+            user = await User.findOne({ userId: userId })
             if (buttonId == 'cancel') {
                 return interaction.editReply({
                     embeds: [

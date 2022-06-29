@@ -11,12 +11,13 @@ module.exports = {
     async execute(interaction) {
 
         const userId = interaction.user.id;
-        const targetEcon = await EconData.findOne({userId: userId}) || await EconData.create({userId: userId});
+        const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
+        const userEcon = await EconData.findOne({user: user}) || await EconData.create({user: user});
         const timeToWork = 60 * 60;
-        const workCDProgress = (targetEcon.workCooldown) ? Math.abs((new Date().getTime() - targetEcon.workCooldown.getTime()) / 1000) : timeToWork + 1;
-        const targetProfile = await FishingData.findOne({ userId: userId }) || await FishingData.create({ userId: userId });
+        const workCDProgress = (userEcon.lastWorked) ? Math.abs((new Date().getTime() - userEcon.lastWorked.getTime()) / 1000) : timeToWork + 1;
+        const userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
         const timeToFish = 60 * 5;
-        const fishCDProgress = (targetProfile.lastFished) ? Math.abs((new Date().getTime() - targetProfile.lastFished.getTime()) / 1000) : timeToFish + 1;
+        const fishCDProgress = (userFishing.lastFished) ? Math.abs((new Date().getTime() - userFishing.lastFished.getTime()) / 1000) : timeToFish + 1;
 
         
         interaction.reply({
