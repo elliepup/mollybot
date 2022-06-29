@@ -13,13 +13,13 @@ module.exports = [
     },
     {
         name: "Tier Three Bait",
-        price: "1250",
+        price: "2500",
         description: "Significantly better than the others.",
         use: "Attracts all fish other than common and uncommon."
     },
     {
         name: "Tier Four Bait",
-        price: "5000",
+        price: "12500",
         description: "Only for the best fish.",
         use: "Attracts all fish other than common, uncommon, and rare."
     },
