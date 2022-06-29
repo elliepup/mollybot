@@ -13,7 +13,7 @@ module.exports = {
         let mollyUser = await User.findOne({ userId: "911276391901843476" })
         let balance = user.balance;
 
-        const lastWinner = "Placeholder";
+        const lastWinner = "`Placeholder`";
         const maximumTickets = 10;
         const interactionTimeout = 60000;
         const ticketPrice = 250;
@@ -38,9 +38,9 @@ module.exports = {
                 ` Every week, **Molly Bot** will give these coins away using the lottery system. You can buy a ticket by clicking the button below.` +
                 ` The more tickets you buy (with a maximum of ${maximumTickets} entries), the more chance you have of winning the jackpot.`))
             .setFields([{ name: 'Tickets', value: `\`${userLottery.tickets}\`🎟️`, inline: true }, { name: 'Current Jackpot', value: getTieredCoins(mollyUser.balance), inline: true },
-            { name: 'Time Until Jackpot', value: getTimeUntilJackpot(), inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true }
+            { name: 'Time Until Jackpot', value: '\`N/A\`', inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true }
                 , { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: lastWinner, inline: true }])
-            .setFooter({ text: 'This feature is currently in development and is not ready to be released yet.' })
+            .setFooter({ text: 'This feature is currently in development. You will automatically be entered into the first drawing.' })
             .setColor('WHITE')
 
         await interaction.reply({
@@ -94,7 +94,7 @@ module.exports = {
                         embeds: [
                             embed
                                 .setFields([{ name: 'Tickets', value: `\`${userLottery.tickets}\`🎟️`, inline: true }, { name: 'Current Jackpot', value: getTieredCoins(mollyUser.balance), inline: true },
-                                { name: 'Time Until Jackpot', value: getTimeUntilJackpot(), inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true },
+                                { name: 'Time Until Jackpot', value: `\`N/A\``, inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true },
                                 { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: lastWinner, inline: true }])
                         ],
                     })

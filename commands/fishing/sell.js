@@ -240,6 +240,7 @@ module.exports = {
                     //delete all fish
                     await FishData.deleteMany({ currentOwner: userId });
                     await user.updateOne({ $inc: { balance: newAfterTax } });
+                    await mollyUser.updateOne({ $inc: { balance: taxed } });
 
                     row.components.forEach(element => { element.setDisabled(true) });
                     return await ButtonInteraction.update({
@@ -260,4 +261,3 @@ module.exports = {
 
     }
 }
-
