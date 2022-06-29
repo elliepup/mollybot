@@ -17,7 +17,11 @@ module.exports = {
         const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
         let userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
 
-        const baitChance = await userFishing.rodLevel * 0.075;
+        if (await !userFishing.rodLevel){
+            await userFishing.updateOne({$set: {rodLevel: 0}})
+        }
+
+        const baitChance = await userFishing.rodLevel * 0.075 
         const consumedBait = Math.random() > baitChance
 
         let fishBit = false;
@@ -25,7 +29,7 @@ module.exports = {
         let hooked = false;
         let randomFish;
 
-        const timeToFish = 0 * 5;
+        const timeToFish = 60 * 5;
         if (userFishing.tierOneBait < 1 && userFishing.tierTwoBait < 1 && userFishing.tierThreeBait < 1 && userFishing.tierFourBait < 1) return await interaction.reply({
             embeds: [
                 new MessageEmbed()
@@ -154,7 +158,6 @@ module.exports = {
                                 embed
                                     .setColor(`FFFA05`)
                                     .setDescription(blockQuote(`**A fish bit the line!** Quick! Hit the **"Hook"** button to catch it before it gets away!`))
-                                    .addField("Fish", bold(randomFish.name), true)
                             ], components: [buttonRow]
                         })
                         fishBit = true;
@@ -165,7 +168,10 @@ module.exports = {
                         buttonRow.components.forEach(component => { component.setDisabled(true) })
                         if (!hooked) {
                             if (failed) return;
-                            return await Interaction.editReply({
+                                var date = new Date(Date.now());
+                                date.setMinutes(date.getMinutes() - 3);
+                                await userFishing.updateOne({ lastFished: date })
+                                return await Interaction.editReply({
                                 embeds: [
                                     embed
                                         .setColor(`FF0000`)
@@ -193,6 +199,9 @@ module.exports = {
                         collector.stop();
                         if (!fishBit) {
                             failed = true;
+                            var date = new Date(Date.now());
+                            date.setMinutes(date.getMinutes() - 4);
+                            await userFishing.updateOne({ lastFished: date })
                             return await Interaction.update({
                                 embeds: [
                                     embed

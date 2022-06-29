@@ -50,8 +50,9 @@ module.exports = {
             .setCustomId("confirm")
 
         const row = new MessageActionRow().addComponents(cancelButton, confirmButton)
-        const taxRate = 0.25
+        const taxRate = 0.08
         const afterTax = Math.floor(targetFish.value * (1 - taxRate))
+        const orig = targetFish.value
 
         const embed = new MessageEmbed()
             .setTitle("Selling request received!")
@@ -63,6 +64,7 @@ module.exports = {
             .addField(`Information`, `\`\`\`ini\n[Identifier]: ${targetFish.fishId}\n[Fish]: ${targetFish.type}` +
                 `\n[Color]: ${targetFish.color}\`\`\``)
             .setColor('E1E1E1')
+            .setFooter({ text: `The tax goes to MollyBot. This money will be used for weekly lottery prizes. This system is currently in development.` })
         interaction.reply({
             embeds: [embed],
             components: [row]
@@ -116,6 +118,10 @@ module.exports = {
             })
 
             await targetFish.remove()
+
+            const mollyUser = await User.findOne({userId: "911276391901843476"}) ||  await User.create({userId: "911276391901843476"})
+            await mollyUser.updateOne({$inc: {balance: orig - afterTax}})
+
             await user.updateOne({$inc:{balance: afterTax}})
                 .then(() => {
                     return interaction.editReply({
