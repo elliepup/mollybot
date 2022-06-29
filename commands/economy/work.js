@@ -14,6 +14,8 @@ module.exports = {
         const userEcon = await EconData.findOne({ user: user }) || await EconData.create({ user: user });
         const timeToWork = 60 * 60;
 
+        const mollyUser = await User.findOne({ userId: "911276391901843476" })
+
 
         if (!isTimePassed(timeToWork, userEcon.lastWorked)) return await interaction.reply({
             embeds: [
@@ -26,15 +28,19 @@ module.exports = {
         });
 
         const randomAmount = getRandomNumber(1000, 2500);
-        await user.updateOne({ $inc: { balance: randomAmount } })
+        const tax = Math.floor(randomAmount * 0.3);
+        await user.updateOne({ $inc: { balance: randomAmount } });
+        await mollyUser.updateOne({ $inc: { balance: tax } });
         await userEcon.updateOne({ $inc: { timesWorked: 1, totalWorked: randomAmount }, $set: { lastWorked: new Date() } })
         interaction.reply({
             embeds: [
                 new MessageEmbed()
                     .setColor('#68FC00')
                     .setTitle("Successful work day!")
-                    .setDescription(`You made a whopping ${getTieredCoins(randomAmount)} today! Most impressive if I do say so myself.`)
-                    .addField('New balance', getTieredCoins(user.balance + randomAmount))
+                    .setDescription(`You made a whopping ${getTieredCoins(randomAmount + tax)} today! Most impressive if I do say so myself. `)
+                    .setFields({name :'Gross Pay', value: getTieredCoins(randomAmount + tax), inline: true}, {name: 'Tax', value: getTieredCoins(tax), inline: true},
+                    {name: 'Net Pay', value: getTieredCoins(randomAmount), inline: true}, {name: 'New Balance', value: getTieredCoins(user.balance + randomAmount), inline: true})
+                    .setFooter({text: `You have worked a total of ${userEcon.timesWorked + 1} times.`})
             ]
         })
 
