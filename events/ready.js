@@ -1,9 +1,16 @@
+const cron = require('node-cron');
+
+cron.schedule('59 59 23 * * FRI', () => {
+    const { rollLottery } = require('../utils/lotteryRoll');
+    rollLottery();
+})
+
 module.exports = {
     name: 'ready',
     once: true,
     async execute(client) {
         console.log(`${client.user.tag} has logged in successfully.`);
-        client.user.setPresence({ activities: [{ name: '/help' , type: "LISTENING"}], status: 'online' });
+        client.user.setPresence({ activities: [{ name: '/help', type: "LISTENING" }], status: 'online' });
 
         //database initialization
         const mongoose = require('mongoose')
@@ -13,5 +20,9 @@ module.exports = {
         }).then(() => {
             console.log("Connected to the database successfully.")
         })
+
+        //cron job to run every 5 minutes
+        
     }
 }
+

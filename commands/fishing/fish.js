@@ -9,10 +9,17 @@ const LootTable = require('loot-table')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('fish')
-        .setDescription(`The sea is a dangerous place. Use this command to catch a fish.`),
+        .setDescription(`The sea is a dangerous place. Use this command to catch a fish.`)
+        .addStringOption(option =>
+            option.setName('location')
+                .setDescription('If you want to choose a specitial location, use this option.')
+                .setRequired(false)
+                .setAutocomplete(true)),
+    autocompleteOptions: ['sea', 'river'],
     async execute(interaction) {
 
         const userId = interaction.user.id;
+        const location = interaction.options.getString('location')
 
         const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
         let userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
@@ -30,6 +37,7 @@ module.exports = {
         let randomFish;
 
         const timeToFish = 60 * 5;
+
         if (userFishing.tierOneBait < 1 && userFishing.tierTwoBait < 1 && userFishing.tierThreeBait < 1 && userFishing.tierFourBait < 1) return await interaction.reply({
             embeds: [
                 new MessageEmbed()
@@ -135,12 +143,33 @@ module.exports = {
                         //start fishing minigame
 
                         //deduct bait and update targetProfile lastFished
-                        if(consumedBait) {
+
+                        randomFish = generateRandomFish(baitChoice, location);
+
+                        if(consumedBait && randomFish) {
                             deductBait(baitChoice, userFishing);
                         }
                         await userFishing.updateOne({ lastFished: Date.now() })
 
-                        randomFish = generateRandomFish(baitChoice);
+                        if (!randomFish) {
+                            failed = true;
+
+                            var date = new Date(Date.now());
+                            date.setMinutes(date.getMinutes() - 5);
+                            await userFishing.updateOne({ lastFished: date })
+
+                            //set buttonrow to hook button
+                            buttonRow.setComponents(fishButton.setDisabled(true))
+                            collector.stop();
+                            return await Interaction.update({
+                                embeds: [
+                                    embed
+                                        .setColor('#FC0000')
+                                        .setTitle(`No Fish`)
+                                        .setDescription(`Seems as though there are no fish in this location.`)
+                                ], components: [buttonRow]
+                            })
+                        }
 
                         buttonRow.setComponents(fishButton)
                         await Interaction.update({
@@ -347,7 +376,7 @@ const generateNumberBetween = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const generateRandomFish = (choice) => {
+const generateRandomFish = (choice, location) => {
     let fish = require("../../data/fishdata")
 
 
@@ -371,6 +400,13 @@ const generateRandomFish = (choice) => {
             fish = fish.filter((x) => { return x.rarity != 'Common' })
     }
 
+    switch (location){
+        case "sea":
+            fish = fish.filter((x) => { return x.type == 'Saltwater' })
+        case "river":
+            fish = fish.filter((x) => { return x.type == 'Freshwater' })
+    }
+
     const dayMap = new Map()
     dayMap.set("Morning", [5, 11])
     dayMap.set("Afternoon", [12, 17])
@@ -389,12 +425,6 @@ const generateRandomFish = (choice) => {
     }
     else {
         fish = fish.filter((x) => { return x.time == "Night" || x.time == "All" })
-    }
-
-    const shinyRate = 0.10
-
-    if (Math.random() <= shinyRate) {
-
     }
 
     for (let i = 0; i < fish.length; i++) {

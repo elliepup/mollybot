@@ -23,6 +23,8 @@
     "discordjs-button-pagination": "^3.0.1",
     "dotenv": "^16.0.1",
     "loot-table": "^0.1.0",
-    "mongoose": "^6.4.0"
+    "mongoose": "^6.4.0",
+    "node-cron": "^3.0.1",
+    "uuid": "^8.3.2"
   }
 }
