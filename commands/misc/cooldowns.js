@@ -3,20 +3,21 @@ const { MessageEmbed } = require('discord.js');
 const { EconData } = require('../../models/EconProfile');
 const FishingData = require('../../models/FishingProfile');
 const { User, getTieredCoins } = require('../../models/User');
-
+const { ClientInfo } = require('../../models/ClientInfo');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('cooldowns')
         .setDescription('Displays the remaining time for cooldowns.'),
     async execute(interaction) {
 
+        const clientInfo = await ClientInfo.findOne({ clientId: interaction.client.id });
         const userId = interaction.user.id;
         const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
         const userEcon = await EconData.findOne({user: user}) || await EconData.create({user: user});
-        const timeToWork = 60 * 60;
+        const timeToWork = clientInfo.workCooldown;
         const workCDProgress = (userEcon.lastWorked) ? Math.abs((new Date().getTime() - userEcon.lastWorked.getTime()) / 1000) : timeToWork + 1;
         const userFishing = await FishingData.findOne({ user: user }) || await FishingData.create({ user: user });
-        const timeToFish = 60 * 5;
+        const timeToFish = clientInfo.fishingCooldown;
         const fishCDProgress = (userFishing.lastFished) ? Math.abs((new Date().getTime() - userFishing.lastFished.getTime()) / 1000) : timeToFish + 1;
 
         

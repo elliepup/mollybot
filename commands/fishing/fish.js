@@ -4,6 +4,7 @@ const { FishData, rarityInfo } = require('../../models/Fish')
 const FishingData = require('../../models/FishingProfile')
 const { User, getTieredCoins } = require('../../models/User')
 const { ClientInfo } = require('../../models/ClientInfo');
+const { GuildData } = require('../../models/GuildData');
 const wait = require('node:timers/promises').setTimeout;
 const LootTable = require('loot-table')
 
@@ -266,7 +267,7 @@ module.exports = {
                                 }
                             } while (await FishData.findOne({ fishId: uniqueId }))
 
-                            await FishData.create({
+                            const newFish = await FishData.create({
                                 originalOwner: user.userId,
                                 currentOwner: user.userId,
                                 catchDate: Date.now(),
@@ -297,6 +298,36 @@ module.exports = {
                                     ],
                                     components: [buttonRow], files: [(!shiny) ? `./extras/${randomFish.fishNo}.png` : `./extras/shiny/${randomFish.fishNo}.png`]
                                 })
+                                
+                                const guildData = await GuildData.findOne({ guildId: interaction.guild.id }) || await GuildData.create({ guildId: interaction.guild.id });
+                                const guildBestCatch = await FishData.findById(guildData.bestCatch) || null;
+                                const guildBestCatchToday = await FishData.findById(guildData.bestCatchToday) || null;
+                                if (guildBestCatch) {
+                                    if (value > guildBestCatch.value) {
+                                        await guildData.updateOne({ bestCatch: newFish, bestCatchDate: Date.now() })
+                                    }
+                                }
+                                else {
+                                    guildData.bestCatch = newFish;
+                                    guildData.bestCatchDate = Date.now();
+                                    await guildData.save();
+                                }
+
+                                var start = new Date();
+                                start.setUTCHours(0,0,0,0);
+                                if (!guildBestCatchToday) {
+                                    await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                }
+                                else {
+                                    if(isDateToday(guildData.bestCatchTodayDate)) {
+                                        if (value > guildBestCatchToday.value) {
+                                            await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                        }
+                                    } else {
+                                        await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                    }
+                                }
+                                         
                         }
 
                     }
@@ -439,3 +470,18 @@ const generateRandomFish = (choice, location) => {
 
     return lootTable.choose();
 }
+
+function isDateToday(date) {
+    const otherDate = new Date(date);
+    const todayDate = new Date();
+  
+    if (
+      otherDate.getDate() === todayDate.getDate() &&
+      otherDate.getMonth() === todayDate.getMonth() &&
+      otherDate.getYear() === todayDate.getYear()
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
