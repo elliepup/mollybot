@@ -66,7 +66,8 @@ module.exports = {
                             (userFishing.tierOneBait != 0) ? { label: "Tier 1 Bait", description: `x${userFishing.tierOneBait}`, value: "one" } : [],
                             (userFishing.tierTwoBait != 0) ? { label: "Tier 2 Bait", description: `x${userFishing.tierTwoBait}`, value: "two" } : [],
                             (userFishing.tierThreeBait != 0) ? { label: "Tier 3 Bait", description: `x${userFishing.tierThreeBait}`, value: "three" } : [],
-                            (userFishing.tierFourBait != 0) ? { label: "Tier 4 Bait", description: `x${userFishing.tierFourBait}`, value: "four" } : []
+                            (userFishing.tierFourBait != 0) ? { label: "Tier 4 Bait", description: `x${userFishing.tierFourBait}`, value: "four" } : [],
+                            (userFishing.tierFiveBait != 0) ? { label: "Tier 5 Bait", description: `x${userFishing.tierFiveBait}`, value: "five" } : []
                         ])
                 )
             await interaction.reply({
@@ -380,6 +381,8 @@ const hasBait = (type, targetProfile) => {
             return targetProfile.tierThreeBait > 0;
         case "four":
             return targetProfile.tierFourBait > 0;
+        case "five":
+            return targetProfile.tierFiveBait > 0;
         default:
             return false;
     }
@@ -400,6 +403,8 @@ const deductBait = async (type, targetProfile) => {
         case "four":
             await targetProfile.updateOne({ $inc: { tierFourBait: -1 } })
             break;
+        case "five":
+            await targetProfile.updateOne({ $inc: { tierFiveBait: -1 } })
         default:
             break;
     }
@@ -425,6 +430,8 @@ const generateRandomFish = (choice, location) => {
 
 
     switch (choice) {
+        case "five":
+            fish = fish.filter((x) => { return (x.rarity != 'Epic') })
         case "four":
             fish = fish.filter((x) => { return (x.rarity != 'Rare') })
         case "three":

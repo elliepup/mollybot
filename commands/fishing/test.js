@@ -9,8 +9,7 @@ module.exports = {
 
         await FishData.updateMany({}, { $set: { locked: false } });
         
-        
-        
+        await FishData.updateOne({ name: "Tier 5 Bait" }, { $inc: { quantity: 1 } });
 
     }
 }

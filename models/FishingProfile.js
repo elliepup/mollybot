@@ -6,6 +6,7 @@ const fishingProfile = new mongoose.Schema({
     tierTwoBait: {type: Number, default: 3},
     tierThreeBait: {type: Number, default: 1},
     tierFourBait: {type: Number, default: 0},
+    tierFiveBait: {type: Number, default: 0},
     timesFished: {type: Number, default: 0},
     fishCaught: {type: Number, default: 0},
     trashCaught: {type: Number, default: 0},
