@@ -16,7 +16,8 @@ module.exports = {
         let balance = user.balance;
 
         const clientInfo = await ClientInfo.findOne({}) || await ClientInfo.create({});
-        const lastWinner = await User.findById(clientInfo.lastJackpotWinner).exec().then(user => {return `<@${user.userId}>`});
+        const lastWinner = await User.findById(clientInfo.lastJackpotWinner) || null;
+
         const maximumTickets = 10;
         const interactionTimeout = 60000;
         const ticketPrice = 250;
@@ -42,7 +43,7 @@ module.exports = {
                 ` The more tickets you buy (with a maximum of ${maximumTickets} entries), the more chance you have of winning the jackpot.`))
             .setFields([{ name: 'Tickets', value: `\`${userLottery.tickets}\`🎟️`, inline: true }, { name: 'Current Jackpot', value: getTieredCoins(mollyUser.balance), inline: true },
             { name: 'Time Until Jackpot', value: `<t:${Math.floor(getNextFriday()/1000)}>`, inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true }
-                , { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: lastWinner, inline: true }])
+                , { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: (lastWinner) ? `<@${lastWinner.userId}>` : `\`N/A\``, inline: true }])
             .setFooter({ text: 'This feature is currently in development. You will automatically be entered into the first drawing.' })
             .setColor('WHITE')
 
@@ -99,7 +100,7 @@ module.exports = {
                             embed
                                 .setFields([{ name: 'Tickets', value: `\`${userLottery.tickets}\`🎟️`, inline: true }, { name: 'Current Jackpot', value: getTieredCoins(mollyUser.balance), inline: true },
                                 { name: 'Time Until Jackpot', value: `<t:${Math.floor(getNextFriday()/1000)}>`, inline: true }, { name: 'Current Balance', value: getTieredCoins(user.balance), inline: true },
-                                { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: lastWinner, inline: true }])
+                                { name: 'Ticket Price', value: getTieredCoins(ticketPrice), inline: true }, { name: 'Last Winner', value: (lastWinner) ? `<@${lastWinner.userId}>` : `\`N/A\``, inline: true }])
                         ],
                     })
                 }
