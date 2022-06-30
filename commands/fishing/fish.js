@@ -3,6 +3,7 @@ const { MessageEmbed, MessageAttachment, MessageButton, MessageActionRow, Messag
 const { FishData, rarityInfo } = require('../../models/Fish')
 const FishingData = require('../../models/FishingProfile')
 const { User, getTieredCoins } = require('../../models/User')
+const { ClientInfo } = require('../../models/ClientInfo');
 const wait = require('node:timers/promises').setTimeout;
 const LootTable = require('loot-table')
 
@@ -36,7 +37,8 @@ module.exports = {
         let hooked = false;
         let randomFish;
 
-        const timeToFish = 60 * 5;
+        const clientInfo = await ClientInfo.findOne({}) || await ClientInfo.create({});
+        const timeToFish = clientInfo.fishingCooldown;
 
         if (userFishing.tierOneBait < 1 && userFishing.tierTwoBait < 1 && userFishing.tierThreeBait < 1 && userFishing.tierFourBait < 1) return await interaction.reply({
             embeds: [
@@ -243,7 +245,7 @@ module.exports = {
                         } else {
                             hooked = true;
 
-                            const shinyRate = 0.00025 // no shiny ever
+                            const shinyRate = clientInfo.shinyRate // no shiny ever
                             let shiny = Math.random() <= shinyRate
                             let vMult = shiny ? 100 : 1
 

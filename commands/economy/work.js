@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders')
 const { MessageEmbed } = require('discord.js')
 const { EconData } = require('../../models/EconProfile')
 const { User, getTieredCoins } = require('../../models/User')
-
+const { ClientInfo } = require('../../models/ClientInfo')
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('work')
@@ -12,7 +12,8 @@ module.exports = {
         const userId = interaction.user.id;
         const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
         const userEcon = await EconData.findOne({ user: user }) || await EconData.create({ user: user });
-        const timeToWork = 60 * 60;
+        const clientInfo = await ClientInfo.findOne({}) || await ClientInfo.create({});
+        const timeToWork = clientInfo.workCooldown;
 
         const mollyUser = await User.findOne({ userId: "911276391901843476" })
 

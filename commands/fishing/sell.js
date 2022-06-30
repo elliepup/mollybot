@@ -44,6 +44,16 @@ module.exports = {
                 ]
             })
 
+            if(targetFish.locked) return interaction.reply({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('#FC0000')
+                        .setTitle("<:yukinon:839338263214030859> Unable to sell")
+                        .setDescription("The fish you are trying to sell is currently locked. If you wish to sell it," +
+                            " please use the `/unlock` command first.")
+                ]
+            })
+
             const cancelButton = new MessageButton()
                 .setLabel("Cancel")
                 .setEmoji("✖")
@@ -147,7 +157,7 @@ module.exports = {
         if (interaction.options.getSubcommand() == 'all') {
             const userId = interaction.user.id;
             const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
-            let fish = await FishData.find({ currentOwner: userId });
+            let fish = await FishData.find({ currentOwner: userId, locked: false });
 
             if (fish.length == 0) return interaction.reply({
                 embeds: [
@@ -219,7 +229,7 @@ module.exports = {
                     })
                 } else if (ButtonInteraction.customId == 'finalize') {
                     collector.stop();
-                    fish = await FishData.find({ currentOwner: userId });
+                    fish = await FishData.find({ currentOwner: userId, locked: false });
 
                     if (fish.length == 0) return interaction.reply({
                         embeds: [
@@ -238,7 +248,7 @@ module.exports = {
                     await mollyUser.updateOne({ $inc: { balance: taxed } })
 
                     //delete all fish
-                    await FishData.deleteMany({ currentOwner: userId });
+                    await FishData.deleteMany({ currentOwner: userId, locked: false });
                     await user.updateOne({ $inc: { balance: newAfterTax } });
                     await mollyUser.updateOne({ $inc: { balance: taxed } });
 
@@ -254,10 +264,6 @@ module.exports = {
                     })
                 }
             })
-
-
-
         }
-
     }
 }

@@ -12,7 +12,8 @@ const fish = new mongoose.Schema({
     weight: {type: Number, default: 0},
     value: {type: Number, default: 0},
     color: {type: String, default: "N/A"},
-    shiny: {type: Boolean, default: false}
+    shiny: {type: Boolean, default: false},
+    locked: {type: Boolean, default: false},
 })
 
 const FishData = mongoose.model("Fish", fish);
