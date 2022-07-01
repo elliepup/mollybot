@@ -82,7 +82,7 @@ module.exports = {
             row.components.forEach(element => { element.setDisabled(true) });
             const buttonId = (ButtonInteraction.first().customId)
 
-            user = await User.findOne({ user: user })
+            user = await User.findOne({ userId: donor.id })
             if(user.balance < amount) return interaction.editReply({
                 embeds: [
                     embed
