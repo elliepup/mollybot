@@ -1,4 +1,5 @@
 import time
+import sys
 
 class Testing:
     def __init__(self):
@@ -12,3 +13,4 @@ class Testing:
 if __name__ == "__main__":
     test = Testing()
     Testing.hello()
+    print(sys.argv())
