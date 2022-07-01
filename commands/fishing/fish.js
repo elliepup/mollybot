@@ -14,7 +14,7 @@ module.exports = {
         .setDescription(`The sea is a dangerous place. Use this command to catch a fish.`)
         .addStringOption(option =>
             option.setName('location')
-                .setDescription('If you want to choose a specitial location, use this option.')
+                .setDescription('If you want to choose a specific location, use this option.')
                 .setRequired(false)
                 .setAutocomplete(true)),
     autocompleteOptions: ['sea', 'river'],
@@ -452,7 +452,9 @@ const generateRandomFish = (choice, location) => {
     dayMap.set("Afternoon", [12, 17])
     dayMap.set("Evening", [18, 21])
 
-    const now = new Date().getHours()
+    var date = new Date(Date.now());
+    date.setHours(date.getHours() - 4)
+    const now = date.getHours()
 
     if (now >= dayMap.get("Morning")[0] && now <= dayMap.get("Morning")[1]) {
         fish = fish.filter((x) => { return x.time == "Morning" || x.time == "All" })
