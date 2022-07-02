@@ -248,6 +248,7 @@ module.exports = {
                             hooked = true;
 
                             if (randomFish.form == 'Loot') {
+                                buttonRow.components.forEach(component => { component.setDisabled(true) })
                                 if(randomFish.lootType == 'Coin Bag') {
                                     await user.updateOne({ $inc: { balance: randomFish.coins } })
                                     return Interaction.update({
@@ -259,7 +260,7 @@ module.exports = {
                                             .addField(`Bait`, (consumedBait)? `Tier ${baitChoice}` : `Not consumed`, true)
                                             .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
                                             .addField(`Contents`, getTieredCoins(randomFish.coins), true)
-                                        ]
+                                        ], components: [buttonRow]
                                     })
                                 }
                                 else if (randomFish.lootType == 'Baitbox') {
@@ -274,7 +275,7 @@ module.exports = {
                                             .addField(`Bait`, (consumedBait)? `Tier ${baitChoice}` : `Not consumed`, true)
                                             .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
                                             .addField(`Contents`, `\`${randomFish.t1}\` Tier 1 Bait\n\`${randomFish.t2}\` Tier 2 Bait\n\`${randomFish.t3}\` Tier 3 Bait\n\`${randomFish.t4}\` Tier 4 Bait\n\`${randomFish.t5}\` Tier 5 Bait`, true)
-                                        ]
+                                        ], components: [buttonRow]
                                     })
 
                                 }
@@ -302,10 +303,12 @@ module.exports = {
                             } while (await FishData.findOne({ fishId: uniqueId }))
 
                             //if fish doesn't exist in users fishing log, add it
-                            if(!userFishing.fishingLog.includes(randomFish.fishNo)) {
+                            const fishingLog = userFishing.fishingLog;
+                            if (!fishingLog.find(fish => fish.fishNo == randomFish.fishNo)) {
                                 userFishing.fishingLog.push({fishNo: randomFish.fishNo})
                                 await userFishing.save();
                             }
+
                             const newFish = await FishData.create({
                                 originalOwner: user.userId,
                                 currentOwner: user.userId,

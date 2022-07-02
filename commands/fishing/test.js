@@ -8,10 +8,5 @@ module.exports = {
         .setDescription('A command for testing purposes'),
     async execute(interaction) {
 
-
-        //await FishingData.updateMany({}, { $set: { fishingLog: [] } });
-        
-        //await FishData.updateOne({ name: "Tier 5 Bait" }, { $inc: { quantity: 1 } });
-
     }
 }
