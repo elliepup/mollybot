@@ -11,6 +11,7 @@ module.exports = [
         value: 25,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Sea Bass",
@@ -24,6 +25,7 @@ module.exports = [
         value: 20,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Giant Sea Bass",
@@ -36,7 +38,8 @@ module.exports = [
         color: "Black",
         value: 1800,
         time: "All",
-        type: "Saltwater"
+        type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Blue Marlin",
@@ -50,6 +53,7 @@ module.exports = [
         value: 600,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Coelacanth",
@@ -63,6 +67,7 @@ module.exports = [
         value: 12000,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Whale Shark",
@@ -76,6 +81,7 @@ module.exports = [
         value: 2300,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Northern Pike",
@@ -89,6 +95,7 @@ module.exports = [
         value: 80,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Alaska Pollock",
@@ -102,6 +109,7 @@ module.exports = [
         value: 85,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Devils Hole Pupfish",
@@ -115,6 +123,7 @@ module.exports = [
         value: 180000,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Mahi-mahi",
@@ -128,6 +137,7 @@ module.exports = [
         value: 600,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Sockeye Salmon",
@@ -141,6 +151,7 @@ module.exports = [
         value: 100,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Atlantic Salmon",
@@ -154,6 +165,7 @@ module.exports = [
         value: 20,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Chinook Salmon",
@@ -167,6 +179,7 @@ module.exports = [
         value: 30,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Pink Salmon",
@@ -180,6 +193,7 @@ module.exports = [
         value: 35,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Northern Bluefin Tuna",
@@ -193,6 +207,7 @@ module.exports = [
         value: 1000,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Mackerel Tuna",
@@ -206,6 +221,7 @@ module.exports = [
         value: 70,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Horse Mackerel",
@@ -219,6 +235,7 @@ module.exports = [
         value: 15,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Eurasian Carp",
@@ -232,6 +249,7 @@ module.exports = [
         value: 15,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Olive Flounder",
@@ -245,6 +263,7 @@ module.exports = [
         value: 85,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Platinum Arowana",
@@ -258,6 +277,7 @@ module.exports = [
         value: 200000,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Peppermint Angelfish",
@@ -271,6 +291,7 @@ module.exports = [
         value: 140000,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Pygmy Pufferfish",
@@ -284,6 +305,7 @@ module.exports = [
         value: 60,
         time: "Morning",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Chinese Paddlefish",
@@ -297,6 +319,7 @@ module.exports = [
         value: 11000,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Pirahna",
@@ -310,6 +333,7 @@ module.exports = [
         value: 65,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Smalltooth Sawfish",
@@ -323,6 +347,7 @@ module.exports = [
         value: 8000,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Adriatic Sturgeon",
@@ -336,6 +361,7 @@ module.exports = [
         value: 7000,
         time: "Morning",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Bumphead Parrotfish",
@@ -349,6 +375,7 @@ module.exports = [
         value: 1500,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Arapaima",
@@ -362,6 +389,7 @@ module.exports = [
         value: 2250,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Alligator Gar",
@@ -375,6 +403,7 @@ module.exports = [
         value: 2100,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Gulf Sturgeon",
@@ -388,6 +417,7 @@ module.exports = [
         value: 2300,
         time: "Morning",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Burbot",
@@ -401,6 +431,7 @@ module.exports = [
         value: 2250,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Wels Catfish",
@@ -414,6 +445,7 @@ module.exports = [
         value: 450,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Blue Catfish",
@@ -427,6 +459,7 @@ module.exports = [
         value: 110,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Golden Basslet",
@@ -440,6 +473,7 @@ module.exports = [
         value: 15000,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Neptune Grouper",
@@ -453,6 +487,7 @@ module.exports = [
         value: 12000,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Striped Bass",
@@ -466,6 +501,7 @@ module.exports = [
         value: 55,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Yellow Pike",
@@ -479,6 +515,7 @@ module.exports = [
         value: 80,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Lake Trout",
@@ -492,6 +529,7 @@ module.exports = [
         value: 15,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Rainbow Trout",
@@ -505,6 +543,7 @@ module.exports = [
         value: 100,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Giant Trevally",
@@ -518,6 +557,7 @@ module.exports = [
         value: 3000,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Oarfish",
@@ -531,6 +571,7 @@ module.exports = [
         value: 3000,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Barreleye",
@@ -544,6 +585,7 @@ module.exports = [
         value: 110000,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Ocean Sunfish",
@@ -557,6 +599,7 @@ module.exports = [
         value: 3500,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Goldfish",
@@ -570,6 +613,7 @@ module.exports = [
         value: 10,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Leafy Seadragon",
@@ -583,6 +627,7 @@ module.exports = [
         value: 10000,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Freshwater Stingray",
@@ -596,6 +641,7 @@ module.exports = [
         value: 700,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Japanese Koi",
@@ -609,6 +655,7 @@ module.exports = [
         value: 800,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Flying Fish",
@@ -622,6 +669,7 @@ module.exports = [
         value: 600,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Black Grouper",
@@ -635,6 +683,7 @@ module.exports = [
         value: 500,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Goliath Grouper",
@@ -648,6 +697,7 @@ module.exports = [
         value: 3000,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Moray Eel",
@@ -661,6 +711,7 @@ module.exports = [
         value: 450,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Giant Moray Eel",
@@ -674,6 +725,7 @@ module.exports = [
         value: 450,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Barracuda",
@@ -687,6 +739,7 @@ module.exports = [
         value: 850,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Clownfish",
@@ -700,6 +753,7 @@ module.exports = [
         value: 120,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Blue Tang",
@@ -713,6 +767,7 @@ module.exports = [
         value: 650,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Giant Snake Head",
@@ -726,6 +781,7 @@ module.exports = [
         value: 3750,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Bluegill",
@@ -739,6 +795,7 @@ module.exports = [
         value: 80,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Ribbon Eel",
@@ -752,6 +809,7 @@ module.exports = [
         value: 450,
         time: "All",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Red Snapper",
@@ -765,6 +823,7 @@ module.exports = [
         value: 500,
         time: "Morning",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Saddled Bichir",
@@ -778,6 +837,7 @@ module.exports = [
         value: 600,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Alabama Sturgeon",
@@ -791,6 +851,7 @@ module.exports = [
         value: 155000,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Diamond Darter",
@@ -804,6 +865,7 @@ module.exports = [
         value: 120000,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Conasauga Logperch",
@@ -817,6 +879,7 @@ module.exports = [
         value: 12000,
         time: "All",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Moapa Dace",
@@ -830,6 +893,7 @@ module.exports = [
         value: 110000,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Yellow Bullhead",
@@ -843,6 +907,7 @@ module.exports = [
         value: 700,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "White Sturgeon",
@@ -856,6 +921,7 @@ module.exports = [
         value: 3000,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Silver Arowana",
@@ -869,6 +935,7 @@ module.exports = [
         value: 18000,
         time: "Morning",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Siberian Sturgeon",
@@ -882,6 +949,7 @@ module.exports = [
         value: 1900,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Payara",
@@ -895,6 +963,7 @@ module.exports = [
         value: 900,
         time: "Afternoon",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Nile Perch",
@@ -908,6 +977,7 @@ module.exports = [
         value: 110,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Redbreast Sunfish",
@@ -921,6 +991,7 @@ module.exports = [
         value: 20,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Brook Trout",
@@ -934,6 +1005,7 @@ module.exports = [
         value: 15,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Brown Trout",
@@ -947,6 +1019,7 @@ module.exports = [
         value: 25,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Muskellunge",
@@ -960,6 +1033,7 @@ module.exports = [
         value: 1000,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Golden Gar",
@@ -973,6 +1047,7 @@ module.exports = [
         value: 18000,
         time: "Evening",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Zebra Pleco",
@@ -986,6 +1061,7 @@ module.exports = [
         value: 15000,
         time: "Night",
         type: "Freshwater",
+        form: "Fish",
     },
     {
         name: "Yellow Tang",
@@ -999,6 +1075,7 @@ module.exports = [
         value: 400,
         time: "Evening",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Flashlight Fish",
@@ -1012,6 +1089,7 @@ module.exports = [
         value: 20000,
         time: "Night",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Stonefish",
@@ -1025,6 +1103,7 @@ module.exports = [
         value: 1500,
         time: "Morning",
         type: "Saltwater",
+        form: "Fish",
     },
     {
         name: "Cocos-Keeling Angelfish",
@@ -1038,7 +1117,23 @@ module.exports = [
         value: 17500,
         time: "Afternoon",
         type: "Saltwater",
+        form: "Fish",
     },
+    {
+        name: "Baitbox",
+        difficulty: 10,
+        t1: 7,
+        t2: 4,
+        t3: 2,
+        form: "Loot",
+    },
+    {
+        name: "Coin Bag",
+        coins: 10000,
+        difficulty: 10,
+        form: "Loot",
+    },
+
 ]
 
 // common: 20

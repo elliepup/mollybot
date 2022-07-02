@@ -268,6 +268,11 @@ module.exports = {
                                 }
                             } while (await FishData.findOne({ fishId: uniqueId }))
 
+                            //if fish doesn't exist in users fishing log, add it
+                            if(!userFishing.fishingLog.includes(randomFish.fishNo)) {
+                                userFishing.fishingLog.push({fishNo: randomFish.fishNo})
+                                await userFishing.save();
+                            }
                             const newFish = await FishData.create({
                                 originalOwner: user.userId,
                                 currentOwner: user.userId,
@@ -416,7 +421,9 @@ const generateNumberBetween = (min, max) => {
 
 const generateRandomFish = (choice, location) => {
     let fish = require("../../data/fishdata")
-
+    
+    //temporary filter until we add the ability to fish up loot bags
+    fish = fish.filter(fish => fish.form != "Loot")
 
     const lootTable = new LootTable();
     const totalFish = fish.length;

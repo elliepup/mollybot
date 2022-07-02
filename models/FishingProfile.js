@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 
 const fishingProfile = new mongoose.Schema({
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true},
+    fishingLog: {type: Array, default: []},
     tierOneBait: {type: Number, default: 5},
     tierTwoBait: {type: Number, default: 3},
     tierThreeBait: {type: Number, default: 1},
