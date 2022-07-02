@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 
-cron.schedule('59 59 23 * * FRI', () => {
+cron.schedule('59 59 22 * * FRI', () => {
     const { rollLottery } = require('../utils/lotteryRoll');
     rollLottery();
 })

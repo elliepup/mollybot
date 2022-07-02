@@ -247,6 +247,39 @@ module.exports = {
                         } else {
                             hooked = true;
 
+                            if (randomFish.form == 'Loot') {
+                                if(randomFish.lootType == 'Coin Bag') {
+                                    await user.updateOne({ $inc: { balance: randomFish.coins } })
+                                    return Interaction.update({
+                                        embeds: [
+                                            embed
+                                            .setColor(rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex)
+                                            .setDescription(`${interaction.user.username} has reeled in a **${randomFish.name}**! They quickly` + 
+                                            ` put the coins in their bag before Molly Bot sees them and taxes them.`)
+                                            .addField(`Bait`, (consumedBait)? `Tier ${baitChoice}` : `Not consumed`, true)
+                                            .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
+                                            .addField(`Contents`, getTieredCoins(randomFish.coins), true)
+                                        ]
+                                    })
+                                }
+                                else if (randomFish.lootType == 'Baitbox') {
+                                    await userFishing.updateOne({ $inc: { tierOneBait: randomFish.t1, tierTwoBait: randomFish.t2, tierThreeBait: randomFish.t3,
+                                    tierFourBait: randomFish.t4, tierFiveBait: randomFish.t5 } });
+                                    return Interaction.update({
+                                        embeds: [
+                                            embed
+                                            .setColor(rarityInfo.find(obj => obj.rarity === randomFish.rarity).hex)
+                                            .setDescription(`${interaction.user.username} has reeled in a **${randomFish.name}**! They quickly` + 
+                                            ` put the bait into their bag.`)
+                                            .addField(`Bait`, (consumedBait)? `Tier ${baitChoice}` : `Not consumed`, true)
+                                            .addField(`Rarity`, rarityInfo.find(obj => obj.rarity === randomFish.rarity).stars, true)
+                                            .addField(`Contents`, `\`${randomFish.t1}\` Tier 1 Bait\n\`${randomFish.t2}\` Tier 2 Bait\n\`${randomFish.t3}\` Tier 3 Bait\n\`${randomFish.t4}\` Tier 4 Bait\n\`${randomFish.t5}\` Tier 5 Bait`, true)
+                                        ]
+                                    })
+
+                                }
+                            }
+
                             const shinyRate = clientInfo.shinyRate // no shiny ever
                             let shiny = Math.random() <= shinyRate
                             let vMult = shiny ? 100 : 1
@@ -421,9 +454,6 @@ const generateNumberBetween = (min, max) => {
 
 const generateRandomFish = (choice, location) => {
     let fish = require("../../data/fishdata")
-    
-    //temporary filter until we add the ability to fish up loot bags
-    fish = fish.filter(fish => fish.form != "Loot")
 
     const lootTable = new LootTable();
     const totalFish = fish.length;

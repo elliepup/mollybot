@@ -131,12 +131,16 @@ module.exports = {
 
 }
 
-//get date of next friday at 8 pm est
 function getNextFriday() {
-    let today = new Date();
-    let easternTimeOffset = -240;
-    let offset = 60 * 28;
-    let friday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + (5 - today.getDay()));
-    friday.setMinutes(friday.getMinutes() + offset + easternTimeOffset);
-    return friday.getTime();
-}
+    const date = new Date();
+    const dateCopy = new Date(date.getTime());
+    dateCopy.setHours(23,00)
+    
+    const nextFriday = new Date(
+      dateCopy.setDate(
+        dateCopy.getDate() + ((7 - dateCopy.getDay() + 5) % 7 || 7),
+      ),
+    );
+  
+    return nextFriday;
+  }
