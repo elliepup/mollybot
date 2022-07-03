@@ -20,7 +20,8 @@ const FishData = mongoose.model("Fish", fish);
 
 const rarityInfo = [
     {rarity: "Common", hex: "#919191", stars: "☆☆☆☆☆"}, {rarity: "Uncommon", hex: "#FFFFFF", stars: "★☆☆☆☆"}, {rarity: "Rare", hex: "#82FDFF", stars: "★★☆☆☆"}, 
-    {rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆"}, {rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆"}, {rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★"}
+    {rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆"}, {rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆"}, {rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★"},
+    {rarity: "Event", hex: "#03FC90", stars: "<a:CongratsWinnerConfetti:993186391628468244>"}
 ]
 
 

@@ -20,7 +20,7 @@ module.exports = {
             const embed = new MessageEmbed()
             .setColor('#03fc84')
             .setTitle("Leaderboard")
-            .addField(`\u200B`, chunks[0].map((k, index) => `**#${i*maxItemsPerPage + index + 1}:** <@${k.userId}> \`${k.balance}\` <:YukiBronze:872106572275392512>`).join(`\n`))
+            .addField(`\u200B`, chunks[i].map((k, index) => `**#${i*maxItemsPerPage + index + 1}:** <@${k.userId}> \`${k.balance}\` <:YukiBronze:872106572275392512>`).join(`\n`))
             pages.push(embed)
         }
 

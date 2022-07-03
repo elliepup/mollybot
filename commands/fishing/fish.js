@@ -369,7 +369,6 @@ module.exports = {
                                         await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
                                     }
                                 }
-                                         
                         }
 
                     }
@@ -461,13 +460,18 @@ const generateRandomFish = (choice, location) => {
     const lootTable = new LootTable();
     const totalFish = fish.length;
 
+    const isFourthOfJuly = (new Date().getMonth() == 6 && new Date().getDate() == 4) || (new Date().getMonth() == 6 && new Date().getDate() == 3);
+    const isHalloween = (new Date().getMonth() == 10 && new Date().getDate() == 31) || (new Date().getMonth() == 10 && new Date().getDate() == 30);
+    const isChristmas = (new Date().getMonth() == 11 && new Date().getDate() == 25) || (new Date().getMonth() == 11 && new Date().getDate() == 24);
+    const isNewYears = (new Date().getMonth() == 0 && new Date().getDate() == 1 || new Date().getMonth() ==11 && new Date().getDate() == 31);
+    const isEvent = isFourthOfJuly || isHalloween || isChristmas || isNewYears;
+
     const lootInfo = [
         { rarity: 'Common', tableTotal: 500, amount: fish.filter(x => x.rarity == 'Common').length }, { rarity: 'Uncommon', tableTotal: 300, amount: fish.filter(x => x.rarity == 'Uncommon').length },
         { rarity: 'Rare', tableTotal: 150, amount: fish.filter(x => x.rarity == 'Rare').length }, { rarity: 'Epic', tableTotal: 80, amount: fish.filter(x => x.rarity == 'Epic').length },
-        { rarity: 'Legendary', tableTotal: 25, amount: fish.filter(x => x.rarity == 'Legendary').length }, { rarity: 'Mythical', tableTotal: 2, amount: fish.filter(x => x.rarity == 'Mythical').length }
-
+        { rarity: 'Legendary', tableTotal: 25, amount: fish.filter(x => x.rarity == 'Legendary').length }, { rarity: 'Mythical', tableTotal: 2, amount: fish.filter(x => x.rarity == 'Mythical').length },
+        { rarity: 'Event', tableTotal: (isEvent)? 50 : 0, amount: fish.filter(x => x.rarity == 'Event').length },
     ]
-
 
     switch (choice) {
         case "five":
@@ -486,6 +490,20 @@ const generateRandomFish = (choice, location) => {
         case "river":
             fish = fish.filter((x) => { return x.type == 'Freshwater' })
     }
+
+    if (isFourthOfJuly){
+        fish = fish.filter((x) => { return x.event == 'Fourth of July' || !x.event})
+    }
+    else if(isHalloween){
+        fish = fish.filter((x) => { return x.event == 'Halloween' || !x.event})
+    }
+    else if(isChristmas){
+        fish = fish.filter((x) => { return x.event == 'Christmas' || !x.event})
+    }
+    else if(isNewYears){
+        fish = fish.filter((x) => { return x.event == 'New Years' })
+    }
+
 
     const dayMap = new Map()
     dayMap.set("Morning", [5, 11])
