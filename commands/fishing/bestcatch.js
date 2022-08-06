@@ -20,19 +20,19 @@ module.exports = {
             ]
         })
 
-        const bestCatch = await FishData.findById(guildData.bestCatch);
-        const bestCatchToday = await FishData.findById(guildData.bestCatchToday);
+        const bestCatch = guildData.bestCatch[0];
+        const bestCatchToday = guildData.bestCatchToday[0];
         const embed = new MessageEmbed()
             .setColor('#03fc84')
             .setTitle(`${interaction.guild.name}'s Fishing Statistics`)
-            .addField("Best Catch of All Time", (bestCatch) ? `<@${bestCatch.originalOwner}>\n\`${bestCatch.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === bestCatch.rarity).stars}\` · ` +
+            .addField("Best Catch of All Time", (bestCatch) ? `<@${bestCatch.userId}>\n\`${bestCatch.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === bestCatch.rarity).stars}\` · ` +
             `\`${((bestCatch.length > 24) ? (bestCatch.length/12).toFixed(1) + " ft      " : bestCatch.length + " in    ").substring(0,8)}\` · ` +
             `\`${((bestCatch.weight > 4000) ? (bestCatch.weight/2000).toFixed(1) + " tons" : bestCatch.weight + " lb     ").substring(0,9)}\` ` +
-            `· \`${(bestCatch.value)}\` <:YukiBronze:872106572275392512> · **${bestCatch.type}**${(bestCatch.shiny) ? ` ★` : ""}`  : `\`N/A\``, false)
-            .addField("Best Catch Today", (bestCatchToday) ? `<@${bestCatchToday.originalOwner}>\n\`${bestCatchToday.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === bestCatchToday.rarity).stars}\` · ` +
+            `· \`${(bestCatch.value)}\` <:YukiBronze:872106572275392512> · **${bestCatch.name}**${(bestCatch.shiny) ? ` ★` : ""}`  : `\`N/A\``, false)
+            .addField("Best Catch Today", (bestCatchToday) ? `<@${bestCatchToday.userId}>\n\`${bestCatchToday.fishId}\` · \`${rarityInfo.find(obj => obj.rarity === bestCatchToday.rarity).stars}\` · ` +
             `\`${((bestCatchToday.length > 24) ? (bestCatchToday.length/12).toFixed(1) + " ft      " : bestCatchToday.length + " in    ").substring(0,8)}\` · ` +
             `\`${((bestCatchToday.weight > 4000) ? (bestCatchToday.weight/2000).toFixed(1) + " tons" : bestCatchToday.weight + " lb     ").substring(0,9)}\` ` +
-            `· \`${(bestCatchToday.value)}\` <:YukiBronze:872106572275392512> · **${bestCatchToday.type}**${(bestCatchToday.shiny) ? ` ★` : ""}`  : `\`N/A\``, false)
+            `· \`${(bestCatchToday.value)}\` <:YukiBronze:872106572275392512> · **${bestCatchToday.name}**${(bestCatchToday.shiny) ? ` ★` : ""}`  : `\`N/A\``, false)
             .setFooter({text: 'More information will be displayed soon.'});
             return interaction.reply({embeds: [embed]})
         }

@@ -342,31 +342,32 @@ module.exports = {
                                 })
                                 
                                 const guildData = await GuildData.findOne({ guildId: interaction.guild.id }) || await GuildData.create({ guildId: interaction.guild.id });
-                                const guildBestCatch = await FishData.findById(guildData.bestCatch) || null;
-                                const guildBestCatchToday = await FishData.findById(guildData.bestCatchToday) || null;
-                                if (guildBestCatch) {
-                                    if (value > guildBestCatch.value) {
-                                        await guildData.updateOne({ bestCatch: newFish, bestCatchDate: Date.now() })
+                                randomFish.fishId = uniqueId;
+                                randomFish.userId = userId;
+                                randomFish.value = value;
+                                const guildBestCatch = guildData.bestCatch;
+                                const guildBestCatchToday = guildData.bestCatchToday;
+                                if (guildBestCatch.length) {
+                                    if (value > guildBestCatch[0].value) {
+                                        await guildData.updateOne({ bestCatch: randomFish, bestCatchDate: Date.now() })
                                     }
                                 }
                                 else {
-                                    guildData.bestCatch = newFish;
-                                    guildData.bestCatchDate = Date.now();
-                                    await guildData.save();
+                                    await guildData.updateOne({ bestCatch: randomFish, bestCatchDate: Date.now() })
                                 }
 
                                 var start = new Date();
                                 start.setUTCHours(0,0,0,0);
-                                if (!guildBestCatchToday) {
-                                    await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                if (!guildBestCatchToday.length) {
+                                    await guildData.updateOne({ bestCatchToday: randomFish, bestCatchTodayDate: Date.now() })
                                 }
                                 else {
                                     if(isDateToday(guildData.bestCatchTodayDate)) {
-                                        if (value > guildBestCatchToday.value) {
-                                            await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                        if (value > guildBestCatchToday[0].value) {
+                                            await guildData.updateOne({ bestCatchToday: randomFish, bestCatchTodayDate: Date.now() })
                                         }
                                     } else {
-                                        await guildData.updateOne({ bestCatchToday: newFish, bestCatchTodayDate: Date.now() })
+                                        await guildData.updateOne({ bestCatchToday: randomFish, bestCatchTodayDate: Date.now() })
                                     }
                                 }
                         }
