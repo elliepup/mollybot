@@ -1,48 +1,46 @@
-//Molly Bot Revamped
-//Nicholas Tabb
-//Started 11/18/2021
-//Previous Molly Bot was super scuffed so now I'm trying again :')
+//Molly Bot [Revamped] -Rewritten
+//Nicholas, Nathan Tabb
+//Started 11/12/2022
+//Molly Bot [Revamped], but music commands will hopefully not break randomly again
 
-require('dotenv').config()
+require('dotenv').config();
 const fs = require('node:fs');
 
-const { Client, Intents, Collection } = require('discord.js')
+const discord = require('discord.js');
 const { Player } = require('discord-player')
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MESSAGES] });
-
-client.player = new Player(client, {
-	ytdlOptions: {
-		quality: "highestaudio",
-		highWaterMark: 1 << 25
-	}
+//client object with intents
+const client = new discord.Client({
+    intents: ["Guilds", "GuildVoiceStates", "GuildMessages", "MessageContent"]
 });
 
-module.exports = client;
-
-
-
+client.player = new Player(client, {
+    ytdlOptions: {
+        quality: "highestaudio",
+        highWaterMark: 1 << 25
+    }
+});
 
 //event handling
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
-	const event = require(`../events/${file}`);
-	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
-	} else {
-		client.on(event.name, (...args) => event.execute(...args));
-	}
+    const event = require(`../events/${file}`);
+    if (event.once) {
+        client.once(event.name, (...args) => event.execute(...args));
+    } else {
+        client.on(event.name, (...args) => event.execute(...args));
+    }
 }
 
 //command handling
-client.commands = new Collection();
+client.commands = new discord.Collection();
 const commandFolders = fs.readdirSync('./commands');
 for (folder of commandFolders) {
-	const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-	for (file of commandFiles) {
-		const command = require(`../commands/${folder}/${file}`);
-		client.commands.set(command.data.name, command);
-	}
+    const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+    for (file of commandFiles) {
+        const command = require(`../commands/${folder}/${file}`);
+        client.commands.set(command.data.name, command);
+    }
 }
 
 client.login(process.env.TOKEN);

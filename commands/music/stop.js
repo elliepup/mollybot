@@ -1,24 +1,21 @@
-const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
-const { Player } = require('discord-player');
-const { MessageEmbed } = require('discord.js');
-
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('stop')
-        .setDescription('Stops the player and deletes the queue.'),
+        .setDescription('Stops playing music and deletes the queue.'),
     async execute(interaction) {
-        const client = require('../../src/index')
+        const client = interaction.client;
         const queue = client.player.getQueue(interaction.guild);
 
-        if (!queue) return interaction.reply({
+        if (!queue) return await interaction.reply({
             content: "I am not currently connected to a voice channel.",
             ephemeral: true,
         })
 
         queue.stop();
 
-        interaction.reply({
-            embeds: [new MessageEmbed()
+        await interaction.reply({
+            embeds: [new EmbedBuilder()
                 .setColor('#00DEFF')
                 .setTitle('Queue Stopped')
                 .setDescription(`<@${interaction.user.id}> has stopped the player and cleared the queue.`)
@@ -26,4 +23,3 @@ module.exports = {
         })
     }
 }
-

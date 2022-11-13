@@ -23,7 +23,7 @@ module.exports = {
         } catch (error) {
             console.error(error);
             await interaction.reply({
-                content: `An exception occurred upon execution. DM pseudolegendary nick#0021 with the error, but he probably already knows.`, 
+                content: `An exception occurred upon execution. Please DM one of the developers, pseudolegendary nick#0021 or Nathan#5754 and provide as much detail as possible.`, 
                 ephemeral: true
             });
         }

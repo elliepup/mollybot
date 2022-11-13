@@ -1,11 +1,10 @@
-const { SlashCommandBuilder, bold } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, blockQuote, bold } = require('discord.js');
 const { QueryType } = require('discord-player');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('play')
-        .setDescription('Plays music given a YouTube title or link.')
+        .setDescription('Plays music given a YouTube title or link. Supports playlists!')
         .addSubcommand(subcommand =>
             subcommand
                 .setName('search')
@@ -23,131 +22,139 @@ module.exports = {
                 .addStringOption(option => option.setName('url').setDescription('The link of the song.').setRequired(true))),
     async execute(interaction) {
 
-        const client = require('../../src/index')
-
         //if the user is not in a voice channel
-        if(!interaction.member.voice.channel) return await interaction.reply({
+        if (!interaction.member.voice.channel) return await interaction.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('#FC0000')
                     .setTitle("<:yukinon:839338263214030859> No Active Voice Channel")
                     .setDescription("You are not currently in a voice channel.")
             ]
         })
-        //if the bot doesn't have permission to join the voice channel
-        if(!interaction.member.voice.channel.permissionsFor(client.user).has('CONNECT')) return await interaction.reply({
-            embeds: [
-                new MessageEmbed()
-                    .setColor('#FC0000')
-                    .setTitle("<:yukinon:839338263214030859> Insufficient Permissions")
-                    .setDescription("I don't have permission to join your voice channel.")
-            ]
-        })
-                    
 
-        //creates queue and joins the voice channel of the user
-        const queue = await client.player.createQueue(interaction.guild, {
+        //creates queue for specific guild
+        const queue = interaction.client.player.createQueue(interaction.guild, {
+            metadata: {
+                channel: interaction.channel
+            },
             leaveOnEnd: false,
             leaveOnStop: false,
             leaveOnEmpty: false,
-            autoSelfDeaf: false,
+            autoSelfDeaf: false
         });
-        if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+        //tries to connect to voice channel
+        try {
+            if (!queue.connection) await queue.connect(interaction.member.voice.channel);
+        } catch {
+            //if unable to join then delete the queue and inform user
+            queue.destroy();
+            return await interaction.reply({
+                embeds: [
+                    new EmbedBuilder()
+                        .setColor('#FC0000')
+                        .setTitle("<:yukinon:839338263214030859> Invalid Permissions")
+                        .setDescription("I do not have sufficient permissions to join that voice channel.")
+                ]
+            })
+        }
 
-        if(interaction.options.getSubcommand() == 'link') {
+        //if user is using the "link" subcommand
+        if (interaction.options.getSubcommand() == 'link') {
             const url = interaction.options.getString('url');
 
-            const result = await client.player.search(url, {
+            const result = await interaction.client.player.search(url, {
                 requestedBy: interaction.user,
                 searchEngine: QueryType.YOUTUBE_VIDEO,
             });
 
-            if(!result.tracks.length) return await interaction.reply({
+            //if no results
+            if (!result.tracks.length) return await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#FC0000')
                         .setTitle("<:yukinon:839338263214030859> No Results")
                         .setDescription("The search came up empty. Please verify that you have entered the correct information.")
-                        .setFooter({text: `Search term: ${url}`})
+                        .setFooter({ text: `Search term: ${url}` })
                 ]
             })
 
+            //add song to queue and reply to interaction
             const song = result.tracks[0];
             await queue.addTrack(song);
-            
+
             await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
-                    .setTitle(`🎶New Song Added to the Queue🎶`)
-                    .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
-                    .setThumbnail(song.thumbnail)
-                    .setColor('#00B6FF ')
-                    .setFooter({text: `Requested by ${song.requestedBy.username}`, iconURL: song.requestedBy.displayAvatarURL({dynamic: true})})
+                    new EmbedBuilder()
+                        .setTitle(`🎶New Song Added to the Queue🎶`)
+                        .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
+                        .setThumbnail(song.thumbnail)
+                        .setColor('#00B6FF ')
+                        .setFooter({ text: `Requested by ${song.requestedBy.username}`, iconURL: song.requestedBy.displayAvatarURL({ dynamic: true }) })
                 ]
             })
-        } else if(interaction.options.getSubcommand() == 'playlist') {
+
+        }
+
+        //if user is using the playlist subcommand
+        else if (interaction.options.getSubcommand() == 'playlist') {
             const url = interaction.options.getString('url');
 
-            const result = await client.player.search(url, {
+            const result = await interaction.client.player.search(url, {
                 requestedBy: interaction.user,
                 searchEngine: QueryType.YOUTUBE_PLAYLIST,
             });
 
-            if(!result.tracks.length) return await interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> No Results")
-                        .setDescription("The search came up empty. Please verify that you have entered the correct information.")
-                        .setFooter({text: `Search term: ${url}`})
-                ]
-            })
-
             const playlist = result.playlist;
-            await queue.addTracks(result.tracks);
+            queue.addTracks(result.tracks)
 
             await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
-                    .setTitle(`🎶New Playlist Added to the Queue🎶`)
-                    .setDescription(`[${playlist.title}](${playlist.url}) ${bold(`[${result.tracks.length} Songs]`)}`)
-                    .setColor('#00B6FF ')
-                    .setThumbnail(playlist.thumbnail)
-                    .setFooter({text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({dynamic: true})})
+                    new EmbedBuilder()
+                        .setTitle(`🎶New Playlist Added to the Queue🎶`)
+                        .setDescription(`[${playlist.title}](${playlist.url}) ${bold(`[${result.tracks.length} Songs]`)}`)
+                        .setColor('#00B6FF ')
+                        .setThumbnail(playlist.tracks[0].thumbnail)
+                        .setFooter({ text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({ dynamic: true }) })
                 ]
             })
-        } else if (interaction.options.getSubcommand() == 'search') {
-            const url = interaction.options.getString('title');
-            const result = await client.player.search(url, {
+
+        }
+
+        //if user is using the search subcommand
+        else if (interaction.options.getSubcommand() == 'search') {
+            const query = interaction.options.getString('title');
+
+            const result = await interaction.client.player.search(query, {
                 requestedBy: interaction.user,
-                searchEngien: QueryType.AUTO
+                searchEngine: QueryType.AUTO
             })
 
-            if(!result.tracks.length) return await interaction.reply({
+            //if no results
+            if (!result.tracks.length) return await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#FC0000')
                         .setTitle("<:yukinon:839338263214030859> No Results")
                         .setDescription("The search came up empty. Please verify that you have entered the correct information.")
                 ]
             })
 
+            //add song to queue and reply to interaction
             const song = result.tracks[0]
             await queue.addTrack(song)
 
             await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
-                    .setTitle(`🎶New Playlist Added to the Queue🎶`)
-                    .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
-                    .setColor('#00B6FF ')
-                    .setThumbnail(song.thumbnail)
-                    .setFooter({text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({dynamic: true})})
+                    new EmbedBuilder()
+                        .setTitle(`🎶New Song Added to the Queue🎶`)
+                        .setDescription(`[${song.title}](${song.url}) ${bold('[' + song.duration + ']')}`)
+                        .setColor('#00B6FF ')
+                        .setThumbnail(song.thumbnail)
+                        .setFooter({ text: `Requested by ${result.tracks[0].requestedBy.username}`, iconURL: result.tracks[0].requestedBy.displayAvatarURL({ dynamic: true }) })
                 ]
             })
         }
-        
-        if(!queue.playing) await queue.play();
-    } 
 
+        //if (!queue.playing) await queue.play();
+    }
 }
