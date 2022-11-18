@@ -10,6 +10,7 @@ const token = process.env.TOKEN;
 
 const commands = [];
 const commandFolders = fs.readdirSync('./commands');
+
 for (folder of commandFolders) {
     const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
     for (file of commandFiles) {

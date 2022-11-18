@@ -22,9 +22,9 @@ client.player = new Player(client, {
 });
 
 //function handling
-const functions = fs.readdirSync('./functions').filter(file => file.endsWith('.js'));
+const functions = fs.readdirSync('./handler').filter(file => file.endsWith('.js'));
 for (const file of functions) {
-    require(`../functions/${file}`)(client);
+    require(`../handler/${file}`)(client);
 }
 
 
