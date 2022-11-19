@@ -13,7 +13,7 @@ module.exports = {
           .setColor("#82E4FF")
           .setDescription(`${blockQuote("Molly Bot **[REVAMPED]** is current in the early stages of development. DM bugs/suggestions to **pseudolegendary nick#0021**.")}`)
           .addFields(
-              {name: 'Music', value: codeBlock("disconnect\njump\npause\nplay\nplaying\nresume\nshuffle\nskip\nskipto\nstop")}
+              {name: 'Music', value: codeBlock("disconnect\nfilter\njump\npause\nplay\nplaying\nqueue\nresume\nshuffle\nskip\nskipto\nstop")}
           )
       ]
     })

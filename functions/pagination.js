@@ -117,6 +117,16 @@ async function buttonPagination(interaction, embeds, timeout = 120000) {
             await button.update({ embeds: [embeds[currentPage]], components: [row] });
         });
     
+        collector.on('end', async () => {
+            //if the collector has ended, disable all buttons
+            previousButton.setDisabled(true);
+            homeButton.setDisabled(true);
+            startButton.setDisabled(true);
+            nextButton.setDisabled(true);
+            endButton.setDisabled(true);
+            await msg.edit({ embeds: [embeds[currentPage]], components: [row] });
+        });
+
     
 }
 

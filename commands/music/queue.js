@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, IntegrationApplication } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder,bold, IntegrationApplication } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,18 +8,12 @@ module.exports = {
         const client = interaction.client;
         const queue = client.player.getQueue(interaction.guild);
 
+        //if no queue
         if (!queue || !queue.current) return await interaction.reply({
             content: "There is no music currently playing.",
             ephemeral: true,
         })
-
-        //TODO figure out why this is broken; for the time being, let user know it's broken
-        await interaction.reply({
-            content: "This command is currently broken. Please use the `playing` command instead.",
-        })
-
-
-        return;
+        
         const maxSongsPerPage = 7;
         const tracks = [queue.current, ...queue.tracks];
 
@@ -32,9 +26,11 @@ module.exports = {
                 .setColor('#03fc84')
                 .setTitle("🎶Songs in the queue🎶")
                 .setDescription(`Total songs in queue: ${tracks.length}\n` + current.map((track, i) => {
-                    return `${i + j + 1} - [${track.title}](${track.url})`;
+                    let output = `${bold(`#${j + i + 1}` + " - ")} [${track.title.length > 40 ? track.title.substring(0, 40) + 
+                    "..." : track.title}](${track.url}) ${bold(`[${track.duration}]`)}`;
+                    return output;
                 }).join('\n'))
-                .setFooter({ text: `Page ${i / maxSongsPerPage + 1} of ${Math.ceil(tracks.length / maxSongsPerPage)}`, iconURL: interaction.user.avatarURL })
+                .setFooter({ text: `Page ${i / maxSongsPerPage + 1} of ${Math.ceil(tracks.length / maxSongsPerPage)}` })
             );
         }
 
