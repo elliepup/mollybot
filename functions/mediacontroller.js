@@ -62,12 +62,7 @@ async function mediaController(interaction) {
                 .setCustomId('stop')
                 .setLabel('⏹')
                 .setStyle(discord.ButtonStyle.Secondary)
-                .setDisabled(true),
-            new discord.ButtonBuilder()
-                .setCustomId('leave')
-                .setLabel('🚪')
-                .setStyle(discord.ButtonStyle.Secondary)
-                .setDisabled(true)
+                .setDisabled(false),
         );
 
     //send the embed
@@ -227,7 +222,29 @@ async function mediaController(interaction) {
         }
 
 
+        //if they press the stop button
+        if (i.customId === 'stop') {
 
+            //disable all buttons
+            rowOne.components.forEach(button => button.setDisabled(true));
+            rowTwo.components.forEach(button => button.setDisabled(true));
+
+            //if the queue is empty, send an ephemeral message
+            if (!queue || !queue.current) return await i.reply({
+                content: "There is nothing to stop.",
+                ephemeral: true
+            });
+
+            //stop the queue
+            queue.stop();
+            queue.connection.disconnect();
+
+            //send an ephemeral message
+            await await i.update({
+                embeds: [embed],
+                components: [rowOne, rowTwo]
+            });   
+        }
     });
 
     //when the collector times out 
