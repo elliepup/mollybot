@@ -13,7 +13,7 @@ module.exports = {
         .rpc('get_balance', {
             user_id_in: user.id
         })
-
+        
         interaction.reply({
             embeds: [
                 new EmbedBuilder()
@@ -24,6 +24,5 @@ module.exports = {
             ]
         })
         
-    
   }
 }

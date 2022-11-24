@@ -14,7 +14,7 @@ module.exports = {
                 user_id_in: interaction.user.id
             });
 
-        const workCooldown = 1 * 60 * 1000; //5 minutes
+        const workCooldown = 5 * 60 * 1000; //5 minutes
         const lastWorked = data.last_worked;
 
         //convert lastWorked to milliseconds from iso string
@@ -42,7 +42,7 @@ module.exports = {
         const gasStationButton = new ButtonBuilder()
             .setCustomId('gas_station')
             .setStyle(ButtonStyle.Secondary)
-            .setEmoji('🚗');
+            .setEmoji('⛽');
         const restaurantButton = new ButtonBuilder()
             .setCustomId('restaurant')
             .setStyle(ButtonStyle.Secondary)
@@ -146,19 +146,12 @@ module.exports = {
 
             //update database
             //update last_worked
-            await interaction.client.supabase
-                .rpc('set_last_worked', {
-                    user_id_in: interaction.user.id,
-                    time_in: new Date().toISOString()
-                });
-
             data = await interaction.client.supabase
-                .rpc('add_player_balance', {
-                    user_id_in: interaction.user.id,
-                    amount_in: coins
-                });
-
-
+                .rpc('update_player_for_working', {
+                    added_balance_in: coins,
+                    last_worked_in: new Date().toISOString(),
+                    user_id_in: interaction.user.id
+                })
 
             const nextWork = new Date(Date.now() + workCooldown);
 
@@ -169,27 +162,14 @@ module.exports = {
                         .setTitle(`${interaction.user.username} worked at the ${button.customId.replace('_', ' ')}!`)
                         .setColor("#82E4FF")
                         .setDescription(blockQuote(`You worked at the ${button.customId.replace('_', ' ')} and earned ${getTieredCoins(coins)}!`))
-                        //add field for when they can work again
                         .addFields({ name: "Next work", value: `<t:${Math.floor((nextWork) / 1000)}>`, inline: true }, { name: "Balance", value: `${getTieredCoins(data.data.balance)}`, inline: true })
+                        .setFooter({ text: `The other jobs will be added at later date.` })
                 ],
-                components: []
+                components: [rowOne, rowTwo, rowThree]
             });
 
             //stop collector
             collector.stop();
-            //increment times worked
-            await interaction.client.supabase
-                .rpc('increment_times_worked', {
-                    user_id_in: interaction.user.id,
-                    amount_in: 1
-                });
-
-            //increment total worked
-            await interaction.client.supabase
-                .rpc('increment_total_worked', {
-                    user_id_in: interaction.user.id,
-                    amount_in: coins
-                });
 
         })
 
