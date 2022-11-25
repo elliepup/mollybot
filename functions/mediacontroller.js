@@ -66,7 +66,7 @@ async function mediaController(interaction) {
         );
 
     //send the embed
-    await interaction.reply({
+    const msg = await interaction.reply({
         embeds: [embed],
         components: [rowOne, rowTwo],
         fetchReply: true
@@ -76,7 +76,7 @@ async function mediaController(interaction) {
     //create a collector for the buttons and listen for button presses by the user who sent the command
     const filter = i => i.user.id === interaction.user.id;
     const timeout = 60000;
-    const collector = interaction.channel.createMessageComponentCollector({ filter, time: timeout });
+    const collector = msg.createMessageComponentCollector({ filter, time: timeout });
 
     //when a button is pressed
     collector.on('collect', async i => {
