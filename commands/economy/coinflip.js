@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, blockQuote, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getTieredCoins } = require('../../functions/data/economy.js');
 
 module.exports = {

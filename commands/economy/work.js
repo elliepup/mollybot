@@ -163,7 +163,7 @@ module.exports = {
                         .setColor("#82E4FF")
                         .setDescription(blockQuote(`You worked at the ${button.customId.replace('_', ' ')} and earned ${getTieredCoins(coins)}!`))
                         .addFields({ name: "Next work", value: `<t:${Math.floor((nextWork) / 1000)}>`, inline: true }, { name: "Balance", value: `${getTieredCoins(data.data.balance)}`, inline: true })
-                        .setFooter({ text: `The other jobs will be added at later date.` })
+                        .setFooter({ text: `The other jobs will be added at a later date.` })
                 ],
                 components: [rowOne, rowTwo, rowThree]
             });
