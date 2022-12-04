@@ -37,7 +37,7 @@ module.exports = {
       })
     }
 
-    const fishingCooldown = 0 * 60000; //5 minutes
+    const fishingCooldown = 5 * 60000; //5 minutes
     //convert last_fished from string to ms
     let lastFished = data.last_fished;
     //check if able to fish
@@ -333,7 +333,7 @@ module.exports = {
           hooked = true;
           row.setComponents(hookButton.setDisabled(true))
 
-          const shinyRate = 4095 / 4096
+          const shinyRate = 1 / 4096
           let shiny = Math.random() < shinyRate;
           let vMult = shiny ? 100 : 1;
 
@@ -346,25 +346,8 @@ module.exports = {
             { rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆" }, { rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆" }, { rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★" },
             { rarity: "Event", hex: "#03FC90", stars: "<a:CongratsWinnerConfetti:993186391628468244>" }
           ]
-          await i.update({
-            embeds: [
-              embed
-                .setColor((!shiny) ? rarityInfo.find(x => x.rarity == randomFish.rarity).hex : '#FFD700')
-                .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
-                .setThumbnail(`https://media.discordapp.net/attachments/1049015764830666843/${(!shiny) ? randomFish.image.toString() : randomFish.image_shiny.toString()}/${randomFish.fish_number}.png`)
-                .addFields({ name: 'Bait', value: `Tier ${baitChoice.charAt(0).toUpperCase() + baitChoice.slice(1)}`, inline: true },
-                  { name: 'Rarity', value: `${rarityInfo.find(x => x.rarity == randomFish.rarity).stars}`, inline: true },
-                  { name: 'Length', value: (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, inline: true },
-                  { name: 'Weight', value: (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, inline: true },
-                  { name: 'Color', value: `${randomFish.color}`, inline: true },
-                  { name: 'Selling Price', value: getTieredCoins(value), inline: true },
-                  { name: 'Identifier', value: `\`:3 reg goda folded round\``, inline: true }
-                )
-            ], components: [row]
-          })
-          
-          //generate random fish identifier
-          const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+            const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
           let uniqueId = "";
           const lengthOfId = 6;
             
@@ -388,8 +371,24 @@ module.exports = {
                     value_in: value,
                     locked_in: false
                 })
-
-                console.log(data);
+            
+          await i.update({
+            embeds: [
+              embed
+                .setColor((!shiny) ? rarityInfo.find(x => x.rarity == randomFish.rarity).hex : '#FFD700')
+                .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
+                .setThumbnail(`https://media.discordapp.net/attachments/1049015764830666843/${(!shiny) ? randomFish.image.toString() : randomFish.image_shiny.toString()}/${randomFish.fish_number}.png`)
+                .addFields({ name: 'Bait', value: `Tier ${baitChoice.charAt(0).toUpperCase() + baitChoice.slice(1)}`, inline: true },
+                  { name: 'Rarity', value: `${rarityInfo.find(x => x.rarity == randomFish.rarity).stars}`, inline: true },
+                  { name: 'Length', value: (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, inline: true },
+                  { name: 'Weight', value: (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, inline: true },
+                  { name: 'Color', value: `${randomFish.color}`, inline: true },
+                  { name: 'Selling Price', value: getTieredCoins(value), inline: true },
+                  { name: 'Identifier', value: `\`${uniqueId}\``, inline: true }
+                )
+            ], components: [row]
+          })
+          
         }
       }
     })
