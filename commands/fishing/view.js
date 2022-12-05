@@ -62,9 +62,9 @@ module.exports = {
             {name: "Value", value: getTieredCoins(fish.value), inline: true},
             {name: "Stats", value: `**Length:** ${(fish.fish_length > 24) ? `\`${(fish.fish_length / 12).toFixed(1)} ft\`` : `\`${fish.fish_length} in\``}` + 
             `\n**Weight:** \`${fish.fish_weight.toString()} lb\`\n**Color:** \`${fish.color}\`${(fish.shiny) ? `\n⭐**Shiny**⭐` : ""}`, inline: true},
-            
-            
             )
+            .setFooter({text: `This feature is still in development. If you have any suggestions, please DM me!`})
+
 
         ]
     })

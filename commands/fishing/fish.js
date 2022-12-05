@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, blockQuote, codeBlock, SelectMenuBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, blockQuote, codeBlock, StringSelectMenuBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const LootTable = require('loot-table');
 const wait = require('node:timers/promises').setTimeout;
 const { getTieredCoins } = require('../../functions/data/economy.js');
@@ -37,7 +37,7 @@ module.exports = {
       })
     }
 
-    const fishingCooldown = 5 * 60000; //5 minutes
+    const fishingCooldown = 0 * 60000; //5 minutes
     //convert last_fished from string to ms
     let lastFished = data.last_fished;
     //check if able to fish
@@ -62,7 +62,7 @@ module.exports = {
       .setDescription(blockQuote(`Please select the type of bait that you would like to use.`))
       .setFooter({ text: `This feature is currently in early access. Bugs are to be expected.` })
 
-    const selectMenu = new SelectMenuBuilder()
+    const selectMenu = new StringSelectMenuBuilder()
       .setCustomId('fishing_bait')
       .setPlaceholder('Select a bait')
 
@@ -112,7 +112,7 @@ module.exports = {
         .setEmoji('🎣')
       const row = new ActionRowBuilder()
       //if user selects a bait
-      if (i.isSelectMenu()) {
+      if (i.isStringSelectMenu()) {
         baitChoice = i.values[0];
         row.addComponents(cancelButton, confirmButton)
         //update embed
