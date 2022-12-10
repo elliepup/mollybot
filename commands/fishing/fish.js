@@ -279,7 +279,7 @@ module.exports = {
           })
 
           //wait for 5 to 15 seconds
-          const randomTime = Math.floor(Math.random() * 10000) + 5000;
+          const randomTime = 0 * Math.floor(Math.random() * 10000) + 5000;
           await wait(randomTime);
           if (failed) return;
 
@@ -371,7 +371,7 @@ module.exports = {
                     value_in: value,
                     locked_in: false
                 })
-            
+
           await i.update({
             embeds: [
               embed
@@ -384,7 +384,8 @@ module.exports = {
                   { name: 'Weight', value: (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, inline: true },
                   { name: 'Color', value: `${randomFish.color}`, inline: true },
                   { name: 'Selling Price', value: getTieredCoins(value), inline: true },
-                  { name: 'Identifier', value: `\`${uniqueId}\``, inline: true }
+                  { name: 'Identifier', value: `\`${uniqueId}\``, inline: true },
+                  { name: 'Number', value: `\`#${data.data[0].number_caught}\``, inline: true}
                 )
             ], components: [row]
           })

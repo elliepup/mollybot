@@ -6,7 +6,13 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('collection')
         .setDescription('Displays the collection of fish you or another user has.')
-        .addUserOption(option => option.setName('user').setDescription('The user to view the collection of.').setRequired(false)),
+        .addUserOption(option => option.setName('user').setDescription('The user to view the collection of.').setRequired(false))
+        .addStringOption(option =>
+            option.setName('sort')
+              .setDescription('Optionally sort the collection by one of these options.')
+              .setRequired(false)
+              .setAutocomplete(true)),
+        autocompleteOptions: ['weight', 'length', 'value', 'rarity'],
     async execute(interaction) {
 
         const target = interaction.options.getUser('user') || interaction.user;
@@ -47,6 +53,21 @@ module.exports = {
             { rarity: "Event", hex: "#03FC90", stars: "<a:CongratsWinnerConfetti:993186391628468244>" }
           ]
 
+
+        const sortOption = interaction.options.getString('sort');
+        if (sortOption) {
+            switch (sortOption) {
+                case 'weight':
+                    data.sort((a, b) => a.fish_weight - b.fish_weight);
+                case 'length':
+                    data.sort((a, b) => a.fish_length - b.fish_length);
+                case 'value':
+                    data.sort((a, b) => a.value - b.value);
+                    break;
+                case 'rarity':
+                    data.sort((a, b) => rarityInfo.findIndex(r => r.rarity === a.rarity) - rarityInfo.findIndex(r => r.rarity === b.rarity));
+            }
+        }
         for (let i = 0; i < data.length; i += maxFishPerPage) {
             const current = data.slice(i, maxFishPerPage + i);
             const j = i;
@@ -60,14 +81,14 @@ module.exports = {
                     output += (fish.locked) ? "🔒" : "🔓"; //locked or unlocked
                     output += `\`${fish.fish_id_out}\` · ` //fish id in code block
                     output += `\`${rarityInfo.find(rarity => rarity.rarity === fish.rarity).stars}\` · `; //rarity stars
-                    output += ('`'+ ((fish.fish_length > 24) ? (fish.fish_length/12).toFixed(1) + " ft      " : fish.fish_length + " in    ")).substring(0,7) + '` · '; //length
+                    output += ('`'+ ((fish.fish_length > 24) ? (fish.fish_length/12).toFixed(1) + " ft      " : fish.fish_length + " in    ")).substring(0,8) + '` · '; //length
                     output += ('`'+ ((fish.fish_weight > 4000) ? (fish.fish_weight/2000).toFixed(1) + " tons " : fish.fish_weight + " lb     ")).substring(0,9) + '` · '; //weight
-                    output += '`' + ((fish.value > 1000) ? `${(fish.value/1000).toFixed(1)}k    ` : `${fish.value}     `).substring(0,6) + '`' + `<:YukiBronze:872106572275392512> · `; //value
+                    output += '`' + ((fish.value >= 1000) ? `${(fish.value/1000).toFixed(1)}k    ` : `${fish.value}     `).substring(0,6) + '`' + `<:YukiBronze:872106572275392512> · `; //value
                     output += '`' + (fish.name) + '`'; //name
 
                     return output;
                 }).join('\n')})
-                .setFooter({text: `Sorting options coming soon!`})
+                .setFooter({text: `Sorted by ${sortOption || 'default'}`})
             );
         }
 
