@@ -377,7 +377,7 @@ module.exports = {
               embed
                 .setColor((!shiny) ? rarityInfo.find(x => x.rarity == randomFish.rarity).hex : '#FFD700')
                 .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
-                .setThumbnail(`https://media.discordapp.net/attachments/1049015764830666843/${(!shiny) ? randomFish.image.toString() : randomFish.image_shiny.toString()}/${randomFish.fish_number}.png`)
+                .setThumbnail((!shiny) ? `https://media.discordapp.net/attachments/1049015764830666843/${randomFish.image.toString()}/${randomFish.fish_number}.png` : `https://media.discordapp.net/attachments/1049018284298752080/${randomFish.image_shiny.toString()}/${randomFish.fish_number}.png`)
                 .addFields({ name: 'Bait', value: `Tier ${baitChoice.charAt(0).toUpperCase() + baitChoice.slice(1)}`, inline: true },
                   { name: 'Rarity', value: `${rarityInfo.find(x => x.rarity == randomFish.rarity).stars}`, inline: true },
                   { name: 'Length', value: (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, inline: true },

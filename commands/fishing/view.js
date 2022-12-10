@@ -16,7 +16,7 @@ module.exports = {
                 content: `That is not a valid fish ID!`,
                 ephemeral: true
             })
-        }
+        }           
 
         const { data, error } = await interaction.client.supabase
             .rpc('get_fish_by_id', {
@@ -27,6 +27,14 @@ module.exports = {
         if (error) {
             return interaction.reply({
                 content: `There was an error retrieving the fish!`,
+                ephemeral: true
+            })
+        }
+
+        //if the bot is currently owned by the bot say it doesn't exist
+        if (data[0].current_owner === interaction.client.user.id) {
+            return interaction.reply({
+                content: `I was unable to find a fish with the ID \`${targetFish}\`. Please ensure you have the correct ID then try again.`,
                 ephemeral: true
             })
         }
@@ -53,12 +61,12 @@ module.exports = {
                 new EmbedBuilder()
                     .setTitle(`Fish Details: \`${fish.fish_id_out}\``)
                     .setColor((!fish.shiny) ? rarityInfo.find(obj => obj.rarity === fish.rarity).hex : `#FFD700`)
-                    .setThumbnail(`https://media.discordapp.net/attachments/1049015764830666843/${(!fish.shiny) ? fish.image.toString() : fish.image_shiny.toString()}/${fish.fish_number}.png`)
+                    .setThumbnail((!fish.shiny) ? `https://media.discordapp.net/attachments/1049015764830666843/${fish.image.toString()}/${fish.fish_number}.png` : `https://media.discordapp.net/attachments/1049018284298752080/${fish.image_shiny.toString()}/${fish.fish_number}.png`)
                     .setDescription(`Current Owner: <@${fish.current_owner}>`)
                     .addFields({ name: "Caught By", value: `<@${fish.original_owner}>`, inline: true },
                         { name: "Caught On", value: `<t:${Math.floor((new Date(fish.caught_at).getTime()) / 1000)}>`, inline: true },
                         { name: "Fish", value: (!fish.shiny) ? fish.name : `⭐${fish.name}⭐`, inline: true },
-                        { name: "Rarity", value: (!fish.shiny) ? rarityInfo.find(obj => obj.rarity === fish.rarity).stars : "★☆☆☆☆", inline: true },
+                        { name: "Rarity", value: rarityInfo.find(obj => obj.rarity === fish.rarity).stars, inline: true },
                         { name: "Value", value: getTieredCoins(fish.value), inline: true },
                         { name: "Number", value: `\`${fish.number_caught}/${fish.total_caught}\``, inline: true },
                         {
