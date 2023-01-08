@@ -18,10 +18,6 @@ MollyBot includes a fishing mini-game with over 100 unique fish to catch, each w
 
 For a full list of commands, use the `/help` command.
 
-## Inviting MollyBot to Your Server
-
-To invite MollyBot to your Discord server, click [here](INSERT INVITE LINK).
-
 ## Setting Up MollyBot
 
 To set up and run MollyBot on your own server, follow these steps:
