@@ -12,8 +12,13 @@ module.exports = {
         .setDescription('If you want to choose a specific location, use this option.')
         .setRequired(false)
         .setAutocomplete(true)),
-  autocompleteOptions: ['sea', 'river'],
+  autocompleteOptions: ['sea', 'river']
+  ,
   async execute(interaction) {
+
+    let splitBaitString = function(bait){
+        return bait.split('_')[0];
+    }
 
     let fishBit = false;
     let failed = false;
@@ -27,7 +32,6 @@ module.exports = {
       .rpc('get_fishing_profile', {
         user_id_in: userId
       })
-
 
     //if no bait
     if (data.tier1_bait === 0 && data.tier2_bait === 0 && data.tier3_bait === 0 && data.tier4_bait === 0 && data.tier5_bait === 0) {
@@ -43,7 +47,6 @@ module.exports = {
     //check if able to fish
     const { ableToFish, timeLeft } = checkIfAbleToFish(data.last_fished, fishingCooldown);
 
-  
     if (!ableToFish) {
       const timeComponents = timeLeft.split(':');
       const minutes = parseInt(timeComponents[0]);
@@ -85,7 +88,7 @@ module.exports = {
       if (i.startsWith('tier') && bait > 0) {
         const tier = i.slice(4);
         selectMenu.addOptions({
-          label: `Tier ${tier} Bait`,
+          label: `Tier ${splitBaitString(tier)} Bait`,
           value: tier,
           description: `x${bait}`,
           emoji: '🐟',
@@ -131,7 +134,7 @@ module.exports = {
         baitChoice = i.values[0];
         row.addComponents(cancelButton, confirmButton)
         //update embed
-        embed.setDescription(`Are you sure you want to use **tier ${i.values[0]} bait**?\n${blockQuote(`Please note that after clicking confirm, ` +
+        embed.setDescription(`Are you sure you want to use **Tier ${splitBaitString(i.values[0])} bait**?\n${blockQuote(`Please note that after clicking confirm, ` +
           ` you will be placed into the fishing minigame. There will be a **Hook Fish** button that you must click to catch the fish when ` +
           `it bites. Don't click too early or you'll scare it away!`)}`)
 
@@ -213,27 +216,24 @@ module.exports = {
             { rarity: 'Legendary', tableTotal: 25, amount: fish.filter(x => x.rarity == 'Legendary').length }, { rarity: 'Mythical', tableTotal: 2, amount: fish.filter(x => x.rarity == 'Mythical').length },
           ]
 
-          // map of bait rarity levels to corresponding fish rarities
-          const rarityMap = {
-            '2': ['Common'],
-            '3': ['Common', 'Uncommon'],
-            '4': ['Rare', 'Epic', "Legendary"],
-            '5': ['Epic', "Legendary", "Mythical"],
-          };
-
-          const baitChoiceFormatted = baitChoice.split("_")[0];          
-          if (rarityMap[baitChoice]) {
-            fish = fish.filter(x => rarityMap[baitChoiceFormatted].includes(x.rarity));
+          switch (splitBaitString(baitChoice)) {
+            case '5':
+              fish = fish.filter(x => { return x.rarity != 'Epic' })
+            case '4':
+              fish = fish.filter(x => { return x.rarity != 'Rare' })
+            case '3':
+              fish = fish.filter(x => { return x.rarity != 'Uncommon' })
+            case '2':
+              fish = fish.filter(x => { return x.rarity != 'Common' })
           }
 
-          /* filter by location
-          const locations = [
-            'All',
-            'Saltwater',
-            'Freshwater',
-          ]
-          fish = fish.filter(x => { return locations.includes(x.location) })
-          */
+          // filter by location
+          let location = interaction.options.getString('location');
+          if(location){
+            let tempLocation = location == 'sea' ? 'Saltwater' : 'Freshwater';
+            fish = fish.filter(x => { return x.location != tempLocation })
+          }      
+          console.log(`location: ${location}`)
 
           // filter by time of day
           const dayMap = {
@@ -293,7 +293,7 @@ module.exports = {
 
           //update bait
           await interaction.client.supabase
-            .rpc(`increment_tier${baitChoice}_bait`, {
+            .rpc(`increment_tier${splitBaitString(baitChoice)}_bait`, {
               amount_in: -1,
               user_id_in: userId
             })
@@ -364,7 +364,7 @@ module.exports = {
           hooked = true;
           row.setComponents(hookButton.setDisabled(true))
 
-          const shinyRate = 1 / 4096
+          const shinyRate = 1 / 4096;
           let shiny = Math.random() < shinyRate;
           let vMult = shiny ? 100 : 1;
 
@@ -378,7 +378,7 @@ module.exports = {
             { rarity: "Event", hex: "#03FC90", stars: "<a:CongratsWinnerConfetti:993186391628468244>" }
           ]
 
-            const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+          const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
           let uniqueId = "";
           const lengthOfId = 6;
             
@@ -409,7 +409,7 @@ module.exports = {
                 .setColor((!shiny) ? rarityInfo.find(x => x.rarity == randomFish.rarity).hex : '#FFD700')
                 .setDescription((!shiny) ? `${interaction.user.username} has reeled in a **${randomFish.name}**!` : `${interaction.user.username} has reeled in a *** ⭐Shiny ${randomFish.name}⭐***!`)
                 .setThumbnail((!shiny) ? `https://media.discordapp.net/attachments/1049015764830666843/${randomFish.image.toString()}/${randomFish.fish_number}.png` : `https://media.discordapp.net/attachments/1049018284298752080/${randomFish.image_shiny.toString()}/${randomFish.fish_number}.png`)
-                .addFields({ name: 'Bait', value: `Tier ${baitChoice.charAt(0).toUpperCase() + baitChoice.slice(1)}`, inline: true },
+                .addFields({ name: 'Bait', value: `Tier ${splitBaitString(baitChoice)} bait`, inline: true },
                   { name: 'Rarity', value: `${rarityInfo.find(x => x.rarity == randomFish.rarity).stars}`, inline: true },
                   { name: 'Length', value: (length > 24) ? `*${(length / 12).toFixed(1)} ft*` : `*${length} in*`, inline: true },
                   { name: 'Weight', value: (weight > 4000) ? `*${(weight / 2000).toFixed(1)} tons*` : `*${weight.toString()} lb*`, inline: true },
