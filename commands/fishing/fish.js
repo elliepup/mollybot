@@ -23,7 +23,7 @@ module.exports = {
     const userId = interaction.user.id;
 
     //get user's fishing profile
-    let { data, error } = await interaction.client.supabase
+    let { data } = await interaction.client.supabase
       .rpc('get_fishing_profile', {
         user_id_in: userId
       })
@@ -37,21 +37,35 @@ module.exports = {
       })
     }
 
-    const fishingCooldown = 0 * 60000; //5 minutes
+    const fishingCooldown = 0 * 60 * 1000; //5 minutes
     //convert last_fished from string to ms
     let lastFished = data.last_fished;
     //check if able to fish
     const { ableToFish, timeLeft } = checkIfAbleToFish(data.last_fished, fishingCooldown);
 
+  
     if (!ableToFish) {
+      const timeComponents = timeLeft.split(':');
+      const minutes = parseInt(timeComponents[0]);
+      const seconds = parseInt(timeComponents[1]);
+      const formattedTimeLeft = `${minutes} minute${minutes !== 1 ? 's' : ''} and ${seconds} second${seconds !== 1 ? 's' : ''}`;    
       return await interaction.reply({
         embeds: [
           new EmbedBuilder()
             .setColor("#FF0000")
             .setTitle('You are too tired to fish!')
-            .setDescription(`You need to wait \`${timeLeft}\` before you can fish again.`)
-            .addFields({ name: "Last fished", value: `<t:${Math.floor(new Date(lastFished).getTime() / 1000)}>` },
-              { name: "Cooldown", value: `<t:${Math.floor((new Date(lastFished).getTime() + fishingCooldown) / 1000)}>` })
+            .setDescription(`You need to wait \`${formattedTimeLeft}\` before you can fish again.`)
+            .addFields(
+              { 
+                name: "Last fished", 
+                value: `<t:${Math.floor(new Date(lastFished).getTime() / 1000)}:T>`, 
+                inline: true 
+              },
+              { 
+                name: "Cooldown", 
+                value: `<t:${Math.floor((new Date(lastFished).getTime() + fishingCooldown) / 1000)}:T>`, 
+                inline: true 
+              })     
         ]
       })
     }
@@ -67,16 +81,17 @@ module.exports = {
       .setPlaceholder('Select a bait')
 
     //for each bait type that the user has, add a select option
-    for (let i = 1; i <= 5; i++) {
-      if (data[`tier${i}_bait`] > 0) {
+    for (const [i, bait] of Object.entries(data)) {
+      if (i.startsWith('tier') && bait > 0) {
+        const tier = i.slice(4);
         selectMenu.addOptions({
-          label: `Tier ${i} Bait`,
-          value: i.toString(),
-          description: `x${data[`tier${i}_bait`]}`,
-          emoji: '🐟'
-        })
+          label: `Tier ${tier} Bait`,
+          value: tier,
+          description: `x${bait}`,
+          emoji: '🐟',
+        });
       }
-    }
+    }    
 
     const row = new ActionRowBuilder()
       .addComponents(selectMenu)
@@ -198,33 +213,49 @@ module.exports = {
             { rarity: 'Legendary', tableTotal: 25, amount: fish.filter(x => x.rarity == 'Legendary').length }, { rarity: 'Mythical', tableTotal: 2, amount: fish.filter(x => x.rarity == 'Mythical').length },
           ]
 
-          switch (baitChoice) {
-            case '5':
-              fish = fish.filter(x => { return x.rarity != 'Epic' })
-            case '4':
-              fish = fish.filter(x => { return x.rarity != 'Rare' })
-            case '3':
-              fish = fish.filter(x => { return x.rarity != 'Uncommon' })
-            case '2':
-              fish = fish.filter(x => { return x.rarity != 'Common' })
+          // map of bait rarity levels to corresponding fish rarities
+          const rarityMap = {
+            '2': ['Common'],
+            '3': ['Common', 'Uncommon'],
+            '4': ['Rare', 'Epic', "Legendary"],
+            '5': ['Epic', "Legendary", "Mythical"],
+          };
+
+          const baitChoiceFormatted = baitChoice.split("_")[0];          
+          if (rarityMap[baitChoice]) {
+            fish = fish.filter(x => rarityMap[baitChoiceFormatted].includes(x.rarity));
           }
 
-          //eventually filter location as well
+          /* filter by location
+          const locations = [
+            'All',
+            'Saltwater',
+            'Freshwater',
+          ]
+          fish = fish.filter(x => { return locations.includes(x.location) })
+          */
 
-          const dayMap = new Map();
-          dayMap.set('Morning', [5, 11]);
-          dayMap.set('Afternoon', [12, 17]);
-          dayMap.set('Evening', [18, 21]);
-          dayMap.set('Night', [22, 4]);
-
+          // filter by time of day
+          const dayMap = {
+            'Morning': [5, 11],
+            'Afternoon': [12, 17],
+            'Evening': [18, 21],
+            'Night': [22, 4]
+          };
+          
           const currentHour = new Date().getHours();
-          //get time in daymap
-          let timeOfDay = null;
-          for (const [key, value] of dayMap) {
-            if (currentHour >= value[0] && currentHour <= value[1]) {
-              timeOfDay = key;
+          
+          let timeOfDay = Object.keys(dayMap).find(period => {
+            const [start, end] = dayMap[period];
+            if (currentHour >= start && currentHour <= end) {
+              return true;
             }
-          }
+            // Special condition for night period where end is smaller than start
+            if (start > end && (currentHour >= start || currentHour <= end)) {
+              return true;
+            }
+            return false;
+          });
 
           //filter fish by time of day or if the fish is available all day
           fish = fish.filter(x => { return x.time_available == timeOfDay || x.time_available == 'All' })
@@ -397,23 +428,29 @@ module.exports = {
   }
 }
 
+
+/**
+ * Checks whether a user is able to fish based on their last fishing time and the fishing cooldown.
+ * @param {Date} lastFished The last time the user fished.
+ * @param {number} fishingCooldown The duration of the fishing cooldown in milliseconds.
+ * @returns {object} An object with properties `ableToFish` and `timeLeft` (optional).
+ */
 function checkIfAbleToFish(lastFished, fishingCooldown) {
+  const lastWorkedMs = lastFished ? new Date(lastFished).getTime() : 0;
+  const timeLeftMs = lastWorkedMs + fishingCooldown - Date.now();
 
-  const lastWorkedMs = lastFished == null ? 0 : new Date(lastFished).getTime();
-
-  //if not enough time has passed since last fish
-  if (Date.now() - lastWorkedMs < fishingCooldown) {
-    const timeLeft = fishingCooldown - (Date.now() - lastWorkedMs);
-    const timeLeftMinutes = Math.floor(timeLeft / 60000);
-    const timeLeftSeconds = ((timeLeft % 60000) / 1000).toFixed(0);
+  if (timeLeftMs > 0) {
+    const timeLeftMinutes = Math.floor(timeLeftMs / 60000);
+    const timeLeftSeconds = ((timeLeftMs % 60000) / 1000).toFixed(0);
 
     return {
       ableToFish: false,
+      // Format the time left as a string (MM:SS)
       timeLeft: `${timeLeftMinutes}:${timeLeftSeconds < 10 ? '0' : ''}${timeLeftSeconds}`
-    }
+    };
   } else {
     return {
       ableToFish: true
-    }
+    };
   }
 }
