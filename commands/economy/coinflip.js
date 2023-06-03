@@ -33,6 +33,9 @@ module.exports = {
                 ephemeral: true
             });
         }
+
+        await interaction.client.supabase
+        .rpc('increment_total_coinflipped', { user_id_in: user.id, amount_in: bet });
         
         const taxBrackets = [
             { min: 0, max: 1000, rate: 0.1 },
@@ -58,10 +61,14 @@ module.exports = {
           const coinflip = Math.floor(Math.random() * 2);
           const rawWinnings = coinflip == 1 ? bet : -bet;
           let netWinnings = rawWinnings;
-          if(coinflip){ // Deducting tax only if user won
-            const tax = calculateTax(Math.max(rawWinnings, 0));
+          if(coinflip){ 
+            await interaction.client.supabase
+            .rpc('increment_times_coinflipped', { user_id_in: user.id, acount_in: 1 });
+
+            const tax = calculateTax(Math.max(rawWinnings, 0)); // Deducting tax only if user won
             netWinnings = rawWinnings - tax;
-            // TODO Add tax to mollybot
+            await interaction.client.supabase
+            .rpc('add_player_balance', { user_id_in: 'mollybot id', acount_in: tax });
           }
 
           money += netWinnings;
