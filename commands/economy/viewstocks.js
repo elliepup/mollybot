@@ -56,7 +56,7 @@ module.exports = {
             .setTitle(stock.toUpperCase())
             .setColor("#82E4FF")
             .setDescription(`**Stock Viewer**\n${blockQuote(description)}`)
-            .setFooter({ text: `Experimental Command`, iconURL: user.displayAvatarURL() })
+            .setFooter({ text: `These are not real stocks`, iconURL: user.displayAvatarURL() })
         ]
     })
       

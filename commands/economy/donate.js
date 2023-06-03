@@ -142,6 +142,7 @@ module.exports = {
             //if the collector ended because of time
             if (collected.size === 0) {
                 //edit the embed to say the donation was cancelled
+                row.components.forEach((button) => button.setDisabled(true));
                 embed.setDescription(`${blockQuote(`The donation was cancelled. No coins were taken from your wallet.`)}`)
                 return interaction.editReply({
                     embeds: [embed],
