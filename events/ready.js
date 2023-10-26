@@ -1,28 +1,13 @@
-const cron = require('node-cron');
-
-cron.schedule('59 59 22 * * FRI', () => {
-    const { rollLottery } = require('../utils/lotteryRoll');
-    rollLottery();
-})
-
 module.exports = {
-    name: 'ready',
-    once: true,
-    async execute(client) {
-        console.log(`${client.user.tag} has logged in successfully.`);
-        client.user.setPresence({ activities: [{ name: '/help', type: "LISTENING" }], status: 'online' });
+  name: 'ready',
+  once: true,
+  async execute(client) {
+      console.log(`${client.user.tag} has logged in successfully.`)
+      client.user.setPresence({ activities: [{ name: 'under maintenance', type: 0 }], status: 'dnd' });
 
-        //database initialization
-        const mongoose = require('mongoose')
-        await mongoose.connect(process.env.MONGODB_SRV, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        }).then(() => {
-            console.log("Connected to the database successfully.")
-        })
-
-        //cron job to run every 5 minutes
-        
-    }
+      //initialize supabase client and connect to database
+      const supabase = require('@supabase/supabase-js');
+      client.supabase = supabase.createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+      console.log('Connected to Supabase database successfully.');
+  }
 }
-

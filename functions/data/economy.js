@@ -1,12 +1,3 @@
-const mongoose = require('mongoose')
-
-const user = new mongoose.Schema({
-    userId: {type: String, require: true, unique: true},
-    balance: {type: Number, default: 500},
-})
-
-const User = mongoose.model("User", user);
-
 function getTieredCoins(n) {
     const diamond = Math.floor(n / 100000000)
     const platinum = Math.floor(n % 100000000 / 1000000);
@@ -22,4 +13,4 @@ function getTieredCoins(n) {
     }
     return formattedString || "`0` <:YukiBronze:872106572275392512>";
 }
-module.exports = { User, getTieredCoins };
+module.exports = { getTieredCoins };

@@ -10,9 +10,10 @@ const token = process.env.TOKEN;
 
 const commands = [];
 const commandFolders = fs.readdirSync('./commands');
+
 for (folder of commandFolders) {
     const commandFiles = fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
-    for(file of commandFiles) {
+    for (file of commandFiles) {
         const command = require(`./commands/${folder}/${file}`);
         commands.push(command.data.toJSON());
     }
@@ -21,6 +22,6 @@ for (folder of commandFolders) {
 const rest = new REST({ version: '9' }).setToken(token);
 
 rest.put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
-//rest.put(Routes.applicationCommands(mollyId), { body: commands })
-	.then(() => console.log('Successfully registered application commands.'))
-	.catch(console.error);
+    //rest.put(Routes.applicationCommands(mollyId), { body: commands })
+    .then(() => console.log('Successfully registered application commands.'))
+    .catch(console.error);

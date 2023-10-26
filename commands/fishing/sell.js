@@ -1,269 +1,193 @@
-const { SlashCommandBuilder, bold, quote } = require('@discordjs/builders')
-const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js')
-const paginationEmbed = require('discordjs-button-pagination')
-const { User, getTieredCoins } = require('../../models/User')
-const { FishData, rarityInfo } = require('../../models/Fish');
-const FishingData = require('../../models/FishingProfile')
-
+const { SlashCommandBuilder, ButtonBuilder, ActionRowBuilder, EmbedBuilder, ButtonStyle } = require('discord.js');
+const { getTieredCoins } = require('../../functions/data/economy.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('sell')
-        .setDescription('Sell your fish! Just enter the identifier.')
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('one')
-                .setDescription('Sell one fish given the identifier.')
-                .addStringOption(option => option.setName('identifier').setDescription('The identifier of the fish you wish to sell.').setRequired(true)))
-        .addSubcommand(subcommand =>
-            subcommand
-                .setName('all')
-                .setDescription('Sell all of your fish.')),
+        .setDescription('Sells a fish given its ID.')
+        .addStringOption(option => option.setName('id').setDescription('The fish to sell.').setRequired(true)),
     async execute(interaction) {
 
-        if (interaction.options.getSubcommand() == 'one') {
-            const identifier = interaction.options.getString('identifier');
-            let targetFish = await FishData.findOne({ fishId: identifier });
-            const user = await User.findOne({ userId: interaction.user.id }) || await User.create({ userId: interaction.user.id });
-
-            if (!targetFish) return interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> No fish found")
-                        .setDescription("The fish you are trying to sell does not exist. Please verify that you are entering the correct ID.")
-                ]
+        const identifier = interaction.options.getString('id');
+        let { data, error } = await interaction.client.supabase
+            .rpc('get_fish_by_id', {
+                fish_id_in: identifier
             })
 
-            //if the fish does not belong to the user
-            if (targetFish.currentOwner != interaction.user.id) return interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> Unable to sell")
-                        .setDescription("The fish you are trying to sell does not belong to you.")
-                ]
+        //if error
+        if (error) {
+            return interaction.reply({
+                content: "An error occurred while fetching the fish.",
+                ephemeral: true,
             })
+        }
 
-            if(targetFish.locked) return interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> Unable to sell")
-                        .setDescription("The fish you are trying to sell is currently locked. If you wish to sell it," +
-                            " please use the `/unlock` command first.")
-                ]
+        //if the fish is owned by the bot, say it doesn't exist
+        if (data[0].current_owner == interaction.client.user.id) {
+            return interaction.reply({
+                content: "No fish with that ID was found.",
+                ephemeral: true,
             })
+        }
+            
 
-            const cancelButton = new MessageButton()
-                .setLabel("Cancel")
-                .setEmoji("✖")
-                .setStyle("DANGER")
-                .setCustomId("cancel")
-            const confirmButton = new MessageButton()
-                .setLabel("Confirm")
-                .setEmoji("✔")
-                .setStyle("SUCCESS")
-                .setCustomId("confirm")
-
-            const row = new MessageActionRow().addComponents(cancelButton, confirmButton)
-            const taxRate = 0.08
-            const afterTax = Math.floor(targetFish.value * (1 - taxRate))
-            const orig = targetFish.value
-
-            const embed = new MessageEmbed()
-                .setTitle("Selling request received!")
-                .setDescription(`${interaction.user.username}, please confirm that you wish to sell your fish.`)
-                .addField("Selling Price", getTieredCoins(afterTax), true)
-                .addField("Rarity", (rarityInfo.find(obj => obj.rarity === targetFish.rarity).stars), true)
-                .addField("Fish", `**${targetFish.type}**`, true)
-                .addField(`Tax (${Math.floor(taxRate * 100)}%)`, getTieredCoins(targetFish.value - afterTax), true)
-                .addField(`Information`, `\`\`\`ini\n[Identifier]: ${targetFish.fishId}\n[Fish]: ${targetFish.type}` +
-                    `\n[Color]: ${targetFish.color}\`\`\``)
-                .setColor('E1E1E1')
-                .setFooter({ text: `The tax goes to Molly Bot. This money will be used for weekly lottery prizes. This system is currently in development.` })
-            interaction.reply({
-                embeds: [embed],
-                components: [row]
+        //if no fish
+        if (data.length == 0) {
+            return interaction.reply({
+                content: "No fish with that ID was found.",
+                ephemeral: true,
             })
+        }
 
-            const message = await interaction.fetchReply();
-
-            const filter = i => {
-                i.deferUpdate();
-                return i.user.id === interaction.user.id;
-            }
-
-            const collector = message.createMessageComponentCollector({
-                filter,
-                max: 1
+        //if not owner
+        if (data[0].current_owner != interaction.user.id) {
+            return interaction.reply({
+                content: "You can only sell fish that you own.",
+                ephemeral: true,
             })
+        }
 
-            collector.on('end', async (ButtonInteraction) => {
+        //if locked
+        if (data[0].locked) {
+            return interaction.reply({
+                content: "You can only sell unlocked fish.",
+                ephemeral: true,
+            })
+        }
 
-                const buttonId = (ButtonInteraction.first().customId)
-                row.components.forEach(element => { element.setDisabled(true) });
+        const confirmButton = new ButtonBuilder()
+            .setCustomId('confirm')
+            .setLabel('Confirm')
+            .setStyle(ButtonStyle.Success)
+            .setEmoji('✔')
 
-                targetFish = await FishData.findOne({ fishId: identifier });
+        const cancelButton = new ButtonBuilder()
+            .setCustomId('cancel')
+            .setLabel('Cancel')
+            .setStyle(ButtonStyle.Danger)
+            .setEmoji('✖')
 
-                if (buttonId == 'cancel') {
-                    return interaction.editReply({
-                        embeds: [
-                            embed
-                                .setDescription(`The request has been cancelled by ${interaction.user.username}.`)
-                                .setColor('#3F3F3F')
-                        ],
-                        components: [row]
-                    })
-                }
+        const rarityInfo = [
+            { rarity: "Common", hex: "#919191", stars: "☆☆☆☆☆" }, { rarity: "Uncommon", hex: "#FFFFFF", stars: "★☆☆☆☆" }, { rarity: "Rare", hex: "#82FDFF", stars: "★★☆☆☆" },
+            { rarity: "Epic", hex: "#6B00FD", stars: "★★★☆☆" }, { rarity: "Legendary", hex: "#FBFF00", stars: "★★★★☆" }, { rarity: "Mythical", hex: "#FF00E0", stars: "★★★★★" },
+            { rarity: "Event", hex: "#03FC90", stars: "<a:CongratsWinnerConfetti:993186391628468244>" }
+        ]
 
-                if (!targetFish) return interaction.editReply({
-                    embeds: [
-                        embed
-                            .setColor('#FC0000')
-                            .setDescription('The fish has already been sold or no longer exists.')
-                    ],
-
-                })
-
-                if (targetFish.currentOwner != interaction.user.id) return interaction.editReply({
-                    embeds: [
-                        embed
-                            .setColor('#FC0000')
-                            .setDescription('The fish you are trying to sell belongs to someone else.')
-                    ]
-                })
-
-                await targetFish.remove()
-
-                const mollyUser = await User.findOne({ userId: "911276391901843476" }) || await User.create({ userId: "911276391901843476" })
-                await mollyUser.updateOne({ $inc: { balance: orig - afterTax } })
-
-                await user.updateOne({ $inc: { balance: afterTax } })
-                    .then(() => {
-                        return interaction.editReply({
-                            embeds: [
-                                embed
-                                    .setColor('4ADC00')
-                                    .setDescription("You have successfully sold your fish! Enjoy the extra cash.")
-                            ],
-                            components: [row]
-                        })
-                    })
-            }
+        const fish = data[0];
+        const embed = new EmbedBuilder()
+            .setColor('#bdbdbd')
+            .setTitle('Sell Confirmation')
+            .setDescription(`Are you sure you want to sell your **${data[0].name} \`${fish.fish_id_out}\`**? This action cannot be undone. You will receive **${getTieredCoins(data[0].value)}** for this fish.`)
+            .setFields({ name: "Caught By", value: `<@${fish.original_owner}>`, inline: true },
+                { name: "Caught On", value: `<t:${Math.floor((new Date(fish.caught_at).getTime()) / 1000)}>`, inline: true },
+                { name: "Fish", value: (!fish.shiny) ? fish.name : `⭐${fish.name}⭐`, inline: true },
+                { name: "Rarity", value: rarityInfo.find(obj => obj.rarity === fish.rarity).stars, inline: true },
+                { name: "Value", value: getTieredCoins(fish.value), inline: true },
+                { name: "Number", value: `\`${fish.number_caught}/${fish.total_caught}\``, inline: true },
+                {
+                    name: "Stats", value: `**Length:** ${(fish.fish_length > 24) ? `\`${(fish.fish_length / 12).toFixed(1)} ft\`` : `\`${fish.fish_length} in\``}` +
+                        `\n**Weight:** \`${fish.fish_weight.toString()} lb\`\n**Color:** \`${fish.color}\`${(fish.shiny) ? `\n⭐**Shiny**⭐` : ""}`, inline: false
+                },
             )
+            .setThumbnail(`https://media.discordapp.net/attachments/1049015764830666843/${(!fish.shiny) ? fish.image.toString() : fish.image_shiny.toString()}/${fish.fish_number}.png`)
+            .setFooter({ text: `Fish are purchased by Molly Bot for potential future events and activities.` })
 
 
-        }
-        if (interaction.options.getSubcommand() == 'all') {
-            const userId = interaction.user.id;
-            const user = await User.findOne({ userId: userId }) || await User.create({ userId: userId });
-            let fish = await FishData.find({ currentOwner: userId, locked: false });
+        const row = new ActionRowBuilder()
+            .addComponents(cancelButton, confirmButton)
 
-            if (fish.length == 0) return interaction.reply({
-                embeds: [
-                    new MessageEmbed()
-                        .setColor('#FC0000')
-                        .setTitle("<:yukinon:839338263214030859> No fish found")
-                        .setDescription("You do not have any fish to sell. Please try again after you collect some fish using " +
-                            " the `/fish` command.")
-                ]
-            })
+        const message = await interaction.reply({
+            embeds: [embed],
+            components: [row],
+            fetchReply: true
+        })
 
-            const cancelButton = new MessageButton()
-                .setLabel("Cancel")
-                .setEmoji("✖")
-                .setStyle("DANGER")
-                .setCustomId("cancel")
-            const confirmButton = new MessageButton()
-                .setLabel("Confirm")
-                .setEmoji("✔")
-                .setStyle("SUCCESS")
-                .setCustomId("confirm")
-            const finalButton = new MessageButton()
-                .setLabel("Finalize")
-                .setEmoji("🔒")
-                .setStyle("PRIMARY")
-                .setCustomId("finalize")
-                .setDisabled(true)
-            const row = new MessageActionRow().addComponents(cancelButton, confirmButton, finalButton)
+        const filter = i => i.customId === 'confirm' || i.customId === 'cancel' && i.user.id === interaction.user.id;
+        const collector = message.createMessageComponentCollector({ filter, time: 60000 });
 
-            const total = fish.reduce((acc, cur) => acc + cur.value, 0);
-            const taxRate = 0.08;
-            const afterTax = Math.floor(total * (1 - taxRate));
-            const embed = new MessageEmbed()
-                .setTitle("Selling request received!")
-                .setColor('WHITE')
-                .setFields({ name: "Selling Price (After Tax)", value: getTieredCoins(afterTax), inline: true }, { name: 'Tax (8%)', value: getTieredCoins(total - afterTax), inline: true },
-                    { name: 'Total Fish', value: fish.length.toString(), inline: true })
-                .setDescription(`<@${userId}>, please confirm that you wish to sell your fish. **Locked fish will NOT be sold.**` +
-                    ` You will be asked to confirm a second time before the fish are sold because this action is **irreversible**.`)
+        collector.on('collect', async i => {
+            //after confirmation, make sure the fish is not locked and that the user owns it and that the fish is not already sold 
 
-            await interaction.reply({ embeds: [embed], components: [row] })
+            row.setComponents(cancelButton.setDisabled(true), confirmButton.setDisabled(true))
+            collector.stop();
 
-            const message = await interaction.fetchReply();
+            if (i.customId === 'cancel') {
+                await i.update({
+                    embeds: [embed
+                        .setDescription('This transaction has been cancelled. The fish has not been sold.')
+                        .setColor('#525252'),
+                    ],
+                    components: [row],
+                })
+            }
 
-            const filter = i => { return i.user.id === interaction.user.id; }
-            const collector = message.createMessageComponentCollector({ filter, max: 2, time: 60000 })
+            if (i.customId === 'confirm') {
+                //after confirmation, make sure the fish is not locked and that the user owns it and that the fish is not already sold 
+                //get updated fish data to make sure it is not locked and that the user owns it and that the fish is not already sold
 
-            collector.on('collect', async (ButtonInteraction) => {
-                if (ButtonInteraction.customId == 'cancel') {
-                    collector.stop();
-                    row.components.forEach(element => { element.setDisabled(true) });
-                    return await ButtonInteraction.update({
-                        embeds: [
-                            embed
-                                .setColor('#FC0000')
-                                .setDescription(`<@${userId}> has decided not to sell all of their fish. That may have been for the best.`)
+                let { data, error } = await interaction.client.supabase
+                    .rpc('get_fish_by_id', {
+                        fish_id_in: identifier
+                    })
+
+
+                //if error, update message and return 
+                if (error) {
+                    return await i.update({
+                        embeds: [embed
+                            .setDescription('There was an error selling your fish. Please try again later.')
+                            .setColor('#ff0000'),
                         ],
-                        components: [row]
+                        components: [row],
                     })
                 }
-                else if (ButtonInteraction.customId == 'confirm') {
-                    row.setComponents(cancelButton, confirmButton.setDisabled(true), finalButton.setDisabled(false))
-                    return await ButtonInteraction.update({
-                        embeds: [
-                            embed
-                                .setDescription(`In order to finalize this transaction, please click the finalize button. Please note ` + 
-                                `that this action is **irreversible** and sold fish CANNOT be restored.`)
-                        ], components: [row]
-                    })
-                } else if (ButtonInteraction.customId == 'finalize') {
-                    collector.stop();
-                    fish = await FishData.find({ currentOwner: userId, locked: false });
 
-                    if (fish.length == 0) return interaction.reply({
-                        embeds: [
-                            new MessageEmbed()
-                                .setColor('#FC0000')
-                                .setTitle("<:yukinon:839338263214030859> No fish found")
-                                .setDescription("You do not have any fish to sell. Please try again after you collect some fish using " +
-                                    " the `/fish` command.")
-                        ]
-                    })
-
-                    const newTotal = fish.reduce((acc, cur) => acc + cur.value, 0);
-                    const newAfterTax = Math.floor(newTotal * (1 - taxRate));
-                    const taxed = newTotal - newAfterTax;
-                    const mollyUser = await User.findOne({ userId: "911276391901843476" })
-                    await mollyUser.updateOne({ $inc: { balance: taxed } })
-
-                    //delete all fish
-                    await FishData.deleteMany({ currentOwner: userId, locked: false });
-                    await user.updateOne({ $inc: { balance: newAfterTax } });
-                    await mollyUser.updateOne({ $inc: { balance: taxed } });
-
-                    row.components.forEach(element => { element.setDisabled(true) });
-                    return await ButtonInteraction.update({
-                        embeds: [
-                            embed
-                                .setColor('#4ADC00')
-                                .setDescription(`<@${userId}> has successfully sold all of their fish! Enjoy the extra cash.`)
-                                .setFields({ name: "Selling Price (After Tax)", value: getTieredCoins(newAfterTax), inline: true }, { name: 'Tax (8%)', value: getTieredCoins(taxed), inline: true },
-                                    { name: 'Total Fish', value: fish.length.toString(), inline: true })
-                        ], components: [row]
+                //if locked
+                if (data[0].locked) {
+                    return await i.update({
+                        embeds: [embed
+                            .setDescription('This fish is locked and cannot be sold.')
+                            .setColor('#ff0000'),
+                        ],
+                        components: [row],
                     })
                 }
-            })
-        }
+
+                //if not owned by user
+                if (data[0].original_owner !== interaction.user.id) {
+                    return await i.update({
+                        embeds: [embed
+                            .setDescription('You do not own this fish and cannot sell it.')
+                            .setColor('#ff0000'),
+                        ],
+                        components: [row],
+                    })
+                }
+                
+
+                await i.update({
+                    embeds: [embed
+                        .setDescription(`You have successfully sold your **${data[0].name} \`${data[0].fish_id_out}\`** for **${getTieredCoins(data[0].value)}**.`)
+                        .setColor('#a5ff75'),
+                    ],
+                    components: [row],
+                })
+
+                //update fish to now be owned by the bot
+                await interaction.client.supabase
+                .rpc('sell_fish_and_add_balance', {
+                    fish_id_in: identifier,
+                    user_id_in: interaction.user.id,
+                })
+            }
+
+
+        });
+
+
+
+
+
+
+
     }
-}
+};

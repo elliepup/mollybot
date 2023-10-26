@@ -1,48 +1,42 @@
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const { MessageEmbed, MessageButton } = require('discord.js')
-const paginationEmbed = require('discordjs-button-pagination')
-const { User } = require('../../models/User')
+const { SlashCommandBuilder, EmbedBuilder, blockQuote, codeBlock } = require('discord.js');
+const { getTieredCoins } = require('../../functions/data/economy.js');
+const buttonPagination = require('../../functions/pagination.js');
 module.exports = {
-    data: new SlashCommandBuilder()
-        .setName('leaderboard')
-        .setDescription('See everyone ranked by wealth!'),
-    async execute(interaction) {
+  data: new SlashCommandBuilder()
+    .setName('leaderboard')
+    .setDescription('Displays the top 100 users in the economy unless a number is specified.')
+    .addIntegerOption(option => option.setName('number').setDescription('The number of users to display.')),
+  async execute(interaction) {
 
-        const leaderboardData = await User.find({}).sort({balance: 'desc'});
+    const number = interaction.options.getInteger('number') || 100;
+    const maxItemsPerPage = 10;
+    const { data } = await interaction.client.supabase
+      .from('economy_profile')
+      .select('user_id, balance')
+      .order('balance', { ascending: false })
+      .limit(number);
+
+      //split data into pages 
+      const pages = [];
+      for (let i = 0; i < data.length; i += maxItemsPerPage) {
+          const current = data.slice(i, i + maxItemsPerPage);
+          pages.push(current);
+      }
+
+      //create embeds for each page
+      const embeds = [];
+      for (let i = 0; i < pages.length; i++) {
+          const embed = new EmbedBuilder()
+              .setTitle(`Top ${number} Users`)
+              .setColor("#82E4FF")
+              .setDescription(`${blockQuote(pages[i].map((user, index) => `${index + 1}. <@${user.user_id}> - ${getTieredCoins(user.balance)}`).join('\n'))}`)
+              .setFooter({ text: `Page ${i + 1} of ${pages.length}`, iconURL: interaction.user.displayAvatarURL() })
+          embeds.push(embed);
+      }
+
+      //send embeds
+      buttonPagination(interaction, embeds);   
         
-        const pages = [];
-        const buttons = [];
-        const timeout = '60000';
-        const maxItemsPerPage = 10;
-
-        const chunks = sliceIntoChunks(leaderboardData, maxItemsPerPage);
-        for(let i = 0; i < Math.ceil(leaderboardData.length/maxItemsPerPage); i++) {
-            const embed = new MessageEmbed()
-            .setColor('#03fc84')
-            .setTitle("Leaderboard")
-            .addField(`\u200B`, chunks[i].map((k, index) => `**#${i*maxItemsPerPage + index + 1}:** <@${k.userId}> \`${k.balance}\` <:YukiBronze:872106572275392512>`).join(`\n`))
-            pages.push(embed)
-        }
-
-        const leftButton = new MessageButton()
-            .setCustomId('previousbtn')
-            .setLabel('◀')
-            .setStyle('SECONDARY');
-        const rightButton = new MessageButton()
-            .setCustomId('nextbtn')
-            .setLabel('▶')
-            .setStyle('SECONDARY');
-        buttons.push(leftButton, rightButton)
-
-        paginationEmbed(interaction, pages, buttons, timeout)
-    }
-}
-
-function sliceIntoChunks(arr, chunkSize) {
-    const res = [];
-    for (let i = 0; i < arr.length; i += chunkSize) {
-        const chunk = arr.slice(i, i + chunkSize);
-        res.push(chunk);
-    }
-    return res;
+    
+  }
 }
