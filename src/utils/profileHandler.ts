@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { UserProfile, EconomyProfile } from '../types/Profile';
+import { Job, JobList } from '../types/Job';
+import jobs from '../data/jobs.json';
 
 const supabase = createClient(
     process.env.SUPABASE_URL!,
@@ -107,4 +109,22 @@ export async function processWork(userId: string): Promise<{
     if (error) throw error;
 
     return { success: true, earned };
+}
+
+export async function getCurrentJob(userId: string): Promise<Job | null> {
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('job_id')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile || !profile.job_id) return null;
+
+    const allJobs = jobs as JobList;
+    for (const tier of Object.values(allJobs)) {
+        const job = tier.find((j: Job) => j.id === profile.job_id);
+        if (job) return job;
+    }
+
+    return null;
 }

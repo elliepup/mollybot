@@ -29,7 +29,12 @@
             "name": "Package Deliverer",
             "description": "Deliver packages to local addresses",
             "minPay": 45,
-            "maxPay": 85
+            "maxPay": 85,
+            "responses": [
+                "You delivered packages to customers on time",
+                "You helped a customer track down a missing package",
+                "You organized a delivery route for maximum efficiency"
+            ]
         }
     ],
     "regular": [
@@ -50,14 +55,36 @@
             "name": "Street Cleaner",
             "description": "Help keep the streets clean",
             "minPay": 55,
-            "maxPay": 95
+            "maxPay": 95,
+            "responses": [
+                "You picked up trash and litter in the park",
+                "You helped clean up after a community event",
+                "You swept the streets and sidewalks in the neighborhood"
+            ]
         },
         {
             "id": "store_clerk",
             "name": "Store Clerk",
             "description": "Help customers and stock shelves",
             "minPay": 65,
-            "maxPay": 110
+            "maxPay": 110,
+            "responses": [
+                "You assisted customers with their purchases",
+                "You restocked shelves with new products",
+                "You helped organize a store display"
+            ]
+        },
+        {
+            "id": "crypto_bro",
+            "name": "Crypto Bro",
+            "description": "Trade cryptocurrencies and manage investments. High risk, high reward",
+            "minPay": -1000,
+            "maxPay": 500,
+            "responses": [
+                "You made a fortune trading cryptocurrencies",
+                "You lost everything in a market crash",
+                "You helped a friend invest in a successful crypto project"
+            ]
         }
     ],
     "professional": [
@@ -114,7 +141,7 @@
             "name": "Cardiac Surgeon",
             "description": "Perform heart surgeries",
             "minPay": 250,
-            "maxPay": 400,
+            "maxPay": 500,
             "responses": [
                 "You successfully performed a bypass surgery",
                 "You saved a patient's life with a heart transplant",
