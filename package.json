@@ -14,7 +14,8 @@
   "description": "",
   "dependencies": {
     "discord.js": "^14.17.2",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "@supabase/supabase-js": "^2.39.7"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

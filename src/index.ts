@@ -1,5 +1,6 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import { CommandHandler } from './handlers/commandHandler';
+import { testConnection } from './config/database';
 import dotenv from 'dotenv';
 import ready from './events/ready';
 
@@ -16,6 +17,10 @@ const client = new Client({
 const commandHandler = new CommandHandler(client);
 
 client.once('ready', async () => {
+    // Test database connection
+    await testConnection();
+    
+    // Load and register commands
     await commandHandler.loadCommands();
     await commandHandler.registerCommands();
     
