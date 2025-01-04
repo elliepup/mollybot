@@ -51,3 +51,60 @@ export async function getOrCreateProfile(userId: string, username: string): Prom
         economy: economyProfile
     };
 }
+
+export async function processWork(userId: string): Promise<{
+    success: boolean;
+    cooldownRemaining?: number;
+    earned?: number;
+}> {
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('last_work, wallet_balance')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile) throw new Error('Profile not found');
+
+    const now = new Date();
+    
+    // If last_work is null, allow them to work
+    if (!profile.last_work) {
+        const earned = Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+
+        const { error } = await supabase
+            .from('economy_profiles')
+            .update({
+                wallet_balance: profile.wallet_balance + earned,
+                last_work: now.toISOString()
+            })
+            .eq('user_id', userId);
+
+        if (error) throw error;
+        return { success: true, earned };
+    }
+
+    const lastWork = new Date(profile.last_work);
+    const cooldownTime = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+    const timeSinceLastWork = now.getTime() - lastWork.getTime();
+
+    if (timeSinceLastWork < cooldownTime) {
+        return {
+            success: false,
+            cooldownRemaining: Math.ceil((cooldownTime - timeSinceLastWork) / 1000)
+        };
+    }
+
+    const earned = Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+
+    const { error } = await supabase
+        .from('economy_profiles')
+        .update({
+            wallet_balance: profile.wallet_balance + earned,
+            last_work: now.toISOString()
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return { success: true, earned };
+}
