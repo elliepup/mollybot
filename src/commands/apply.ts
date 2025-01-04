@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../interfaces/Command';
-import { applyForJob } from '../utils/profileHandler';
+import { applyForJob, getOrCreateProfile } from '../utils/profileHandler';
 import { formatCooldown } from '../utils/timeUtils';
 
 const apply: Command = {
@@ -16,6 +16,9 @@ const apply: Command = {
 
     async execute(interaction) {
         try {
+            // Create profile if it doesn't exist
+            await getOrCreateProfile(interaction.user.id, interaction.user.username);
+            
             const jobId = interaction.options.getString('job_id', true);
             const result = await applyForJob(interaction.user.id, jobId);
 
@@ -41,7 +44,7 @@ const apply: Command = {
             const embed = new EmbedBuilder()
                 .setColor('#00ff00')
                 .setTitle('✅ Job Application Successful!')
-                .setDescription('You got the job! Use `/work` to start earning money.')
+                .setDescription('Congratulations! You got the job! Use `/work` to start earning money.')
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();
 
