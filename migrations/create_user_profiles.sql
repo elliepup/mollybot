@@ -1,0 +1,5 @@
+CREATE TABLE user_profiles (
+    user_id VARCHAR PRIMARY KEY,
+    username VARCHAR NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

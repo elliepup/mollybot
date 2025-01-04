@@ -3,13 +3,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-if (!process.env.DATABASE_URL || !process.env.DATABASE_PASSWORD) {
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
     throw new Error('Database credentials not found in environment variables');
 }
 
 export const supabase = createClient(
-    process.env.DATABASE_URL,
-    process.env.DATABASE_PASSWORD,
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY,
     {
         auth: {
             autoRefreshToken: true,
@@ -21,7 +21,7 @@ export const supabase = createClient(
 // Test the connection
 export async function testConnection() {
     try {
-        const { data, error } = await supabase.from('users').select('*').limit(1);
+        const { data, error } = await supabase.from('user_profiles').select('*').limit(1);
         if (error) throw error;
         console.log('Successfully connected to Supabase!');
         return true;
