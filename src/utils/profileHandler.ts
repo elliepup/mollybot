@@ -153,52 +153,69 @@ function getJobTier(jobId: string): JobTier | null {
     return null;
 }
 
-function getSuccessRate(currentTier: JobTier | null, targetTier: JobTier): number {
+function getPayMultiplier(maxPay: number): number {
+    // Higher pay = lower chance
+    if (maxPay >= 400) return 0.3;      // 30% of original chance
+    if (maxPay >= 200) return 0.5;      // 50% of original chance
+    if (maxPay >= 150) return 0.7;      // 70% of original chance
+    if (maxPay >= 100) return 0.8;      // 80% of original chance
+    return 1;                           // No reduction for low-paying jobs
+}
+
+function getSuccessRate(currentTier: JobTier | null, targetTier: JobTier, targetJob: Job): number {
     const tiers: JobTier[] = ['entry_level', 'regular', 'professional'];
+
+    // Calculate base success rate
+    let baseRate: number;
 
     // If unemployed (no current job)
     if (!currentTier) {
         switch (targetTier) {
-            case 'entry_level': return 0.8;   // 80% chance for entry level
-            case 'regular': return 0.02;      // 2% chance for regular
-            case 'professional': return 0;     // 0% chance for professional (must work your way up)
+            case 'entry_level': baseRate = 0.8; break;   // 80% base chance
+            case 'regular': baseRate = 0.02; break;      // 2% base chance
+            case 'professional': baseRate = 0; break;     // 0% base chance
             default: return 0;
+        }
+    } else {
+        const currentTierIndex = tiers.indexOf(currentTier);
+        const targetTierIndex = tiers.indexOf(targetTier);
+
+        // Applying for lower tier jobs
+        if (targetTierIndex < currentTierIndex) {
+            return 1; // Always 100% chance for lower tier jobs
+        }
+
+        // Applying within same tier
+        if (targetTierIndex === currentTierIndex) {
+            baseRate = 0.75; // 75% base chance
+        }
+        // Progressive chances for next tier
+        else if (currentTier === 'entry_level' && targetTier === 'regular') {
+            baseRate = 0.4; // 40% base chance
+        }
+        else if (currentTier === 'entry_level' && targetTier === 'professional') {
+            baseRate = 0.01; // 1% base chance
+        }
+        else if (currentTier === 'regular' && targetTier === 'professional') {
+            baseRate = 0.2; // 20% base chance
+        }
+        else {
+            baseRate = 0;
         }
     }
 
-    const currentTierIndex = tiers.indexOf(currentTier);
-    const targetTierIndex = tiers.indexOf(targetTier);
-
-    // Applying for lower tier jobs
-    if (targetTierIndex < currentTierIndex) {
-        return 1; // 100% chance for lower tier jobs
-    }
-
-    // Applying within same tier
-    if (targetTierIndex === currentTierIndex) {
-        return 0.75; // 75% chance for same tier jobs
-    }
-
-    // Progressive chances for next tier
-    if (currentTier === 'entry_level' && targetTier === 'regular') {
-        return 0.4; // 40% chance for regular when in entry level
-    }
-
-    if (currentTier === 'entry_level' && targetTier === 'professional') {
-        return 0.01; // 1% chance for professional from entry level
-    }
-
-    if (currentTier === 'regular' && targetTier === 'professional') {
-        return 0.2; // 20% chance for professional when in regular
-    }
-
-    return 0; // Default to 0% chance for invalid progressions
+    // Apply pay multiplier to base rate
+    const finalRate = baseRate * getPayMultiplier(targetJob.maxPay);
+    
+    // Round to 4 decimal places for cleaner display
+    return Math.round(finalRate * 10000) / 10000;
 }
 
 export async function applyForJob(userId: string, jobId: string): Promise<{
     success: boolean;
     cooldownRemaining?: number;
     error?: string;
+    successRate?: number;  // Add this to show rate in message
 }> {
     const { data: profile } = await supabase
         .from('economy_profiles')
@@ -212,7 +229,7 @@ export async function applyForJob(userId: string, jobId: string): Promise<{
     const now = new Date();
     if (profile.last_job_apply) {
         const lastApply = new Date(profile.last_job_apply);
-        const cooldownTime = 24 * 60 * 60 * 1000 * 0; // just for testing, set to 0 for no cooldown
+        const cooldownTime = 24 * 60 * 60 * 1000;
         const timeSinceLastApply = now.getTime() - lastApply.getTime();
 
         if (timeSinceLastApply < cooldownTime) {
@@ -227,7 +244,15 @@ export async function applyForJob(userId: string, jobId: string): Promise<{
     const targetTier = getJobTier(jobId);
     const currentTier = profile.job_id ? getJobTier(profile.job_id) : null;
 
-    if (!targetTier) {
+    // Find the target job first
+    const allJobs = jobs as JobList;
+    let targetJob: Job | null = null;
+    for (const tier of Object.values(allJobs)) {
+        targetJob = tier.find((j: Job) => j.id === jobId) || null;
+        if (targetJob) break;
+    }
+
+    if (!targetJob || !targetTier) {
         return { success: false, error: 'Invalid job ID' };
     }
 
@@ -237,7 +262,7 @@ export async function applyForJob(userId: string, jobId: string): Promise<{
     }
 
     // Calculate success chance
-    const successRate = getSuccessRate(currentTier, targetTier);
+    const successRate = getSuccessRate(currentTier, targetTier, targetJob);
     const succeeded = Math.random() < successRate;
 
     // Always update last_job_apply even if application fails
@@ -249,7 +274,7 @@ export async function applyForJob(userId: string, jobId: string): Promise<{
     if (!succeeded) {
         return { 
             success: false, 
-            error: `Your job application was rejected! (${Math.floor(successRate * 100)}% success rate)`
+            error: `Your job application was rejected! (${(successRate * 100).toFixed(2)}% success rate)`
         };
     }
 
