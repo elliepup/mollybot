@@ -3,15 +3,6 @@ import { Command } from '../interfaces/Command';
 import { processWork, getOrCreateProfile } from '../utils/profileHandler';
 import { formatCooldown } from '../utils/timeUtils';
 
-const workResponses = [
-    "You helped an old lady cross the street",
-    "You washed someone's car",
-    "You delivered some packages",
-    "You walked a few dogs",
-    "You helped clean up the park",
-    "You did some gardening work"
-];
-
 const work: Command = {
     data: new SlashCommandBuilder()
         .setName('work')
@@ -19,7 +10,6 @@ const work: Command = {
 
     async execute(interaction) {
         try {
-            // Create profile if it doesn't exist
             await getOrCreateProfile(interaction.user.id, interaction.user.username);
             
             const result = await processWork(interaction.user.id);
@@ -38,12 +28,12 @@ const work: Command = {
                 return;
             }
 
-            const randomResponse = workResponses[Math.floor(Math.random() * workResponses.length)];
+            const description = result.response || "You worked hard and";
             
             const embed = new EmbedBuilder()
                 .setColor('#00ff00')
                 .setTitle('💼 Work Complete!')
-                .setDescription(`${randomResponse} and earned $${result.earned}!`)
+                .setDescription(`${description} earned $${result.earned}!`)
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();
 

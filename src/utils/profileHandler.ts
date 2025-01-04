@@ -58,20 +58,28 @@ export async function processWork(userId: string): Promise<{
     success: boolean;
     cooldownRemaining?: number;
     earned?: number;
+    response?: string;
 }> {
     const { data: profile } = await supabase
         .from('economy_profiles')
-        .select('last_work, wallet_balance')
+        .select('last_work, wallet_balance, job_id')
         .eq('user_id', userId)
         .single();
 
     if (!profile) throw new Error('Profile not found');
 
     const now = new Date();
+    const currentJob = await getCurrentJob(userId);
     
     // If last_work is null, allow them to work
     if (!profile.last_work) {
-        const earned = Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+        const earned = currentJob 
+            ? Math.floor(Math.random() * (currentJob.maxPay - currentJob.minPay + 1)) + currentJob.minPay
+            : Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+
+        const response = currentJob?.responses 
+            ? currentJob.responses[Math.floor(Math.random() * currentJob.responses.length)]
+            : undefined;
 
         const { error } = await supabase
             .from('economy_profiles')
@@ -82,7 +90,7 @@ export async function processWork(userId: string): Promise<{
             .eq('user_id', userId);
 
         if (error) throw error;
-        return { success: true, earned };
+        return { success: true, earned, response };
     }
 
     const lastWork = new Date(profile.last_work);
@@ -96,7 +104,13 @@ export async function processWork(userId: string): Promise<{
         };
     }
 
-    const earned = Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+    const earned = currentJob 
+        ? Math.floor(Math.random() * (currentJob.maxPay - currentJob.minPay + 1)) + currentJob.minPay
+        : Math.floor(Math.random() * (120 - 40 + 1)) + 40;
+
+    const response = currentJob?.responses 
+        ? currentJob.responses[Math.floor(Math.random() * currentJob.responses.length)]
+        : undefined;
 
     const { error } = await supabase
         .from('economy_profiles')
@@ -108,7 +122,7 @@ export async function processWork(userId: string): Promise<{
 
     if (error) throw error;
 
-    return { success: true, earned };
+    return { success: true, earned, response };
 }
 
 export async function getCurrentJob(userId: string): Promise<Job | null> {

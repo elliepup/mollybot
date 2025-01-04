@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { Command } from '../interfaces/Command';
-import { getOrCreateProfile } from '../utils/profileHandler';
+import { getOrCreateProfile, getCurrentJob } from '../utils/profileHandler';
 
 const balance: Command = {
     data: new SlashCommandBuilder()
@@ -17,6 +17,7 @@ const balance: Command = {
 
         try {
             const profile = await getOrCreateProfile(targetUser.id, targetUser.username);
+            const currentJob = await getCurrentJob(targetUser.id);
             const total = profile.economy.wallet_balance + profile.economy.bank_balance;
 
             const embed = new EmbedBuilder()
@@ -33,11 +34,10 @@ const balance: Command = {
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();
 
-            if (profile.economy.selected_job !== 'unemployed') {
+            if (currentJob) {
                 embed.addFields({
                     name: '💼 Job',
-                    value: profile.economy.selected_job.charAt(0).toUpperCase() +
-                        profile.economy.selected_job.slice(1),
+                    value: currentJob.name,
                     inline: false
                 });
             }
