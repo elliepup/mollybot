@@ -142,3 +142,69 @@ export async function getCurrentJob(userId: string): Promise<Job | null> {
 
     return null;
 }
+
+export async function applyForJob(userId: string, jobId: string): Promise<{
+    success: boolean;
+    cooldownRemaining?: number;
+    error?: string;
+}> {
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('last_job_apply, job_id')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile) throw new Error('Profile not found');
+
+    const now = new Date();
+    
+    // Check if job exists
+    const allJobs = jobs as JobList;
+    let jobExists = false;
+    let foundJob: Job | null = null;
+
+    for (const tier of Object.values(allJobs)) {
+        const job = tier.find((j: Job) => j.id === jobId);
+        if (job) {
+            jobExists = true;
+            foundJob = job;
+            break;
+        }
+    }
+
+    if (!jobExists) {
+        return { success: false, error: 'Job not found' };
+    }
+
+    // If already has this job
+    if (profile.job_id === jobId) {
+        return { success: false, error: 'You already have this job!' };
+    }
+
+    // Check cooldown if last_job_apply exists
+    if (profile.last_job_apply) {
+        const lastApply = new Date(profile.last_job_apply);
+        const cooldownTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        const timeSinceLastApply = now.getTime() - lastApply.getTime();
+
+        if (timeSinceLastApply < cooldownTime) {
+            return {
+                success: false,
+                cooldownRemaining: Math.ceil((cooldownTime - timeSinceLastApply) / 1000)
+            };
+        }
+    }
+
+    // Update job
+    const { error } = await supabase
+        .from('economy_profiles')
+        .update({
+            job_id: jobId,
+            last_job_apply: now.toISOString()
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return { success: true };
+}

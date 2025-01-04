@@ -12,5 +12,6 @@ export interface EconomyProfile {
     last_work: string;
     last_daily: string | null;
     job_id: string | null;
+    last_job_apply: string | null;
     created_at: string;
 }
