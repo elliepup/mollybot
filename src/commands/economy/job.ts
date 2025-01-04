@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, User } from 'discord.js';
-import { Command } from '../interfaces/Command';
-import { getCurrentJob } from '../utils/profileHandler';
+import { Command } from '../../interfaces/Command';
+import { getCurrentJob } from '../../utils/profileHandler';
 
 const job: Command = {
     data: new SlashCommandBuilder()

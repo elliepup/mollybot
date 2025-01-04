@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
-import { Command } from '../interfaces/Command';
-import { processWork, getOrCreateProfile } from '../utils/profileHandler';
-import { formatCooldown } from '../utils/timeUtils';
+import { Command } from '../../interfaces/Command';
+import { processWork, getOrCreateProfile } from '../../utils/profileHandler';
+import { formatCooldown } from '../../utils/timeUtils';
 
 const work: Command = {
     data: new SlashCommandBuilder()

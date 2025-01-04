@@ -1,8 +1,8 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { Command } from '../interfaces/Command';
-import jobs from '../data/jobs.json';
-import { JobList } from '../types/Job';
-import { createPagination } from '../utils/paginationHandler';
+import { Command } from '../../interfaces/Command';
+import jobs from '../../data/jobs.json';
+import { JobList } from '../../types/Job';
+import { createPagination } from '../../utils/paginationHandler';
 
 const jobTierEmojis = {
     entry_level: '🔰',

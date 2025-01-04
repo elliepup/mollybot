@@ -15,19 +15,32 @@ export class CommandHandler {
         this.guildId = process.env.GUILD_ID;
     }
 
+    private findCommandFiles(dir: string, fileExtension: string): string[] {
+        const files: string[] = [];
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+        for (const entry of entries) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                files.push(...this.findCommandFiles(fullPath, fileExtension));
+            } else if (entry.name.endsWith(fileExtension)) {
+                files.push(fullPath);
+            }
+        }
+
+        return files;
+    }
+
     async loadCommands() {
         const commandsPath = path.join(__dirname, '..', 'commands');
-        // Check if we're running from compiled code or source
         const fileExtension = __filename.endsWith('.ts') ? '.ts' : '.js';
-        const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(fileExtension));
 
         console.log(`Looking for *${fileExtension} files in: ${commandsPath}`);
+        const commandFiles = this.findCommandFiles(commandsPath, fileExtension);
         console.log(`Found ${commandFiles.length} command files`);
 
-        for (const file of commandFiles) {
+        for (const filePath of commandFiles) {
             try {
-                const filePath = path.join(commandsPath, file);
-                // Clear require cache in development
                 if (this.devMode) {
                     delete require.cache[require.resolve(filePath)];
                 }
@@ -38,10 +51,10 @@ export class CommandHandler {
                     this.commands.set(command.data.name, command);
                     console.log(`Loaded command: ${command.data.name}`);
                 } else {
-                    console.log(`Failed to load command from ${file}: missing required properties`);
+                    console.log(`Failed to load command from ${filePath}: missing required properties`);
                 }
             } catch (error) {
-                console.error(`Error loading command from ${file}:`, error);
+                console.error(`Error loading command from ${filePath}:`, error);
             }
         }
 

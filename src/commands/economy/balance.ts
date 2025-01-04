@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { Command } from '../interfaces/Command';
-import { getOrCreateProfile, getCurrentJob } from '../utils/profileHandler';
+import { Command } from '../../interfaces/Command';
+import { getOrCreateProfile, getCurrentJob } from '../../utils/profileHandler';
 
 const balance: Command = {
     data: new SlashCommandBuilder()

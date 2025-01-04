@@ -1,15 +1,15 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
-import { Command } from '../interfaces/Command';
-import { withdrawMoney, getOrCreateProfile } from '../utils/profileHandler';
+import { Command } from '../../interfaces/Command';
+import { depositMoney, getOrCreateProfile } from '../../utils/profileHandler';
 
-const withdraw: Command = {
+const deposit: Command = {
     data: new SlashCommandBuilder()
-        .setName('withdraw')
-        .setDescription('Withdraw money from your bank account')
+        .setName('deposit')
+        .setDescription('Deposit money into your bank account')
         .addStringOption(option =>
             option
                 .setName('amount')
-                .setDescription('Amount to withdraw (use "all" to withdraw everything)')
+                .setDescription('Amount to deposit (use "all" to deposit everything)')
                 .setRequired(true)
         ) as SlashCommandBuilder,
 
@@ -20,7 +20,7 @@ const withdraw: Command = {
             
             let amount: number;
             if (amountInput.toLowerCase() === 'all') {
-                amount = profile.economy.bank_balance;
+                amount = profile.economy.wallet_balance;
             } else {
                 amount = parseInt(amountInput);
                 if (isNaN(amount)) {
@@ -38,12 +38,12 @@ const withdraw: Command = {
                 }
             }
 
-            const result = await withdrawMoney(interaction.user.id, amount);
+            const result = await depositMoney(interaction.user.id, amount);
 
             if (!result.success) {
                 const embed = new EmbedBuilder()
                     .setColor('#ff0000')
-                    .setTitle('❌ Withdrawal Failed')
+                    .setTitle('❌ Deposit Failed')
                     .setDescription(result.error!)
                     .setFooter({ text: 'MollyBot Economy System' });
 
@@ -56,8 +56,8 @@ const withdraw: Command = {
 
             const embed = new EmbedBuilder()
                 .setColor('#00ff00')
-                .setTitle('💰 Withdrawal Successful!')
-                .setDescription(`Successfully withdrew $${amount.toLocaleString()}`)
+                .setTitle('💰 Deposit Successful!')
+                .setDescription(`Successfully deposited $${amount.toLocaleString()}`)
                 .addFields(
                     { name: '💳 Wallet Balance', value: `$${result.newWalletBalance!.toLocaleString()}`, inline: true },
                     { name: '🏦 Bank Balance', value: `$${result.newBankBalance!.toLocaleString()}`, inline: true }
@@ -67,13 +67,13 @@ const withdraw: Command = {
 
             await interaction.reply({ embeds: [embed] });
         } catch (error) {
-            console.error('Error in withdraw command:', error);
+            console.error('Error in deposit command:', error);
             await interaction.reply({
-                content: 'There was an error processing your withdrawal.',
+                content: 'There was an error processing your deposit.',
                 flags: MessageFlags.Ephemeral
             });
         }
     }
 };
 
-export default withdraw;
+export default deposit;
