@@ -1,0 +1,125 @@
+{
+    "entry_level": [
+        {
+            "id": "dog_walker",
+            "name": "Dog Walker",
+            "description": "Walk dogs around the neighborhood",
+            "minPay": 40,
+            "maxPay": 80,
+            "responses": [
+                "You took Mrs. Johnson's golden retriever for a lovely walk in the park",
+                "You managed to walk three excited puppies without getting tangled",
+                "You helped exercise an energetic husky around the neighborhood"
+            ]
+        },
+        {
+            "id": "gardener",
+            "name": "Gardener",
+            "description": "Tend to gardens and plant flowers",
+            "minPay": 50,
+            "maxPay": 90,
+            "responses": [
+                "You planted beautiful flowers in the community garden",
+                "You trimmed hedges and mowed lawns in the neighborhood",
+                "You helped maintain a local park's flower beds"
+            ]
+        },
+        {
+            "id": "delivery",
+            "name": "Package Deliverer",
+            "description": "Deliver packages to local addresses",
+            "minPay": 45,
+            "maxPay": 85
+        }
+    ],
+    "regular": [
+        {
+            "id": "car_washer",
+            "name": "Car Washer",
+            "description": "Clean and detail vehicles",
+            "minPay": 60,
+            "maxPay": 100,
+            "responses": [
+                "You detailed a luxury car to pristine condition",
+                "You cleaned a fleet of delivery vehicles",
+                "You ran a successful car wash event"
+            ]
+        },
+        {
+            "id": "street_cleaner",
+            "name": "Street Cleaner",
+            "description": "Help keep the streets clean",
+            "minPay": 55,
+            "maxPay": 95
+        },
+        {
+            "id": "store_clerk",
+            "name": "Store Clerk",
+            "description": "Help customers and stock shelves",
+            "minPay": 65,
+            "maxPay": 110
+        }
+    ],
+    "professional": [
+        {
+            "id": "teacher",
+            "name": "Substitute Teacher",
+            "description": "Teach classes for absent teachers",
+            "minPay": 80,
+            "maxPay": 120,
+            "responses": [
+                "You successfully taught a challenging math class",
+                "You supervised a fun science experiment",
+                "You helped students understand a complex topic"
+            ]
+        },
+        {
+            "id": "programmer",
+            "name": "Freelance Programmer",
+            "description": "Write code for small projects",
+            "minPay": 90,
+            "maxPay": 150,
+            "responses": [
+                "You developed a website for a local business",
+                "You created a mobile app for a community organization",
+                "You fixed bugs in a software program"
+            ]
+        },
+        {
+            "id": "consultant",
+            "name": "Business Consultant",
+            "description": "Provide business advice",
+            "minPay": 100,
+            "maxPay": 200,
+            "responses": [
+                "You helped a small business improve their marketing strategy",
+                "You advised a startup on their business plan",
+                "You provided financial advice to a local entrepreneur"
+            ]
+        },
+        {
+            "id": "lawyer",
+            "name": "Legal Consultant",
+            "description": "Provide legal advice",
+            "minPay": 110,
+            "maxPay": 220,
+            "responses": [
+                "You helped a client understand their legal rights",
+                "You reviewed a contract for a small business",
+                "You provided legal guidance to a community organization"
+            ]
+        },
+        {
+            "id": "doctor",
+            "name": "Cardiac Surgeon",
+            "description": "Perform heart surgeries",
+            "minPay": 250,
+            "maxPay": 400,
+            "responses": [
+                "You successfully performed a bypass surgery",
+                "You saved a patient's life with a heart transplant",
+                "You helped a patient recover from a heart surgery"
+            ]
+        }
+    ]
+}
