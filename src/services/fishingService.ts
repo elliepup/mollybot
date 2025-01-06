@@ -7,6 +7,9 @@ type FishData = {
     [key in FishRarity]: Fish[];
 };
 
+// Add type for fishing profile stats columns
+type FishingStatColumn = `${FishRarity}_fish_caught`;
+
 export async function setBait(userId: string, baitType: BaitType): Promise<{
     success: boolean;
     currentBait: BaitType;
@@ -201,4 +204,85 @@ export async function generateFishStats(fish: Fish, userId: string) {
         isPerfect,
         catchPhrase: fish.catch_phrase?.[Math.floor(Math.random() * fish.catch_phrase.length)] || "You caught a fish!"
     };
+}
+
+export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Promise<boolean> {
+    // First get current profile stats
+    const { data: profile } = await supabase
+        .from('fishing_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile) return false;
+
+    // Create the caught fish record
+    const { error: fishError } = await supabase
+        .from('caught_fish')
+        .insert([{
+            catch_id: stats.catch_id,
+            fish_id: fish.fish_id,
+            name: fish.name,
+            rarity: fish.rarity,
+            value: stats.value,
+            weight: stats.weight,
+            length: stats.length,
+            current_owner_id: userId,
+            original_owner_id: userId,
+            image_url: fish.image_url
+        }]);
+
+    if (fishError) {
+        console.error('Error saving caught fish:', fishError);
+        return false;
+    }
+
+    // Create the stat column name with type safety
+    const statColumn: FishingStatColumn = `${fish.rarity}_fish_caught`;
+
+    // Update fishing profile statistics
+    const { error: statsError } = await supabase
+        .from('fishing_profiles')
+        .update({
+            [statColumn]: (profile[statColumn] || 0) + 1,
+            total_catches: (profile.total_catches || 0) + 1,
+            last_fish_catch: new Date().toISOString()
+        })
+        .eq('user_id', userId);
+
+    if (statsError) {
+        console.error('Error updating fishing stats:', statsError);
+        return false;
+    }
+
+    return true;
+}
+
+export async function deductBait(userId: string, baitType: BaitType): Promise<boolean> {
+    // First get current bait amount
+    const { data: tackleBox } = await supabase
+        .from('tackle_boxes')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (!tackleBox) return false;
+
+    // Type assertion to ensure tackleBox has the correct shape
+    const typedTackleBox = tackleBox as TackleBox;
+    const currentAmount = typedTackleBox[baitType] || 0;
+
+    const { error } = await supabase
+        .from('tackle_boxes')
+        .update({
+            [baitType]: currentAmount - 1
+        })
+        .eq('user_id', userId);
+
+    if (error) {
+        console.error('Error deducting bait:', error);
+        return false;
+    }
+
+    return true;
 }

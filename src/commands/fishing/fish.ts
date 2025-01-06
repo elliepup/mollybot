@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { verifyBait, getRandomFish, generateFishStats } from '../../services/fishingService';
+import { verifyBait, getRandomFish, generateFishStats, saveCaughtFish, deductBait } from '../../services/fishingService';
 import { getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCurrency } from '../../utils/formatters';
 import { getRarityColor, getRarityStars } from '../../utils/rarityUtils';
@@ -184,6 +184,23 @@ const fish: Command = {
 
                         const stats = await generateFishStats(caughtFish, interaction.user.id);
                         
+                        // Save fish and deduct bait
+                        const [fishSaved, baitDeducted] = await Promise.all([
+                            saveCaughtFish(caughtFish, stats, interaction.user.id),
+                            deductBait(interaction.user.id, baitCheck.currentBait!)
+                        ]);
+
+                        if (!fishSaved || !baitDeducted) {
+                            await hookInteraction.update({
+                                embeds: [embed
+                                    .setColor('#ff0000')
+                                    .setDescription('Something went wrong while recording your catch!')
+                                ],
+                                components: []
+                            });
+                            return;
+                        }
+
                         const catchEmbed = new EmbedBuilder()
                             .setColor(getRarityColor(caughtFish.rarity))
                             .setTitle(`Success! You caught a ${caughtFish.name}!`)

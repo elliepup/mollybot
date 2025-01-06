@@ -1,5 +1,5 @@
 CREATE TABLE caught_fish (
-    catch_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    catch_id VARCHAR PRIMARY KEY DEFAULT uuid_generate_v4(),
     fish_id VARCHAR NOT NULL,
     name VARCHAR NOT NULL,
     rarity VARCHAR NOT NULL,
