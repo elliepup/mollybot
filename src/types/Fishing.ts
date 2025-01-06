@@ -38,6 +38,10 @@ export interface Fish {
         min: number;
         max: number;
     };
+    length_range: {
+        min: number;
+        max: number;
+    };
     catch_phrase?: string[];
     preferred_bait?: BaitType[];
 }
