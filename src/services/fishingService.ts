@@ -34,3 +34,13 @@ export async function setBait(userId: string, baitType: BaitType): Promise<{
         baitCount: tackleBox ? tackleBox[baitType] : 0
     };
 }
+
+export async function getTackleBox(userId: string): Promise<TackleBox | null> {
+    const { data: tackleBox } = await supabase
+        .from('tackle_boxes')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    return tackleBox;
+}
