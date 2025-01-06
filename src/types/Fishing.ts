@@ -29,15 +29,11 @@ export interface FishingProfile {
 
 export type FishRarity = 'common' | 'uncommon' | 'rare' | 'legendary' | 'mythical';
 
-export type Mutation = 'mutation' | 'mutation_2' | 'mutation_3' | 'mutation_4';
-
 export interface Fish {
     fish_id: string;
-    current_owner_id: string;
-    original_owner_id: string;
     name: string;
     rarity: FishRarity;
-    value: number;
+    base_value: number;
     weight_range: {
         min: number;
         max: number;
@@ -49,8 +45,5 @@ export interface Fish {
     image_url: string;
     catch_phrase?: string[];
     preferred_bait?: BaitType[];
-    created_at: string;
-    locked: boolean;
-    shiny: boolean;
-    mutation: Mutation | null;
+    bodies_of_water?: string[];
 }
