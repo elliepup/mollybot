@@ -1,4 +1,5 @@
-import { UserProfile, EconomyProfile } from '../types/Profile';
+import { UserProfile } from '../types/Profile';
+import { EconomyProfile } from '../types/Economy';
 import { supabase } from './supabaseClient';
 
 export async function getOrCreateProfile(userId: string, username: string): Promise<{
