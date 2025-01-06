@@ -192,7 +192,7 @@ const fish: Command = {
                                 { name: '🐟 Fish', value: caughtFish.name, inline: true },
                                 { name: '📏 Length', value: `${stats.length} inches`, inline: true },
                                 { name: '⚖️ Weight', value: `${stats.weight} lbs`, inline: true },
-                                { name: '💰 Value', value: formatCurrency(caughtFish.base_value), inline: true },
+                                { name: '💰 Value', value: formatCurrency(stats.value), inline: true },
                                 { name: '✨ Rarity', value: `${getRarityStars(caughtFish.rarity)}`, inline: true },
                                 { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true }
                             )
