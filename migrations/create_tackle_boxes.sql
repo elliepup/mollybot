@@ -5,5 +5,5 @@ CREATE TABLE tackle_boxes (
     crickets INT DEFAULT 0,
     leeches INT DEFAULT 0,
     minnows INT DEFAULT 0,
-    nightcrawlers INT DEFAULT 0,
+    nightcrawlers INT DEFAULT 0
 )

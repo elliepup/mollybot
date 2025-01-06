@@ -1,0 +1,13 @@
+{
+    "shinyMultiplier": 2.5,
+    "perfectSizeBonus": 1.2,
+    "mutationMultipliers": {
+        "albino": 1.5,
+        "golden": 3.0,
+        "giant": 2.0,
+        "ancient": 4.0,
+        "prismatic": 5.0,
+        "void": 3.5,
+        "cursed": 2.5
+    }
+}

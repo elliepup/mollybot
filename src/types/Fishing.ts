@@ -47,3 +47,30 @@ export interface Fish {
     preferred_bait?: BaitType[];
     bodies_of_water?: string[];
 }
+
+export type FishMutation = 'albino' | 'golden' | 'giant' | 'ancient' | 'prismatic' | 'void' | 'cursed';
+
+export interface CaughtFish {
+    catch_id: string;
+    fish_id: string;
+    name: string;
+    rarity: FishRarity;
+    value: number;
+    weight: number;
+    length: number;
+    shiny: boolean;
+    mutation?: FishMutation;
+    current_owner_id: string;
+    original_owner_id: string;
+    caught_at: string;
+    image_url: string;
+}
+
+// Add a type for value multipliers
+export interface FishModifiers {
+    shinyMultiplier: number;
+    mutationMultipliers: {
+        [key in FishMutation]: number;
+    };
+    perfectSizeBonus: number;  // Bonus for fish near max size
+}
