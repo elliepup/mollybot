@@ -3,7 +3,7 @@ import { Command } from '../../interfaces/Command';
 import { verifyBait, getRandomFish, generateFishStats, saveCaughtFish, deductBait } from '../../services/fishingService';
 import { getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCurrency } from '../../utils/formatters';
-import { getRarityColor, getRarityStars } from '../../utils/rarityUtils';
+import { getRarityColor, getRarityStars, FISHING_XP_REWARDS } from '../../utils/rarityUtils';
 
 const BITE_WINDOW_MS = 1000; // 1 second window to catch fish
 const EARLY_HOOK_COOLDOWN_MS = 2000; // 2 second cooldown for early hooks
@@ -212,7 +212,8 @@ const fish: Command = {
                                 { name: '⚖️ Weight', value: `${stats.weight} lbs`, inline: true },
                                 { name: '💰 Value', value: formatCurrency(stats.value), inline: true },
                                 { name: '✨ Rarity', value: `${getRarityStars(caughtFish.rarity)}`, inline: true },
-                                { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true }
+                                { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true },
+                                { name: '📈 XP Gained', value: `+${FISHING_XP_REWARDS[caughtFish.rarity]} XP`, inline: true }
                             )
                             .setFooter({ text: stats.isPerfect ? '🏆 Perfect Catch!' : 'MollyBot Fishing System' });
 

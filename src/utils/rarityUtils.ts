@@ -1,5 +1,14 @@
 import { FishRarity } from '../types/Fishing';
 
+export const FISHING_XP_REWARDS: Record<FishRarity, number> = {
+    common: 1,
+    uncommon: 3,
+    rare: 8,
+    epic: 15,
+    legendary: 35,
+    mythical: 50
+};
+
 export function getRarityStars(rarity: FishRarity): string {
     const ratings = {
         common: '☆☆☆☆☆',

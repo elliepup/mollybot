@@ -2,6 +2,7 @@ import { supabase } from './supabaseClient';
 import { BaitType, TackleBox, Fish, FishRarity } from '../types/Fishing';
 import fishData from '../data/fish.json';
 import { generateUniqueId } from '../utils/idGenerator';
+import { FISHING_XP_REWARDS } from '../utils/rarityUtils';
 
 type FishData = {
     [key in FishRarity]: Fish[];
@@ -216,6 +217,10 @@ export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Pr
 
     if (!profile) return false;
 
+    // Calculate XP reward
+    const xpReward = FISHING_XP_REWARDS[fish.rarity];
+    const newXP = (profile.fishing_skill_xp || 0) + xpReward;
+
     // Create the caught fish record
     const { error: fishError } = await supabase
         .from('caught_fish')
@@ -240,13 +245,14 @@ export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Pr
     // Create the stat column name with type safety
     const statColumn: FishingStatColumn = `${fish.rarity}_fish_caught`;
 
-    // Update fishing profile statistics
+    // Update fishing profile statistics including XP
     const { error: statsError } = await supabase
         .from('fishing_profiles')
         .update({
             [statColumn]: (profile[statColumn] || 0) + 1,
             total_catches: (profile.total_catches || 0) + 1,
-            last_fish_catch: new Date().toISOString()
+            last_fish_catch: new Date().toISOString(),
+            fishing_skill_xp: newXP
         })
         .eq('user_id', userId);
 
