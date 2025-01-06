@@ -333,3 +333,13 @@ export async function getUserFishCollection(userId: string) {
 
     return collection || [];
 }
+
+export async function getFishByCatchId(catchId: string) {
+    const { data: fish } = await supabase
+        .from('caught_fish')
+        .select('*')
+        .eq('catch_id', catchId)
+        .single();
+
+    return fish;
+}
