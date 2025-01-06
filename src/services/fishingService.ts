@@ -1,5 +1,10 @@
 import { supabase } from './supabaseClient';
-import { BaitType, TackleBox } from '../types/Fishing';
+import { BaitType, TackleBox, Fish, FishRarity } from '../types/Fishing';
+import fishData from '../data/fish.json';
+
+type FishData = {
+    [key in FishRarity]: Fish[];
+};
 
 export async function setBait(userId: string, baitType: BaitType): Promise<{
     success: boolean;
@@ -133,5 +138,44 @@ export async function verifyBait(userId: string): Promise<{
         success: true,
         currentBait: profile.fishing_bait,
         baitCount
+    };
+}
+
+export function getRandomFish(baitType: BaitType): Fish | null {
+    // Compile all fish that prefer this bait
+    const possibleFish: Fish[] = [];
+    const typedFishData = fishData as FishData;
+    
+    Object.values(typedFishData).forEach((fishList) => {
+        fishList.forEach(fish => {
+            // Cast preferred_bait to BaitType[] to ensure type safety
+            const preferredBait = fish.preferred_bait as BaitType[] | undefined;
+            if (preferredBait?.includes(baitType)) {
+                // Higher chance (duplicate entries) if it's preferred bait
+                possibleFish.push(fish, fish);
+            } else {
+                // Still catchable with non-preferred bait
+                possibleFish.push(fish);
+            }
+        });
+    });
+
+    if (possibleFish.length === 0) return null;
+    return possibleFish[Math.floor(Math.random() * possibleFish.length)];
+}
+
+export function generateFishStats(fish: Fish) {
+    // Generate random weight and length within range
+    const weight = Number((Math.random() * (fish.weight_range.max - fish.weight_range.min) + fish.weight_range.min).toFixed(1));
+    const length = Number((Math.random() * (fish.length_range.max - fish.length_range.min) + fish.length_range.min).toFixed(1));
+    
+    // Calculate if it's a perfect catch (within 90% of max)
+    const isPerfect = weight >= fish.weight_range.max * 0.9 || length >= fish.length_range.max * 0.9;
+    
+    return {
+        weight,
+        length,
+        isPerfect,
+        catchPhrase: fish.catch_phrase?.[Math.floor(Math.random() * fish.catch_phrase.length)] || "You caught a fish!"
     };
 }

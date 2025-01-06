@@ -1,7 +1,9 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { verifyBait } from '../../services/fishingService';
+import { verifyBait, getRandomFish, generateFishStats } from '../../services/fishingService';
 import { getOrCreateProfile } from '../../utils/profileHandler';
+import { formatCurrency } from '../../utils/formatters';
+import { getRarityColor, getRarityStars } from '../../utils/rarityUtils';
 
 const BITE_WINDOW_MS = 1000; // 1 second window to catch fish
 const EARLY_HOOK_COOLDOWN_MS = 2000; // 2 second cooldown for early hooks
@@ -57,7 +59,7 @@ const fish: Command = {
                     `**Current Bait:** ${baitCheck.currentBait}`,
                     `**Amount Left:** ${baitCheck.baitCount} pieces`,
                     '',
-                    'Would you like to cast your line?'
+                    'Would you like to cast your line? Don\'t forget to hook the fish when it bites! Be sure not to pull too early!',
                 ].join('\n'))
                 .setFooter({ text: 'This prompt will expire in 30 seconds • MollyBot Fishing System' });
 
@@ -153,13 +155,54 @@ const fish: Command = {
 
                         // Successful hook during bite window
                         hookCollector.stop('success');
-                        await hookInteraction.update({
-                            embeds: [embed
-                                .setColor('#00ff00')
-                                .setDescription('🎣 Perfect timing!\nYou caught something!\n\n(Fishing rewards coming soon™)')
-                            ],
-                            components: []
-                        });
+                        
+                        // Ensure bait type exists before getting fish
+                        if (!baitCheck.currentBait) {
+                            await hookInteraction.update({
+                                embeds: [embed
+                                    .setColor('#ff9900')
+                                    .setDescription('Something went wrong with your bait!')
+                                ],
+                                components: []
+                            });
+                            return;
+                        }
+                        
+                        // Get random fish based on bait type
+                        const caughtFish = getRandomFish(baitCheck.currentBait);
+                        
+                        if (!caughtFish) {
+                            await hookInteraction.update({
+                                embeds: [embed
+                                    .setColor('#ff9900')
+                                    .setDescription('You caught... nothing? Maybe try different bait!')
+                                ],
+                                components: []
+                            });
+                            return;
+                        }
+
+                        const stats = generateFishStats(caughtFish);
+                        
+                        const catchEmbed = new EmbedBuilder()
+                            .setColor(getRarityColor(caughtFish.rarity))
+                            .setTitle(`Success! You caught a ${caughtFish.name}!`)
+                            .setDescription(stats.catchPhrase)
+                            .addFields(
+                                { name: '🐟 Fish', value: caughtFish.name, inline: true },
+                                { name: '📏 Length', value: `${stats.length} inches`, inline: true },
+                                { name: '⚖️ Weight', value: `${stats.weight} lbs`, inline: true },
+                                { name: '💰 Value', value: formatCurrency(caughtFish.base_value), inline: true },
+                                { name: '✨ Rarity', value: `${getRarityStars(caughtFish.rarity)}`, inline: true },
+                                { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true }
+                            )
+                            .setFooter({ text: stats.isPerfect ? '🏆 Perfect Catch!' : 'MollyBot Fishing System' });
+
+                        if (caughtFish.image_url) {
+                            catchEmbed.setThumbnail(caughtFish.image_url);
+                        }
+
+                        await hookInteraction.update({ embeds: [catchEmbed], components: [] });
                     });
 
                     // Set up the bite after random time

@@ -27,7 +27,7 @@ export interface FishingProfile {
     created_at: string;
 }
 
-export type FishRarity = 'common' | 'uncommon' | 'rare' | 'legendary' | 'mythical';
+export type FishRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythical';
 
 export interface Fish {
     fish_id: string;
