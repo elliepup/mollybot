@@ -1,0 +1,59 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    # Add environment validation
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      GUILD_ID: ${{ secrets.GUILD_ID }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    # Add environment validation step
+    - name: Validate environment
+      run: |
+        if [ -z "$DISCORD_TOKEN" ]; then
+          echo "Error: DISCORD_TOKEN is not set"
+          exit 1
+        fi
+        if [ -z "$SUPABASE_URL" ]; then
+          echo "Error: SUPABASE_URL is not set"
+          exit 1
+        fi
+        if [ -z "$SUPABASE_KEY" ]; then
+          echo "Error: SUPABASE_KEY is not set"
+          exit 1
+        fi
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check TypeScript compilation
+      run: npm run build
+
+    - name: Run tests
+      run: npm test
+
+    - name: Upload test coverage
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage
+        path: coverage/
