@@ -168,3 +168,73 @@ export async function getLeaderboard(type: LeaderboardType = 'total', limit: num
     }))
     .sort((a, b) => type === 'total' ? b.total - a.total : 0);
 }
+
+export async function processPurchase(userId: string, cost: number): Promise<{
+    success: boolean;
+    error?: string;
+    newBalance?: number;
+}> {
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('wallet_balance')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile) throw new Error('Profile not found');
+
+    if (profile.wallet_balance < cost) {
+        return {
+            success: false,
+            error: 'You don\'t have enough money in your wallet'
+        };
+    }
+
+    const { error } = await supabase
+        .from('economy_profiles')
+        .update({
+            wallet_balance: profile.wallet_balance - cost
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return {
+        success: true,
+        newBalance: profile.wallet_balance - cost
+    };
+}
+
+export async function verifyAndProcessPurchase(userId: string, cost: number): Promise<{
+    success: boolean;
+    error?: string;
+    newBalance?: number;
+}> {
+    // Double verify funds before processing
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('wallet_balance')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile || profile.wallet_balance < cost) {
+        return {
+            success: false,
+            error: 'You no longer have enough funds for this purchase.'
+        };
+    }
+
+    // Process the payment
+    const { error } = await supabase
+        .from('economy_profiles')
+        .update({
+            wallet_balance: profile.wallet_balance - cost
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return {
+        success: true,
+        newBalance: profile.wallet_balance - cost
+    };
+}

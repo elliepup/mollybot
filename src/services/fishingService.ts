@@ -44,3 +44,45 @@ export async function getTackleBox(userId: string): Promise<TackleBox | null> {
 
     return tackleBox;
 }
+
+export async function addBaitToTackleBox(userId: string, baitType: BaitType, amount: number): Promise<{
+    success: boolean;
+    error?: string;
+    newAmount?: number;
+}> {
+    const { data: tackleBox } = await supabase
+        .from('tackle_boxes')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (!tackleBox) {
+        // Create new tackle box if it doesn't exist
+        const { error } = await supabase
+            .from('tackle_boxes')
+            .insert([{ 
+                user_id: userId,
+                [baitType]: amount 
+            }]);
+
+        if (error) throw error;
+        return { success: true, newAmount: amount };
+    }
+
+    const currentAmount = tackleBox[baitType as keyof TackleBox] as number || 0;
+    
+    // Update existing tackle box
+    const { error } = await supabase
+        .from('tackle_boxes')
+        .update({
+            [baitType]: currentAmount + amount
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return {
+        success: true,
+        newAmount: currentAmount + amount
+    };
+}
