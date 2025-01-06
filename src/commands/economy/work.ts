@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../../interfaces/Command';
 import { processWork, getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCooldown } from '../../utils/timeUtils';
+import { formatCurrency } from '../../utils/formatters';
 
 const work: Command = {
     data: new SlashCommandBuilder()
@@ -33,7 +34,7 @@ const work: Command = {
             const embed = new EmbedBuilder()
                 .setColor('#00ff00')
                 .setTitle('💼 Work Complete!')
-                .setDescription(`${description} earned $${result.earned}!`)
+                .setDescription(`${description} earned ${formatCurrency(result.earned!)}!`)
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();
 

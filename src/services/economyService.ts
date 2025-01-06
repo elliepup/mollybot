@@ -78,3 +78,66 @@ export async function withdrawMoney(userId: string, amount: number): Promise<{
         newBankBalance: profile.bank_balance - amount
     };
 }
+
+export async function claimDailyReward(userId: string): Promise<{
+    success: boolean;
+    error?: string;
+    cooldownRemaining?: number;
+    amount?: number;
+    streak?: number;
+}> {
+    const { data: profile } = await supabase
+        .from('economy_profiles')
+        .select('wallet_balance, last_daily, daily_streak')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile) throw new Error('Profile not found');
+
+    const now = new Date();
+    if (profile.last_daily) {
+        const lastDaily = new Date(profile.last_daily);
+        const cooldownTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        const timeSinceLastDaily = now.getTime() - lastDaily.getTime();
+
+        if (timeSinceLastDaily < cooldownTime) {
+            return {
+                success: false,
+                cooldownRemaining: Math.ceil((cooldownTime - timeSinceLastDaily) / 1000)
+            };
+        }
+    }
+
+    // Calculate streak
+    let streak = profile.daily_streak || 0;
+    if (profile.last_daily) {
+        const lastDaily = new Date(profile.last_daily);
+        const hoursSinceLastDaily = (now.getTime() - lastDaily.getTime()) / (1000 * 60 * 60);
+        
+        // If more than 48 hours have passed, reset streak
+        if (hoursSinceLastDaily > 48) {
+            streak = 0;
+        }
+    }
+    streak++;
+
+    // Calculate reward (base 100 + 10 per streak, max 250)
+    const amount = Math.min(100 + (streak * 10), 250);
+
+    const { error } = await supabase
+        .from('economy_profiles')
+        .update({
+            wallet_balance: profile.wallet_balance + amount,
+            last_daily: now.toISOString(),
+            daily_streak: streak
+        })
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return {
+        success: true,
+        amount,
+        streak
+    };
+}

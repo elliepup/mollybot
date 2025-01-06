@@ -5,6 +5,7 @@ CREATE TABLE economy_profiles (
     job_id VARCHAR DEFAULT 'unemployed',
     last_work NULL,
     last_daily NULL,
+    daily_streak INT DEFAULT 0,
     last_job_apply NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );

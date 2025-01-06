@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { Command } from '../../interfaces/Command';
 import { getOrCreateProfile, getCurrentJob } from '../../utils/profileHandler';
+import { formatCurrency } from '../../utils/formatters';
 
 const balance: Command = {
     data: new SlashCommandBuilder()
@@ -27,9 +28,9 @@ const balance: Command = {
                     iconURL: targetUser.displayAvatarURL()
                 })
                 .addFields(
-                    { name: '💰 Wallet', value: `$${profile.economy.wallet_balance.toLocaleString()}`, inline: true },
-                    { name: '🏦 Bank', value: `$${profile.economy.bank_balance.toLocaleString()}`, inline: true },
-                    { name: '💵 Total', value: `$${total.toLocaleString()}`, inline: false }
+                    { name: '💰 Wallet', value: formatCurrency(profile.economy.wallet_balance), inline: true },
+                    { name: '🏦 Bank', value: formatCurrency(profile.economy.bank_balance), inline: true },
+                    { name: '💵 Total', value: formatCurrency(total), inline: false }
                 )
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();

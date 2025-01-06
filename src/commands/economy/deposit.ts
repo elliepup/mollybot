@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../../interfaces/Command';
 import { depositMoney, getOrCreateProfile } from '../../utils/profileHandler';
+import { formatCurrency } from '../../utils/formatters';
 
 const deposit: Command = {
     data: new SlashCommandBuilder()
@@ -57,10 +58,10 @@ const deposit: Command = {
             const embed = new EmbedBuilder()
                 .setColor('#00ff00')
                 .setTitle('💰 Deposit Successful!')
-                .setDescription(`Successfully deposited $${amount.toLocaleString()}`)
+                .setDescription(`Successfully deposited ${formatCurrency(amount)}`)
                 .addFields(
-                    { name: '💳 Wallet Balance', value: `$${result.newWalletBalance!.toLocaleString()}`, inline: true },
-                    { name: '🏦 Bank Balance', value: `$${result.newBankBalance!.toLocaleString()}`, inline: true }
+                    { name: '💳 Wallet Balance', value: formatCurrency(result.newWalletBalance!), inline: true },
+                    { name: '🏦 Bank Balance', value: formatCurrency(result.newBankBalance!), inline: true }
                 )
                 .setFooter({ text: 'MollyBot Economy System' })
                 .setTimestamp();
