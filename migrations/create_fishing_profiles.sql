@@ -10,5 +10,6 @@ CREATE TABLE fishing_profiles (
     fishing_skill_xp BIGINT DEFAULT 0,
     total_catches INT DEFAULT 0,
     last_fish_catch TIMESTAMP WITH TIME ZONE,
+    last_fished TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 )

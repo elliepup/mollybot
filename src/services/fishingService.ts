@@ -4,6 +4,8 @@ import fishData from '../data/fish.json';
 import { generateUniqueId } from '../utils/idGenerator';
 import { FISHING_XP_REWARDS } from '../utils/rarityUtils';
 
+const FISHING_COOLDOWN_MS = 30000; // 30 seconds
+
 type FishData = {
     [key in FishRarity]: Fish[];
 };
@@ -102,12 +104,13 @@ export async function verifyBait(userId: string): Promise<{
     error?: string;
     currentBait?: BaitType;
     baitCount?: number;
+    cooldownRemaining?: number;
 }> {
     // Get current profile and tackle box
     const [{ data: profile }, { data: tackleBox }] = await Promise.all([
         supabase
             .from('fishing_profiles')
-            .select('fishing_bait')
+            .select('fishing_bait, last_fished')
             .eq('user_id', userId)
             .single(),
         supabase
@@ -116,6 +119,20 @@ export async function verifyBait(userId: string): Promise<{
             .eq('user_id', userId)
             .single()
     ]);
+
+    // Check cooldown first
+    if (profile?.last_fished) {
+        const lastFished = new Date(profile.last_fished);
+        const timeSinceLastFish = Date.now() - lastFished.getTime();
+        
+        if (timeSinceLastFish < FISHING_COOLDOWN_MS) {
+            return {
+                success: false,
+                error: 'You need to wait before fishing again!',
+                cooldownRemaining: Math.ceil((FISHING_COOLDOWN_MS - timeSinceLastFish) / 1000)
+            };
+        }
+    }
 
     if (!profile || !profile.fishing_bait) {
         return {
@@ -287,6 +304,20 @@ export async function deductBait(userId: string, baitType: BaitType): Promise<bo
 
     if (error) {
         console.error('Error deducting bait:', error);
+        return false;
+    }
+
+    return true;
+}
+
+export async function startFishing(userId: string): Promise<boolean> {
+    const { error } = await supabase
+        .from('fishing_profiles')
+        .update({ last_fished: new Date().toISOString() })
+        .eq('user_id', userId);
+
+    if (error) {
+        console.error('Error updating last_fished:', error);
         return false;
     }
 

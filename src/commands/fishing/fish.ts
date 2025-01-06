@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { verifyBait, getRandomFish, generateFishStats, saveCaughtFish, deductBait } from '../../services/fishingService';
+import { verifyBait, getRandomFish, generateFishStats, saveCaughtFish, deductBait, startFishing } from '../../services/fishingService';
 import { getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCurrency } from '../../utils/formatters';
 import { getRarityColor, getRarityStars, FISHING_XP_REWARDS } from '../../utils/rarityUtils';
@@ -94,6 +94,34 @@ const fish: Command = {
 
                 // Start fishing minigame
                 if (i.customId === 'confirm_fish') {
+                    // Start cooldown immediately when they click Cast Line
+                    const recheck = await verifyBait(interaction.user.id);
+                    
+                    // Verify they haven't started fishing elsewhere
+                    if (!recheck.success) {
+                        await i.update({
+                            embeds: [embed
+                                .setColor('#ff0000')
+                                .setDescription(recheck.error!)
+                            ],
+                            components: []
+                        });
+                        return;
+                    }
+
+                    // Set the cooldown
+                    const started = await startFishing(interaction.user.id);
+                    if (!started) {
+                        await i.update({
+                            embeds: [embed
+                                .setColor('#ff0000')
+                                .setDescription('Failed to start fishing session.')
+                            ],
+                            components: []
+                        });
+                        return;
+                    }
+
                     // Create hook button
                     const hookButton = new ButtonBuilder()
                         .setCustomId('hook_fish')
