@@ -141,3 +141,30 @@ export async function claimDailyReward(userId: string): Promise<{
         streak
     };
 }
+
+export type LeaderboardType = 'total' | 'wallet' | 'bank';
+
+export async function getLeaderboard(type: LeaderboardType = 'total', limit: number = 10) {
+    let query = supabase
+        .from('economy_profiles')
+        .select('user_id, wallet_balance, bank_balance');
+
+    if (type === 'wallet') {
+        query = query.order('wallet_balance', { ascending: false });
+    } else if (type === 'bank') {
+        query = query.order('bank_balance', { ascending: false });
+    } else {
+        query = query.order('wallet_balance', { ascending: false })
+            .order('bank_balance', { ascending: false });
+    }
+
+    const { data, error } = await query.limit(limit);
+
+    if (error) throw error;
+
+    return data.map(profile => ({
+        ...profile,
+        total: profile.wallet_balance + profile.bank_balance
+    }))
+    .sort((a, b) => type === 'total' ? b.total - a.total : 0);
+}

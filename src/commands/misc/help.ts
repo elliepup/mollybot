@@ -14,6 +14,7 @@ const commandInfo = {
             { name: '`/apply <job_id>`', description: 'Apply for a job (Available every 24 hours)' },
             { name: '`/jobs`', description: 'View available jobs' },
             { name: '`/job [user]`', description: 'Check your or another user\'s job' },
+            { name: '`/leaderboard`', description: 'View the economy leaderboard' }
         ]
     },
     misc: {
