@@ -182,13 +182,14 @@ const fish: Command = {
                             return;
                         }
 
-                        const stats = generateFishStats(caughtFish);
+                        const stats = await generateFishStats(caughtFish, interaction.user.id);
                         
                         const catchEmbed = new EmbedBuilder()
                             .setColor(getRarityColor(caughtFish.rarity))
                             .setTitle(`Success! You caught a ${caughtFish.name}!`)
                             .setDescription(stats.catchPhrase)
                             .addFields(
+                                { name: '🎫 Catch ID', value: `\`${stats.catch_id}\``, inline: true },
                                 { name: '🐟 Fish', value: caughtFish.name, inline: true },
                                 { name: '📏 Length', value: `${stats.length} inches`, inline: true },
                                 { name: '⚖️ Weight', value: `${stats.weight} lbs`, inline: true },

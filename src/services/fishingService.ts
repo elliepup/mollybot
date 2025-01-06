@@ -1,6 +1,7 @@
 import { supabase } from './supabaseClient';
 import { BaitType, TackleBox, Fish, FishRarity } from '../types/Fishing';
 import fishData from '../data/fish.json';
+import { generateUniqueId } from '../utils/idGenerator';
 
 type FishData = {
     [key in FishRarity]: Fish[];
@@ -164,7 +165,10 @@ export function getRandomFish(baitType: BaitType): Fish | null {
     return possibleFish[Math.floor(Math.random() * possibleFish.length)];
 }
 
-export function generateFishStats(fish: Fish) {
+export async function generateFishStats(fish: Fish, userId: string) {
+    // Generate unique ID for this catch
+    const uniqueId = await generateUniqueId('caught_fish', 'catch_id');
+    
     // Generate random length first
     const length = Number((Math.random() * (fish.length_range.max - fish.length_range.min) + fish.length_range.min).toFixed(1));
     
@@ -190,6 +194,7 @@ export function generateFishStats(fish: Fish) {
     const isPerfect = length >= fish.length_range.max * 0.9 || weight >= fish.weight_range.max * 0.9;
     
     return {
+        catch_id: uniqueId,
         weight,
         length,
         value,

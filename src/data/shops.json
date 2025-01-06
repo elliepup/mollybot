@@ -8,7 +8,7 @@
                 "emoji": "🪱",
                 "price": 5,
                 "description": "Basic bait, works on most fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             },
             "shrimp": {
@@ -16,7 +16,7 @@
                 "emoji": "🍤",
                 "price": 15,
                 "description": "Premium bait, great for larger fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             },
             "crickets": {
@@ -24,7 +24,7 @@
                 "emoji": "🦗",
                 "price": 8,
                 "description": "Good for surface-feeding fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             },
             "leeches": {
@@ -32,7 +32,7 @@
                 "emoji": "🪲",
                 "price": 12,
                 "description": "Effective on bottom-feeding fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             },
             "minnows": {
@@ -40,7 +40,7 @@
                 "emoji": "🐟",
                 "price": 20,
                 "description": "Live bait, excellent for predatory fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             },
             "nightcrawlers": {
@@ -48,7 +48,7 @@
                 "emoji": "🪰",
                 "price": 10,
                 "description": "Large worms, perfect for bigger fish",
-                "amount": 5,
+                "amount": 3,
                 "category": "bait"
             }
         }
