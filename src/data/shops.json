@@ -1,0 +1,56 @@
+{
+    "fishing": {
+        "name": "Fisherman's Market",
+        "description": "Get your fishing supplies here!",
+        "items": {
+            "worms": {
+                "name": "Worms",
+                "emoji": "🪱",
+                "price": 5,
+                "description": "Basic bait, works on most fish",
+                "amount": 5,
+                "category": "bait"
+            },
+            "shrimp": {
+                "name": "Shrimp",
+                "emoji": "🍤",
+                "price": 15,
+                "description": "Premium bait, great for larger fish",
+                "amount": 5,
+                "category": "bait"
+            },
+            "crickets": {
+                "name": "Crickets",
+                "emoji": "🦗",
+                "price": 8,
+                "description": "Good for surface-feeding fish",
+                "amount": 5,
+                "category": "bait"
+            },
+            "leeches": {
+                "name": "Leeches",
+                "emoji": "🪲",
+                "price": 12,
+                "description": "Effective on bottom-feeding fish",
+                "amount": 5,
+                "category": "bait"
+            },
+            "minnows": {
+                "name": "Minnows",
+                "emoji": "🐟",
+                "price": 20,
+                "description": "Live bait, excellent for predatory fish",
+                "amount": 5,
+                "category": "bait"
+            },
+            "nightcrawlers": {
+                "name": "Nightcrawlers",
+                "emoji": "🪰",
+                "price": 10,
+                "description": "Large worms, perfect for bigger fish",
+                "amount": 5,
+                "category": "bait"
+            }
+        }
+    }
+}
