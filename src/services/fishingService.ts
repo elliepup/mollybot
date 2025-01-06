@@ -323,3 +323,13 @@ export async function startFishing(userId: string): Promise<boolean> {
 
     return true;
 }
+
+export async function getUserFishCollection(userId: string) {
+    const { data: collection } = await supabase
+        .from('caught_fish')
+        .select('*')
+        .eq('current_owner_id', userId)
+        .order('caught_at', { ascending: false });
+
+    return collection || [];
+}
