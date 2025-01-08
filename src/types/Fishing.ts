@@ -27,7 +27,16 @@ export interface FishingProfile {
     created_at: string;
 }
 
-export type FishRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythical';
+export const FishRarity = {
+    Common: 'common',
+    Uncommon: 'uncommon',
+    Rare: 'rare',
+    Epic: 'epic',
+    Legendary: 'legendary',
+    Mythical: 'mythical'
+} as const;
+
+export type FishRarity = typeof FishRarity[keyof typeof FishRarity];
 
 export interface Fish {
     fish_id: string;
