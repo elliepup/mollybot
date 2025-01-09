@@ -37,3 +37,40 @@ export async function getUserRodCollection(userId: string) {
         info: typedRodData.rods[rod.rod_type]
     }));
 }
+
+export async function equipRod(userId: string, rodId: string): Promise<{
+    success: boolean;
+    error?: string;
+}> {
+    // Verify rod ownership before equipping
+    const { data: rod } = await supabase
+        .from('fishing_rods')
+        .select('rod_id')
+        .eq('rod_id', rodId)
+        .eq('user_id', userId)
+        .single();
+
+    if (!rod) {
+        return {
+            success: false,
+            error: 'Rod not found or not owned by user'
+        };
+    }
+
+    // Update equipped rod
+    const { error } = await supabase
+        .from('fishing_profiles')
+        .update({ equipped_rod_id: rodId })
+        .eq('user_id', userId);
+
+    if (error) {
+        return {
+            success: false,
+            error: 'Failed to equip rod'
+        };
+    }
+
+    return {
+        success: true
+    };
+}
