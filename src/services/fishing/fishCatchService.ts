@@ -1,7 +1,7 @@
 import { BaitType, Fish, FishRarity, TackleBox } from "../../types/Fishing";
-// import fishData from "../../data/fish.json";
 import { supabase } from "../supabaseClient";
 import { FISHING_XP_REWARDS } from '../../utils/rarityUtils';
+import { getRandomFishFromPool } from '../../utils/fishRandomizer';
 
 type FishData = {
     [key in FishRarity]: Fish[];
@@ -11,11 +11,10 @@ type FishData = {
 type FishingStatColumn = `${FishRarity}_fish_caught`;
 
 export async function getRandomFish(baitType: BaitType): Promise<Fish | null> {
-
+    // Get ALL fish from database
     const { data: fishList, error } = await supabase
         .from('fish_types')
-        .select('*')
-        .contains('preferred_bait', [baitType]);
+        .select('*');
 
     if (error || !fishList?.length) {
         console.error('Error fetching fish:', error);
@@ -23,7 +22,7 @@ export async function getRandomFish(baitType: BaitType): Promise<Fish | null> {
     }
 
     // Transform database fields to match Fish interface
-    const possibleFish = fishList.map(fish => ({
+    const allFish = fishList.map(fish => ({
         fish_id: fish.fish_id,
         name: fish.name,
         rarity: fish.rarity as FishRarity,
@@ -42,13 +41,7 @@ export async function getRandomFish(baitType: BaitType): Promise<Fish | null> {
         bodies_of_water: fish.bodies_of_water
     }));
 
-    // Weight the odds - duplicate fish that prefer this bait
-    const weightedList = possibleFish.flatMap(fish =>
-        fish.preferred_bait?.includes(baitType) ? [fish, fish] : [fish]
-    );
-
-    if (!weightedList.length) return null;
-    return weightedList[Math.floor(Math.random() * weightedList.length)];
+    return getRandomFishFromPool(allFish, baitType);
 }
 
 export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Promise<boolean> {
