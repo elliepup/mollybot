@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../../interfaces/Command';
 import { BaitType } from '../../types/Fishing';
-import { setBait } from '../../services/fishingService';
+import { setBait } from '../../services/fishing';
 
 const bait: Command = {
     data: new SlashCommandBuilder()

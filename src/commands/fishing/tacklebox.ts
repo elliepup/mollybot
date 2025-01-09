@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { getTackleBox } from '../../services/fishingService';
+import { getTackleBox } from '../../services/fishing';
 
 const baitEmojis: { [key: string]: string } = {
     worms: '🪱',

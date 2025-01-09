@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from 'discord.js';
 import { Command } from '../../interfaces/Command';
 import { verifyAndProcessPurchase } from '../../services/economyService';
-import { addBaitToTackleBox } from '../../services/fishingService';
+import { addBaitToTackleBox } from '../../services/fishing';
 import { formatCurrency } from '../../utils/formatters';
 import { BaitType } from '../../types/Fishing';
 import { ShopData } from '../../types/Shop';

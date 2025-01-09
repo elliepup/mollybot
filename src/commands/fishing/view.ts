@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { getFishByCatchId } from '../../services/fishingService';
+import { getFishByCatchId } from '../../services/fishing';
 import { getRarityColor, getRarityStars } from '../../utils/rarityUtils';
 import { formatCurrency } from '../../utils/formatters';
 

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { getUserFishCollection } from '../../services/fishingService';
+import { getUserFishCollection } from '../../services/fishing';
 import { createPagination } from '../../utils/paginationHandler';
 import { getRarityStars } from '../../utils/rarityUtils';
 import { formatCurrency } from '../../utils/formatters';

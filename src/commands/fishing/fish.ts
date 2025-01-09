@@ -1,9 +1,9 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from 'discord.js';
 import { Command } from '../../interfaces/Command';
-import { verifyBait, getRandomFish, generateFishStats, saveCaughtFish, deductBait, startFishing } from '../../services/fishingService';
 import { getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCurrency } from '../../utils/formatters';
 import { getRarityColor, getRarityStars, FISHING_XP_REWARDS } from '../../utils/rarityUtils';
+import { verifyBait, generateFishStats, getRandomFish, saveCaughtFish, deductBait, startFishing } from '../../services/fishing';
 
 const BITE_WINDOW_MS = 1000; // 1 second window to catch fish
 const EARLY_HOOK_COOLDOWN_MS = 2000; // 2 second cooldown for early hooks
