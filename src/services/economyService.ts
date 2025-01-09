@@ -238,3 +238,48 @@ export async function verifyAndProcessPurchase(userId: string, cost: number): Pr
         newBalance: profile.wallet_balance - cost
     };
 }
+
+export async function sellFish(userId: string, catchId: string): Promise<{
+    success: boolean;
+    error?: string;
+    fishName?: string;
+    value?: number;
+    newBalance?: number;
+}> {
+    // First get the fish details
+    const { data: fish, error: fishError } = await supabase
+        .from('caught_fish')
+        .select('*')
+        .eq('catch_id', catchId)
+        .eq('current_owner_id', userId)
+        .single();
+
+    if (fishError || !fish) {
+        return {
+            success: false,
+            error: 'Fish not found or you don\'t own it'
+        };
+    }
+
+    // Execute the sell_fish function
+    const { data: result, error: transactionError } = await supabase
+        .rpc('sell_fish', {
+            p_user_id: userId,
+            p_catch_id: catchId,
+            p_fish_value: fish.value
+        });
+
+    if (transactionError || !result.success) {
+        return {
+            success: false,
+            error: transactionError?.message || 'Failed to process sale'
+        };
+    }
+
+    return {
+        success: true,
+        fishName: fish.name,
+        value: fish.value,
+        newBalance: result.new_balance
+    };
+}
