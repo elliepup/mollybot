@@ -197,7 +197,7 @@ const fish: Command = {
                         }
                         
                         // Get random fish based on bait type
-                        const caughtFish = getRandomFish(baitCheck.currentBait);
+                        const caughtFish = await getRandomFish(baitCheck.currentBait);
                         
                         if (!caughtFish) {
                             await hookInteraction.update({

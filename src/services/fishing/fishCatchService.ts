@@ -1,5 +1,5 @@
 import { BaitType, Fish, FishRarity, TackleBox } from "../../types/Fishing";
-import fishData from "../../data/fish.json";
+// import fishData from "../../data/fish.json";
 import { supabase } from "../supabaseClient";
 import { FISHING_XP_REWARDS } from '../../utils/rarityUtils';
 
@@ -10,27 +10,45 @@ type FishData = {
 // Add type for fishing profile stats columns
 type FishingStatColumn = `${FishRarity}_fish_caught`;
 
-export function getRandomFish(baitType: BaitType): Fish | null {
-    // Compile all fish that prefer this bait
-    const possibleFish: Fish[] = [];
-    const typedFishData = fishData as FishData;
-    
-    Object.values(typedFishData).forEach((fishList) => {
-        fishList.forEach(fish => {
-            // Cast preferred_bait to BaitType[] to ensure type safety
-            const preferredBait = fish.preferred_bait as BaitType[] | undefined;
-            if (preferredBait?.includes(baitType)) {
-                // Higher chance (duplicate entries) if it's preferred bait
-                possibleFish.push(fish, fish);
-            } else {
-                // Still catchable with non-preferred bait
-                possibleFish.push(fish);
-            }
-        });
-    });
+export async function getRandomFish(baitType: BaitType): Promise<Fish | null> {
 
-    if (possibleFish.length === 0) return null;
-    return possibleFish[Math.floor(Math.random() * possibleFish.length)];
+    const { data: fishList, error } = await supabase
+        .from('fish_types')
+        .select('*')
+        .contains('preferred_bait', [baitType]);
+
+    if (error || !fishList?.length) {
+        console.error('Error fetching fish:', error);
+        return null;
+    }
+
+    // Transform database fields to match Fish interface
+    const possibleFish = fishList.map(fish => ({
+        fish_id: fish.fish_id,
+        name: fish.name,
+        rarity: fish.rarity as FishRarity,
+        base_value: fish.base_value,
+        weight_range: {
+            min: fish.weight_min,
+            max: fish.weight_max
+        },
+        length_range: {
+            min: fish.length_min,
+            max: fish.length_max
+        },
+        image_url: fish.image_url,
+        catch_phrases: fish.catch_phrases,
+        preferred_bait: fish.preferred_bait,
+        bodies_of_water: fish.bodies_of_water
+    }));
+
+    // Weight the odds - duplicate fish that prefer this bait
+    const weightedList = possibleFish.flatMap(fish =>
+        fish.preferred_bait?.includes(baitType) ? [fish, fish] : [fish]
+    );
+
+    if (!weightedList.length) return null;
+    return weightedList[Math.floor(Math.random() * weightedList.length)];
 }
 
 export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Promise<boolean> {

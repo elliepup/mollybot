@@ -35,6 +35,6 @@ export async function generateFishStats(fish: Fish, userId: string) {
         length,
         value,
         isPerfect,
-        catchPhrase: fish.catch_phrase?.[Math.floor(Math.random() * fish.catch_phrase.length)] || "You caught a fish!"
+        catchPhrase: fish.catch_phrases?.[Math.floor(Math.random() * fish.catch_phrases.length)] || "You caught a fish!"
     };
 }

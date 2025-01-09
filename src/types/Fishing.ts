@@ -52,9 +52,9 @@ export interface Fish {
         max: number;
     };
     image_url: string;
-    catch_phrase?: string[];
-    preferred_bait?: BaitType[];
-    bodies_of_water?: string[];
+    catch_phrases: string[];
+    preferred_bait: BaitType[];
+    bodies_of_water: string[];
 }
 
 export type FishMutation = 'albino' | 'golden' | 'giant' | 'ancient' | 'prismatic' | 'void' | 'cursed';
@@ -82,4 +82,19 @@ export interface FishModifiers {
         [key in FishMutation]: number;
     };
     perfectSizeBonus: number;  // Bonus for fish near max size
+}
+
+export interface FishType {
+    fish_id: string;
+    name: string;
+    rarity: FishRarity;
+    base_value: number;
+    weight_min: number;
+    weight_max: number;
+    length_min: number;
+    length_max: number;
+    image_url: string;
+    catch_phrases: string[];
+    preferred_bait: BaitType[];
+    bodies_of_water: string[];
 }
