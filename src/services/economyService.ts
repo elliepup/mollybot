@@ -283,3 +283,31 @@ export async function sellFish(userId: string, catchId: string): Promise<{
         newBalance: result.new_balance
     };
 }
+
+export async function harvestFish(userId: string, catchId: string): Promise<{
+    success: boolean;
+    error?: string;
+    fishName?: string;
+    essenceGained?: number;
+    newEssenceBalance?: number;
+}> {
+    // Execute harvest_fish function with the catch ID
+    const { data: result, error: transactionError } = await supabase
+        .rpc('harvest_fish', {
+            p_user_id: userId,
+            p_catch_id: catchId
+        });
+
+    if (transactionError || !result.success) {
+        return {
+            success: false,
+            error: transactionError?.message || 'Failed to harvest fish'
+        };
+    }
+
+    return {
+        success: true,
+        essenceGained: result.essence_gained,
+        newEssenceBalance: result.new_total
+    };
+}

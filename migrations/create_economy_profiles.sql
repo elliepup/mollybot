@@ -7,5 +7,6 @@ CREATE TABLE economy_profiles (
     last_daily NULL,
     daily_streak INT DEFAULT 0,
     last_job_apply NULL,
+    astral_essence BIGINT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
