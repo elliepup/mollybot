@@ -1,0 +1,135 @@
+{
+    "rods": {
+        "driftwood_pole": {
+            "name": "Driftwood Pole",
+            "description": "A crude fishing rod fashioned from washed-up wood.",
+            "rarity": "common",
+            "perks": {
+                "hook_speed": 1.0,
+                "bite_window": 1.0,
+                "luck": 1.0
+            }
+        },
+        "bamboo_caster": {
+            "name": "Bamboo Caster",
+            "description": "Light and flexible, perfect for beginners.",
+            "rarity": "common",
+            "perks": {
+                "hook_speed": 1.1,
+                "bite_window": 1.0,
+                "luck": 1.0,
+                "passive": "Slightly increased catch rate in rivers"
+            }
+        },
+        "angler_whisper": {
+            "name": "Angler's Whisper",
+            "description": "A balanced rod that whispers secrets of the shallows.",
+            "rarity": "uncommon",
+            "perks": {
+                "hook_speed": 1.2,
+                "bite_window": 1.2,
+                "luck": 1.1,
+                "passive": "Shows a small hint when fish are about to bite"
+            }
+        },
+        "coral_weaver": {
+            "name": "Coral Weaver",
+            "description": "Woven with living coral that pulses with sea magic.",
+            "rarity": "uncommon",
+            "perks": {
+                "hook_speed": 1.15,
+                "bite_window": 1.3,
+                "luck": 1.15,
+                "passive": "Increased chance to find coral treasures"
+            }
+        },
+        "tide_caller": {
+            "name": "Tide Caller",
+            "description": "Crafted with coral and blessed by the tides themselves.",
+            "rarity": "rare",
+            "perks": {
+                "hook_speed": 1.3,
+                "bite_window": 1.4,
+                "luck": 1.25,
+                "passive": "Occasionally attracts rare fish from deeper waters"
+            }
+        },
+        "frost_fisher": {
+            "name": "Frost Fisher",
+            "description": "Imbued with eternal ice, perfect for cold waters.",
+            "rarity": "rare",
+            "perks": {
+                "hook_speed": 1.35,
+                "bite_window": 1.35,
+                "luck": 1.3,
+                "passive": "Excels at catching ice-dwelling fish"
+            }
+        },
+        "storm_breaker": {
+            "name": "Storm Breaker",
+            "description": "A rod charged with lightning, crackling with power.",
+            "rarity": "epic",
+            "perks": {
+                "hook_speed": 1.5,
+                "bite_window": 1.6,
+                "luck": 1.5,
+                "passive": "Has a chance to double your catch during storms"
+            }
+        },
+        "void_fisher": {
+            "name": "Void Fisher",
+            "description": "Dark energy swirls within this mysterious rod.",
+            "rarity": "epic",
+            "perks": {
+                "hook_speed": 1.6,
+                "bite_window": 1.5,
+                "luck": 1.6,
+                "passive": "Can catch shadow fish from the void"
+            }
+        },
+        "celestial_fisher": {
+            "name": "Celestial Fisher",
+            "description": "A mystical rod that seems to bend reality itself.",
+            "rarity": "legendary",
+            "perks": {
+                "hook_speed": 2.0,
+                "bite_window": 2.0,
+                "luck": 2.0,
+                "passive": "Sometimes catches fish from other dimensions"
+            }
+        },
+        "lunar_dreamer": {
+            "name": "Lunar Dreamer",
+            "description": "Crafted from moonstone during a lunar eclipse.",
+            "rarity": "legendary",
+            "perks": {
+                "hook_speed": 1.8,
+                "bite_window": 2.2,
+                "luck": 2.0,
+                "passive": "Greatly increased rare fish chance at night"
+            }
+        },
+        "leviathan_lure": {
+            "name": "Leviathan Lure",
+            "description": "Ancient rod said to have once caught a world serpent.",
+            "rarity": "mythical",
+            "perks": {
+                "hook_speed": 2.2,
+                "bite_window": 2.2,
+                "luck": 2.5,
+                "passive": "Can attract legendary sea monsters"
+            }
+        },
+        "star_seeker": {
+            "name": "Star Seeker",
+            "description": "Forged from a fallen star, it glows with cosmic power.",
+            "rarity": "mythical",
+            "perks": {
+                "hook_speed": 2.5,
+                "bite_window": 2.5,
+                "luck": 2.2,
+                "passive": "Can catch celestial fish during meteor showers"
+            }
+        }
+    }
+}

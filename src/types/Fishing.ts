@@ -1,3 +1,5 @@
+import { RodRarity } from "../services/fishing/gachaService";
+
 export type FishingRod = 'basic' | 'amateur' | 'professional' | 'expert' | 'legendary';
 export type BaitType = 'worms' | 'shrimp' | 'crickets' | 'leeches' | 'minnows' | 'nightcrawlers';
 
@@ -97,4 +99,24 @@ export interface FishType {
     catch_phrases: string[];
     preferred_bait: BaitType[];
     bodies_of_water: string[];
+}
+
+export interface RodPerks {
+    hook_speed: number;
+    bite_window: number;
+    luck: number;
+    passive?: string;
+}
+
+export interface Rod {
+    name: string;
+    description: string;
+    rarity: RodRarity;
+    perks: RodPerks;
+}
+
+export interface RodData {
+    rods: {
+        [key: string]: Rod;
+    };
 }
