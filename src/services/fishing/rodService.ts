@@ -74,3 +74,17 @@ export async function equipRod(userId: string, rodId: string): Promise<{
         success: true
     };
 }
+
+export async function getEquippedRod(userId: string) {
+    const { data: profile } = await supabase
+        .from('fishing_profiles')
+        .select('equipped_rod_id')
+        .eq('user_id', userId)
+        .single();
+
+    if (!profile?.equipped_rod_id) {
+        return null;
+    }
+
+    return getRodById(profile.equipped_rod_id);
+}
