@@ -21,3 +21,19 @@ export async function getRodById(rodId: string) {
         info: rodInfo
     };
 }
+
+export async function getUserRodCollection(userId: string) {
+    const { data: rods } = await supabase
+        .from('fishing_rods')
+        .select('*')
+        .eq('user_id', userId)
+        .order('acquired_at', { ascending: false });
+
+    if (!rods) return [];
+
+    const typedRodData = rodData as RodData;
+    return rods.map(rod => ({
+        ...rod,
+        info: typedRodData.rods[rod.rod_type]
+    }));
+}
