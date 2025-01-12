@@ -1,7 +1,7 @@
 import { Fish } from "../../types/Fishing";
 import { generateUniqueId } from "../../utils/idGenerator";
 
-export async function generateFishStats(fish: Fish, userId: string) {
+export async function generateFishStats(fish: Fish, userId: string, luckMultiplier = 1.0) {
     // Generate unique ID for this catch
     const uniqueId = await generateUniqueId('caught_fish', 'catch_id');
     
