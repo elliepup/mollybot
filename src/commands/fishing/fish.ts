@@ -3,10 +3,13 @@ import { Command } from '../../interfaces/Command';
 import { getOrCreateProfile } from '../../utils/profileHandler';
 import { formatCurrency } from '../../utils/formatters';
 import { getRarityColor, getRarityStars, FISHING_XP_REWARDS } from '../../utils/rarityUtils';
-import { verifyBait, generateFishStats, getRandomFish, saveCaughtFish, deductBait, startFishing } from '../../services/fishing';
+import { verifyBait, generateFishStats, getRandomFish, saveCaughtFish, deductBait, startFishing, getEquippedRod } from '../../services/fishing';
 
-const BITE_WINDOW_MS = 1000; // 1 second window to catch fish
-const EARLY_HOOK_COOLDOWN_MS = 2000; // 2 second cooldown for early hooks
+// Base fishing parameters
+const BASE_BITE_WINDOW_MS = 1000;
+const BASE_EARLY_HOOK_COOLDOWN_MS = 2000;
+const BASE_BITE_TIME_MIN = 5000;
+const BASE_BITE_TIME_MAX = 10000;
 
 const fish: Command = {
     data: new SlashCommandBuilder()
@@ -17,6 +20,10 @@ const fish: Command = {
         try {
             // Create or get all profiles
             await getOrCreateProfile(interaction.user.id, interaction.user.username);
+            
+            // Get equipped rod and calculate modified parameters
+            const equippedRod = await getEquippedRod(interaction.user.id);
+            const rodPerks = equippedRod?.info?.perks || {};
             
             // Verify bait
             const baitCheck = await verifyBait(interaction.user.id);
@@ -58,6 +65,13 @@ const fish: Command = {
                     '',
                     `**Current Bait:** ${baitCheck.currentBait}`,
                     `**Amount Left:** ${baitCheck.baitCount} pieces`,
+                    '',
+                    `**Equipped Rod:** 🎣 ${equippedRod?.info?.name || 'None'}`,
+                    `**Rod Perks:**`,
+                    `• 🎯 Hook Speed: \`${(rodPerks.hook_speed || 1.0).toFixed(1)}x\``,
+                    `• ⏱️ Bite Window: \`${(rodPerks.bite_window || 1.0).toFixed(1)}x\``,
+                    `• 🍀 Luck: \`${(rodPerks.luck || 1.0).toFixed(1)}x\``,
+                    equippedRod?.info?.perks?.passive ? `• 💫 Passive: ${equippedRod.info.perks.passive}` : '',
                     '',
                     'Would you like to cast your line? Don\'t forget to hook the fish when it bites! Be sure not to pull too early!',
                 ].join('\n'))
@@ -139,12 +153,21 @@ const fish: Command = {
 
                     let fishBiting = false;
                     let canHook = true;
-                    const biteTime = Math.floor(Math.random() * 5000) + 5000;
+                    
+                    // Get equipped rod and calculate modified parameters
+                    const equippedRod = await getEquippedRod(interaction.user.id);
+                    const rodPerks = equippedRod?.info?.perks || {};
+                    
+                    const biteWindowMs = Math.round(BASE_BITE_WINDOW_MS * (rodPerks.bite_window || 1.0));
+                    const earlyHookCooldownMs = Math.round(BASE_EARLY_HOOK_COOLDOWN_MS / (rodPerks.hook_speed || 1.0));
+                    const biteTime = Math.floor(
+                        Math.random() * (BASE_BITE_TIME_MAX - BASE_BITE_TIME_MIN) + BASE_BITE_TIME_MIN
+                    ) / (rodPerks.hook_speed || 1.0);
 
                     // Create collector for hook attempts
                     const hookCollector = response.createMessageComponentCollector({
                         componentType: ComponentType.Button,
-                        time: biteTime + BITE_WINDOW_MS + 1000 // Total time: bite time + window + buffer
+                        time: biteTime + biteWindowMs + 1000 // Total time: bite time + window + buffer
                     });
 
                     // Handle hook attempts
@@ -176,7 +199,7 @@ const fish: Command = {
                             // Reset after cooldown
                             setTimeout(() => {
                                 canHook = true;
-                            }, EARLY_HOOK_COOLDOWN_MS);
+                            }, earlyHookCooldownMs);
 
                             return;
                         }
@@ -210,7 +233,9 @@ const fish: Command = {
                             return;
                         }
 
-                        const stats = await generateFishStats(caughtFish, interaction.user.id);
+                        // Apply luck multiplier from rod
+                        const luckMultiplier = rodPerks.luck || 1.0;
+                        const stats = await generateFishStats(caughtFish, interaction.user.id, luckMultiplier);
                         
                         // Save fish and deduct bait
                         const [fishSaved, baitDeducted] = await Promise.all([
@@ -241,7 +266,8 @@ const fish: Command = {
                                 { name: '💰 Value', value: formatCurrency(stats.value), inline: true },
                                 { name: '✨ Rarity', value: `${getRarityStars(caughtFish.rarity)}`, inline: true },
                                 { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true },
-                                { name: '📈 XP Gained', value: `+${FISHING_XP_REWARDS[caughtFish.rarity]} XP`, inline: true }
+                                { name: '📈 XP Gained', value: `+${FISHING_XP_REWARDS[caughtFish.rarity]} XP`, inline: true },
+                                ...(stats.mutation ? [{ name: '🧬 Mutation', value: stats.mutation.charAt(0).toUpperCase() + stats.mutation.slice(1), inline: true }] : [])
                             )
                             .setFooter({ text: stats.isPerfect ? '🏆 Perfect Catch!' : 'MollyBot Fishing System' });
 
@@ -268,7 +294,7 @@ const fish: Command = {
                             if (hookCollector.ended) return;
                             fishBiting = false;
                             hookCollector.stop('timeout');
-                        }, BITE_WINDOW_MS);
+                        }, biteWindowMs);
                     }, biteTime);
 
                     // Handle end states
