@@ -71,7 +71,8 @@ export async function saveCaughtFish(fish: Fish, stats: any, userId: string): Pr
             length: stats.length,
             current_owner_id: userId,
             original_owner_id: userId,
-            image_url: fish.image_url
+            image_url: fish.image_url,
+            mutation: stats.mutation || null
         }]);
 
     if (fishError) {

@@ -1,4 +1,4 @@
-import { Fish } from "../../types/Fishing";
+import { Fish, FishMutation } from "../../types/Fishing";
 import { generateUniqueId } from "../../utils/idGenerator";
 
 export async function generateFishStats(fish: Fish, userId: string, luckMultiplier = 1.0) {
@@ -29,12 +29,22 @@ export async function generateFishStats(fish: Fish, userId: string, luckMultipli
     // Perfect catch if either metric is in top 10%
     const isPerfect = length >= fish.length_range.max * 0.9 || weight >= fish.weight_range.max * 0.9;
     
+    // Calculate mutation chance based on luck multiplier
+    const mutationChance = Math.min(0.1 * luckMultiplier, 0.5); // Max 50% chance
+    const mutation = Math.random() < mutationChance ? getRandomMutation() : null;
+    
     return {
         catch_id: uniqueId,
         weight,
         length,
         value,
         isPerfect,
+        mutation,
         catchPhrase: fish.catch_phrases?.[Math.floor(Math.random() * fish.catch_phrases.length)] || "You caught a fish!"
     };
+
+function getRandomMutation(): FishMutation {
+    const mutations: FishMutation[] = ['albino', 'golden', 'giant', 'ancient', 'prismatic', 'void', 'cursed'];
+    return mutations[Math.floor(Math.random() * mutations.length)];
+}
 }

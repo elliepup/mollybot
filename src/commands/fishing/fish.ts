@@ -266,7 +266,8 @@ const fish: Command = {
                                 { name: '💰 Value', value: formatCurrency(stats.value), inline: true },
                                 { name: '✨ Rarity', value: `${getRarityStars(caughtFish.rarity)}`, inline: true },
                                 { name: '🎯 Preferred Bait', value: caughtFish.preferred_bait?.join(', ') || 'Any', inline: true },
-                                { name: '📈 XP Gained', value: `+${FISHING_XP_REWARDS[caughtFish.rarity]} XP`, inline: true }
+                                { name: '📈 XP Gained', value: `+${FISHING_XP_REWARDS[caughtFish.rarity]} XP`, inline: true },
+                                ...(stats.mutation ? [{ name: '🧬 Mutation', value: stats.mutation.charAt(0).toUpperCase() + stats.mutation.slice(1), inline: true }] : [])
                             )
                             .setFooter({ text: stats.isPerfect ? '🏆 Perfect Catch!' : 'MollyBot Fishing System' });
 
